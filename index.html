@@ -377,6 +377,7 @@
     class Node extends Ball {
       constructor(x, y, val) {
         super(x, y, 0, 0);
+        this.id=val;
         this.isSelected = false;
         this.t = 0;
         this.label = "";
@@ -385,7 +386,7 @@
         this.labelColor = 'black';
         this.font = '24px Montserrat, sans-serif';
         this.edges = [];
-
+        //Guardar label, val, value color, labelcolor, font,id
 
         /*this.label = document.createElement("input");
         this.label.setAttribute("type", "text");
@@ -506,6 +507,12 @@
 
     class UndirectedEdge {
       constructor(n0, n1, weight = 0) {
+        if (!n0 || !n1 ){
+            this.id = 0
+        }
+        else{
+            this.id=n0.id*10000 + n1.id;
+        }
         this.n0 = n0;
         this.n1 = n1;
         this.weight = weight;
@@ -513,6 +520,7 @@
         this.strokeColor = 'black';
         this.weightColor = 'black';
         this.font = '24px Montserrat, sans-serif';
+        //para la bd , n0.id,n1.id, weight,strokecolor, weightcolor,font
       }
 
       setStrokeColor(color) {
@@ -688,7 +696,7 @@
       }
 
 
-      addNode(node) {
+      addNodeObject(node) {
         this.n++;
         this.nodes.push(node);
         node.val = this.n;
@@ -699,7 +707,7 @@
       addNode(x, y) {
         this.n++;
         const val = this.n;
-        this.nodes.push(new Node(x, y, val, this.canvas));
+        this.nodes.push(new Node(x, y, val));
 
         this.updateData();
 
@@ -713,7 +721,7 @@
           this.nodes.push(n1);
         }
 
-        newEdge = new UndirectedEdge(n0, n1, null, this.canvas);
+        newEdge = new UndirectedEdge(n0, n1, 0);
         this.edges.push(newEdge);
         n0.edges.push(newEdge);
         n1.edges.push(newEdge);
@@ -838,7 +846,7 @@
         //selectedNode = null;
         //selectedEdge = null;
         isEditing = false;
-      }
+      }//boton 0 click izquierdo
       else if (e.button == 0) {
         for (node of graph.nodes) {
           if (node.isInside(mouse.x, mouse.y)) {
@@ -913,7 +921,7 @@
       window.location.href = 'matriz.html';
     }
     // Redireccionamos a la Página 2
-
+//menu contextuales
     const nodeMenu = document.getElementById("node_cm");
     const edgeMenu = document.getElementById("edge_cm");
 
@@ -931,7 +939,7 @@
     });
 
 
-
+    //escuchar cambio nombre
     nodeNamePicker.addEventListener("input", e => {
       selectedNode.label = e.target.value;
     });
@@ -1099,7 +1107,6 @@
     draw();
 
     
-
 
 
 
