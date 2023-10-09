@@ -15,40 +15,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
   <style>
     #calcular-boton {
-				background-color: #9d9cbd;
-				color: #fff;
-				border: none;
-				cursor: pointer;
-				margin: 5px 2px;
-			}
-			#ayuda-boton {
-				background-color: #6ad3dd;
-				color: #fff;
-				border: none;
-				cursor: pointer;
-				margin: 5px 2px;
-			}
+      background-color: #9d9cbd;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin: 5px 2px;
+    }
 
-			.context_menu{
-				background-color: #ffffff;
-				border: 1px solid;
-				box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
-				padding: 10px 0;
-				position: absolute;
-				top: 0px;
-				left : 0px;
-				width:  200px;
-				display: none;
-			}
+    #ayuda-boton {
+      background-color: #6ad3dd;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin: 5px 2px;
+    }
 
-			.context_menu_item{
-				cursor: pointer;
-				padding: 5px 15px;
-			}
+    .context_menu {
+      background-color: #ffffff;
+      border: 1px solid;
+      box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+      padding: 10px 0;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 200px;
+      display: none;
+    }
 
-			.context_menu_item:hover{
-				background-color: #f1f1f1;
-			}
+    .context_menu_item {
+      cursor: pointer;
+      padding: 5px 15px;
+    }
+
+    .context_menu_item:hover {
+      background-color: #f1f1f1;
+    }
+
     #app {
       background-color: #ffffff;
     }
@@ -57,52 +59,52 @@
 
 <body class="w3-content" style="max-width:1200px">
 
- 
+
   <div id="app">
 
-    
+
     <v-app>
       <v-main>
         <h1>Nodos generatrol</h1>
-		<div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
-			
-    		<button class="w3-button" id="calcular-boton">Calcular</button>
-			<button class="w3-button" id="calcular-boton" onclick="matriz()">Matriz</button>
-      <button class="w3-button" id="calcular-boton" onclick="nodoInicial()">Recuperar</button>
-      <button class="w3-button" id="calcular-boton" @click="guardar()">Guardar</button>
-      <a class="w3-button" href="ayuda_jhonson.html" id="ayuda-boton">?</a>
-		</div>
-		
-		<div class = "context_menu" id="node_cm">
-			<div class = "context_menu_item" id = "node_name_b" >  
-  				<label for="colorPicker">Nombre</label>
-				<input type="text" id="node_name_p">
-  			</div>
-  			<div class = "context_menu_item" id = "node_val_b" >  
-  				<label for="colorPicker">Valor</label>
-				<input type="number" step = "0.1" id="node_val_p">
-  			</div>
-  			<div class = "context_menu_item">  
-  				<label for="colorPicker">Color</label>
-				<input type="color" id="node_cp" name="colorPicker">
-  			</div>
-  			<div class = "context_menu_item" id="node_delete_b" @click="borrar(this.nodoSel)">Eliminar</div>
-		</div>
+        <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
-		<div class = "context_menu" id="edge_cm">
-			<div class = "context_menu_item" id = "edge_weight_b" >  
-  				<label for="colorPicker">Peso</label>
-				<input type="number" step = "0.1" id="edge_weight_p" name="colorPicker">
-			</div>
-  			<div class = "context_menu_item">  
-  				<label for="colorPicker">Color</label>
-				<input type="color" id="edge_cp" name="colorPicker">
-  			</div>
-  			
-  			<div class = "context_menu_item" id="edge_delete_b" >Eliminar</div>
-		</div>
+          <button class="w3-button" id="calcular-boton">Calcular</button>
+          <button class="w3-button" id="calcular-boton" onclick="matriz()">Matriz</button>
+          <button class="w3-button" id="calcular-boton" onclick="nodoInicial()">Recuperar</button>
+          <button class="w3-button" id="calcular-boton" @click="guardar()">Guardar</button>
+          <a class="w3-button" href="ayuda_jhonson.html" id="ayuda-boton">?</a>
+        </div>
 
-		<canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
+        <div class="context_menu" id="node_cm">
+          <div class="context_menu_item" id="node_name_b">
+            <label for="colorPicker">Nombre</label>
+            <input type="text" id="node_name_p">
+          </div>
+          <div class="context_menu_item" id="node_val_b">
+            <label for="colorPicker">Valor</label>
+            <input type="number" step="0.1" id="node_val_p">
+          </div>
+          <div class="context_menu_item">
+            <label for="colorPicker">Color</label>
+            <input type="color" id="node_cp" name="colorPicker">
+          </div>
+          <div class="context_menu_item" id="node_delete_b" @click="borrar(this.nodoSel)">Eliminar</div>
+        </div>
+
+        <div class="context_menu" id="edge_cm">
+          <div class="context_menu_item" id="edge_weight_b">
+            <label for="colorPicker">Peso</label>
+            <input type="number" step="0.1" id="edge_weight_p" name="colorPicker">
+          </div>
+          <div class="context_menu_item">
+            <label for="colorPicker">Color</label>
+            <input type="color" id="edge_cp" name="colorPicker">
+          </div>
+
+          <div class="context_menu_item" id="edge_delete_b">Eliminar</div>
+        </div>
+
+        <canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
       </v-main>
     </v-app>
   </div>
@@ -121,7 +123,7 @@
     let esawea = [];
     let esawea2 = [];
     let nodoSel = null;
-    
+    let edgeSel = null;
     new Vue({
       el: '#app',
       vuetify: new Vuetify(),
@@ -141,49 +143,52 @@
       data2() {
         return {
           enlaces: [],
-          dialog: false,
-          operacion: '',
+          dialog1: false,
+          operacion1: '',
           enlace: {
             id: null,
-            nodo_inicio_id: 0,
-            nodo_fin_id: 0,
+            nodo_inicio_id: '',
+            nodo_fin_id: '',
             valor_numerico: 0
           }
         }
       },
       created() {
         this.mostrar();
-        this.mostrar2();
+        setTimeout(() => {
+          this.mostrar2();
+        }, 200);
       },
       methods: {
         //MÉTODOS PARA EL CRUD
         mostrar: function () {
           axios.get(url)
             .then(response => {
+              
+              
               esawea = [];
               this.userss = response.data;
-              
+
               esawea = [...this.userss];
               console.log(esawea);
               nodoInicial();
             })
-            
-            
+
+
         },
         mostrar2: function () {
           axios.get(url2)
             .then(response => {
               esawea2 = [];
               this.enlaces = response.data;
-              
               esawea2 = [...this.enlaces];
               console.log(esawea2);
               edgeInicial();
             })
-            
-            
+
+
         },
-        crear: function () {          
+        crear: function () {
           let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y };
           axios.post(url, parametros)
             .then(response => {
@@ -194,7 +199,7 @@
           this.users.posicion_y = "";
         },
         editar: function () {
-          let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y};
+          let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y };
           //console.log(parametros);                   
           axios.put(url + "/" + this.users.id, parametros)
             .then(response => {
@@ -205,58 +210,129 @@
             });
         },
         borrar: function (id) {
-          nodoSel=selectedNode.id;
-          id=nodoSel;
+          nodoSel = selectedNode.id;
+          id = nodoSel;
           console.log(id);
           esawea.forEach(elm => {
-            if(elm.id==id){
+            if (elm.id == id) {
               axios.delete(url + "/" + id)
                 .then(response => {
                   console.log('funciona');
                 });
             }
           });
-          
+
+        },
+        crear2: function () {
+          let parametros1 = { nodo_inicio_id: this.enlace.nodo_inicio_id, nodo_fin_id: this.enlace.nodo_fin_id, valor_numerico: this.enlace.valor_numerico };
+          axios.post(url2, parametros1)
+            .then(response => {
+              console.log(parametros1);
+            });
+          this.enlace.nodo_inicio_id = "";
+          this.enlace.nodo_fin_id = "";
+          this.enlace.valor_numerico = "";
+        },
+        editar2: function () {
+          let parametros1 = { nodo_inicio_id: this.enlace.nodo_inicio_id, nodo_fin_id: this.enlace.nodo_fin_id, valor_numerico: this.enlace.valor_numerico };
+          //console.log(parametros);                   
+          axios.put(url2 + "/" + this.enlace.id, parametros1)
+            .then(response => {
+              this.mostrar2();
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        },
+        borrare: function (id) {
+          edgeSel = selectedEdge.id;
+          id = edgeSel;
+          console.log(id);
+          esawea.forEach(elm => {
+            if (elm.id == id) {
+              axios.delete(url2 + "/" + id)
+                .then(response => {
+                  console.log('funciona');
+                });
+            }
+          });
+
         },
         borrar2: function () {
-          let k = 0;
-          let con = 0;
-          axios.delete(url)
-          .then(response => {
-            graph.nodes.forEach(nod => {
-              con = 1;
-              this.users.nombre = nod.label;
-              this.users.posicion_x = nod.x;
-              this.users.posicion_y = nod.y;
-              this.operacion='crear';
-              if (this.operacion == 'crear') {
-                this.crear();
+
+          graph.nodes.forEach(nod => {
+
+            this.users.nombre = nod.label;
+            this.users.posicion_x = nod.x;
+            this.users.posicion_y = nod.y;
+            this.operacion = 'crear';
+            this.userss.forEach(element => {
+              if (nod.id == element.id) {
+                this.operacion = 'editar';
+                this.users.id = nod.id;
               }
-              if (this.operacion == 'editar') {
-                this.editar();
-              }
-              k++;
-              this.dialog = false;
-              this.userss.forEach(us => {
-                con++;
-              });
-              console.log(con);
-              console.log(k);
-              
-          });
-            }).then(response => {
-              setTimeout(() => {
-                this.mostrar();
-              }, 200);
-              
             });
+            if (this.operacion == 'crear') {
+              this.crear();
+            }
+            if (this.operacion == 'editar') {
+              this.editar();
+            }
+            this.dialog = false;
+
+          });
+          setTimeout(() => {
+            this.mostrar();
+            setTimeout(() => {
+              this.mostrar2();
+            }, 200);
+          }, 200);
+
+
+        },
+        borrar22: function () {
+          
+          var ck = 0;
+          
+          this.enlaces.push(this.enlace);
+          graph.edges.forEach(edg => {
+
+            console.log('datoenlace: '+this.enlaces[ck].nodo_inicio_id);
             
+            console.log(edg.n0.id);
+            this.enlaces[ck].nodo_inicio_id = edg.n0.id;
+            this.enlaces[ck].nodo_fin_id = edg.n1.id;
+            this.enlaces[ck].valor_numerico = edg.weight;
+            this.operacion1 = 'crear';
+            this.enlaces.forEach(element => {
+              if (edg.id == element.id) {
+                this.operacion1 = 'editar';
+                this.enlaces[ck].id = edg.id;
+              }
+            });
+            if (this.operacion1 == 'crear') {
+              this.crear();
+            }
+            if (this.operacion1 == 'editar') {
+              this.editar();
+            }
+            this.dialog1 = false;
+            ck++;
+          });
+          setTimeout(() => {
+            this.mostrar();
+            setTimeout(() => {
+              this.mostrar2();
+            }, 200);
+          }, 200);
+
+
         },
         buerra: function () {
 
           this.borrar();
 
-          
+
           /* graph.nodes.forEach(nod => {
             
             this.users.nombre = nod.label;
@@ -271,16 +347,20 @@
             }
             this.dialog = false;
           }); */
-          
+
         },
 
         //Botones y formularios
         guardar: function () {
           this.borrar2();
-          
-          
+          console.log('enlaces'+this.enlaces);
+          setTimeout(() => {
+            this.borrar22();
+          }, 200);
 
-          
+
+
+
           /* graph.nodes.forEach(nod => {
             
             this.users.nombre = nod.label;
@@ -295,7 +375,7 @@
             }
             this.dialog = false;
           }); */
-          
+
         },
         formNuevo: function () {
           this.dialog = true;
@@ -315,7 +395,7 @@
         }
       }
     });
-    
+
 
     console.log("chambea");
     cont = 0;
@@ -457,7 +537,7 @@
     class Node extends Ball {
       constructor(x, y, val, id) {
         super(x, y, 0, 0);
-        this.id=id;
+        this.id = id;
         this.isSelected = false;
         this.t = 0;
         this.label = "";
@@ -675,7 +755,7 @@
         //console.log(angle*180/Math.PI);
         const endX = centerX;//centerX - this.n1.r*Math.cos(angle);
         const endY = centerY;//centerY - this.n1.r*Math.sin(angle);
-        const arrowLength = 20;
+        const arrowLength = 200;
 
 
 
@@ -960,7 +1040,7 @@
         for (node of graph.nodes) {
           if (node.isInside(mouse.x, mouse.y)) {
             if (node != selectedNode) {
-              graph.joinNodes(selectedNode, node, selectedEdge);
+              graph.joinNodes1(selectedNode, node, selectedEdge);
               break;
             }
           }
@@ -1002,7 +1082,7 @@
       window.location.href = 'matriz.html';
     }
     // Redireccionamos a la Página 2
-//menu contextuales
+    //menu contextuales
     const nodeMenu = document.getElementById("node_cm");
     const edgeMenu = document.getElementById("edge_cm");
 
@@ -1034,7 +1114,7 @@
       selectedNode.setFillColor(e.target.value);
     });
 
-    
+
     nodeDeleteButton.addEventListener("click", e => {
       nodoSel = selectedNode.id;
       console.log(nodoSel);
@@ -1149,16 +1229,16 @@
 
 
     function nodoInicial() {
-      graph.nodes=[];
-       //nodo lista?
-       //nodo al canvas
+      graph.nodes = [];
+      //nodo lista?
+      //nodo al canvas
       //console.log("nodo inicial:", nodoini);
       console.log(esawea);
-      
+
       esawea.forEach(abc => {
-        const nodoini = new Node(abc.posicion_x,abc.posicion_y,0,abc.id); 
-        nodoini.label = abc.nombre; 
-        nodoini.setFillColor('black'); 
+        const nodoini = new Node(abc.posicion_x, abc.posicion_y, 0, abc.id);
+        nodoini.label = abc.nombre;
+        nodoini.setFillColor('black');
         graph.addNodeObject(nodoini);
       });
       console.log(graph.nodes);
@@ -1167,40 +1247,40 @@
 
 
     function edgeInicial() {
-      graph.edges=[];
-       //nodo lista?
-       //nodo al canvas
+      graph.edges = [];
+      //nodo lista?
+      //nodo al canvas
       //console.log("nodo inicial:", nodoini);
       console.log(esawea2);
 
 
-      
+
       esawea2.forEach(abc => {
         var nodoinicio = null;
         var nodofin = null;
         graph.nodes.forEach(nodot1 => {
-          if(nodot1.id==abc.nodo_inicio_id){
+          if (nodot1.id == abc.nodo_inicio_id) {
             nodoinicio = nodot1;
           }
           console.log(nodoinicio);
         });
         graph.nodes.forEach(nodot2 => {
-          if(nodot2.id==abc.nodo_fin_id){
+          if (nodot2.id == abc.nodo_fin_id) {
             nodofin = nodot2;
           }
           console.log(nodofin);
         });
         //console.log(this.nodofin);
         //console.log(this.nodoinicio);
-        const edgeini = new UndirectedEdge(nodoinicio,nodofin,abc.valor_numerico,abc.id);
-        graph.joinNodes1(nodoinicio,nodofin,edgeini);
+        const edgeini = new UndirectedEdge(nodoinicio, nodofin, abc.valor_numerico, abc.id);
+        graph.joinNodes1(nodoinicio, nodofin, edgeini);
       });
       console.log(graph.edges);
       //console.log(graph.nodes);
     }
 
 
-    
+
 
 
     function draw() {
@@ -1214,10 +1294,10 @@
       graph.update();
     }
 
-    
+
     draw();
 
-    
+
 
 
 
