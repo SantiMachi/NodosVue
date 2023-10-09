@@ -119,6 +119,7 @@
     let url = 'http://localhost:4000/users';
     let esawea = [];
     let nodoSel = null;
+    
     new Vue({
       el: '#app',
       vuetify: new Vuetify(),
@@ -144,6 +145,7 @@
         mostrar: function () {
           axios.get(url)
             .then(response => {
+              esawea = [];
               this.userss = response.data;
               
               esawea = [...this.userss];
@@ -176,44 +178,51 @@
         },
         borrar: function (id) {
           nodoSel=selectedNode.id;
-          
           id=nodoSel;
           console.log(id);
-          Swal.fire({
-            title: '¿Confirma eliminar el registro?',
-            confirmButtonText: `Confirmar`,
-            showCancelButton: true,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              //procedimiento borrar
+          esawea.forEach(elm => {
+            if(elm.id==id){
               axios.delete(url + "/" + id)
                 .then(response => {
                   console.log('funciona');
                 });
-              Swal.fire('¡Eliminado!', '', 'success')
-            } else if (result.isDenied) {
             }
           });
+          
         },
         borrar2: function () {
+          let k = 0;
+          let con = 0;
           axios.delete(url)
           .then(response => {
             graph.nodes.forEach(nod => {
-            
-            this.users.nombre = nod.label;
-            this.users.posicion_x = nod.x;
-            this.users.posicion_y = nod.y;
-            this.operacion='crear';
-            if (this.operacion == 'crear') {
-              this.crear();
-            }
-            if (this.operacion == 'editar') {
-              this.editar();
-            }
-            this.dialog = false;
+              con = 1;
+              this.users.nombre = nod.label;
+              this.users.posicion_x = nod.x;
+              this.users.posicion_y = nod.y;
+              this.operacion='crear';
+              if (this.operacion == 'crear') {
+                this.crear();
+              }
+              if (this.operacion == 'editar') {
+                this.editar();
+              }
+              k++;
+              this.dialog = false;
+              this.userss.forEach(us => {
+                con++;
+              });
+              console.log(con);
+              console.log(k);
+              
           });
+            }).then(response => {
+              setTimeout(() => {
+                this.mostrar();
+              }, 200);
+              
             });
-          
+            
         },
         buerra: function () {
 
@@ -240,6 +249,8 @@
         //Botones y formularios
         guardar: function () {
           this.borrar2();
+          
+          
 
           
           /* graph.nodes.forEach(nod => {
@@ -1109,10 +1120,12 @@
 
 
     function nodoInicial() {
+      graph.nodes=[];
        //nodo lista?
        //nodo al canvas
       //console.log("nodo inicial:", nodoini);
       console.log(esawea);
+      
       esawea.forEach(abc => {
         const nodoini = new Node(abc.posicion_x,abc.posicion_y,0,abc.id); 
         nodoini.label = abc.nombre; 
@@ -1139,7 +1152,6 @@
     }
 
     
-    nodoInicial();
     draw();
 
     
