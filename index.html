@@ -86,7 +86,7 @@
   				<label for="colorPicker">Color</label>
 				<input type="color" id="node_cp" name="colorPicker">
   			</div>
-  			<div class = "context_menu_item" id="node_delete_b">Eliminar</div>
+  			<div class = "context_menu_item" id="node_delete_b" @click="borrar(this.nodoSel)">Eliminar</div>
 		</div>
 
 		<div class = "context_menu" id="edge_cm">
@@ -99,7 +99,7 @@
 				<input type="color" id="edge_cp" name="colorPicker">
   			</div>
   			
-  			<div class = "context_menu_item" id="edge_delete_b">Eliminar</div>
+  			<div class = "context_menu_item" id="edge_delete_b" >Eliminar</div>
 		</div>
 
 		<canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
@@ -117,6 +117,7 @@
   <script>
     let url = 'http://localhost:4000/users';
     let esawea = [];
+    let nodoSel = null;
     new Vue({
       el: '#app',
       vuetify: new Vuetify(),
@@ -151,11 +152,11 @@
             
             
         },
-        crear: function () {
+        crear: function () {          
           let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y };
           axios.post(url, parametros)
             .then(response => {
-              
+              console.log(parametros);
             });
           this.users.nombre = "";
           this.users.posicion_x = "";
@@ -173,6 +174,10 @@
             });
         },
         borrar: function (id) {
+          nodoSel=selectedNode.id;
+          
+          id=nodoSel;
+          console.log(id);
           Swal.fire({
             title: '¿Confirma eliminar el registro?',
             confirmButtonText: `Confirmar`,
@@ -182,7 +187,7 @@
               //procedimiento borrar
               axios.delete(url + "/" + id)
                 .then(response => {
-                  this.mostrar();
+                  console.log('funciona');
                 });
               Swal.fire('¡Eliminado!', '', 'success')
             } else if (result.isDenied) {
@@ -190,19 +195,10 @@
           });
         },
         borrar2: function () {
-          console.log('pasas que cosaron');
-          axios.delete(url);
-          
-        },
-
-        //Botones y formularios
-        guardar: function () {
-          this.borrar2();
-          console.log('pasas que cosan');
-          graph.nodes.forEach(nod => {
-            console.log(nod.label);
-            console.log(nod.x);
-            console.log(nod.y);
+          axios.delete(url)
+          .then(response => {
+            graph.nodes.forEach(nod => {
+            
             this.users.nombre = nod.label;
             this.users.posicion_x = nod.x;
             this.users.posicion_y = nod.y;
@@ -215,6 +211,50 @@
             }
             this.dialog = false;
           });
+            });
+          
+        },
+        buerra: function () {
+
+          this.borrar();
+
+          
+          /* graph.nodes.forEach(nod => {
+            
+            this.users.nombre = nod.label;
+            this.users.posicion_x = nod.x;
+            this.users.posicion_y = nod.y;
+            this.operacion='crear';
+            if (this.operacion == 'crear') {
+              this.crear();
+            }
+            if (this.operacion == 'editar') {
+              this.editar();
+            }
+            this.dialog = false;
+          }); */
+          
+        },
+
+        //Botones y formularios
+        guardar: function () {
+          this.borrar2();
+
+          
+          /* graph.nodes.forEach(nod => {
+            
+            this.users.nombre = nod.label;
+            this.users.posicion_x = nod.x;
+            this.users.posicion_y = nod.y;
+            this.operacion='crear';
+            if (this.operacion == 'crear') {
+              this.crear();
+            }
+            if (this.operacion == 'editar') {
+              this.editar();
+            }
+            this.dialog = false;
+          }); */
           
         },
         formNuevo: function () {
@@ -375,9 +415,9 @@
 
 
     class Node extends Ball {
-      constructor(x, y, val) {
+      constructor(x, y, val, id) {
         super(x, y, 0, 0);
-        this.id=val;
+        this.id=id;
         this.isSelected = false;
         this.t = 0;
         this.label = "";
@@ -953,7 +993,10 @@
       selectedNode.setFillColor(e.target.value);
     });
 
+    
     nodeDeleteButton.addEventListener("click", e => {
+      nodoSel = selectedNode.id;
+      console.log(nodoSel);
       graph.deleteNode(selectedNode);
       nodeMenu.style.display = 'none';
     });
@@ -1065,30 +1108,22 @@
 
 
     function nodoInicial() {
-      /* const nodoini = new Node(338,240,1); 
-      nodoini.label = "XD"; 
-      nodoini.setFillColor('black'); 
-    */
-      //graph.addNode(nodoini); //nodo lista?
+       //nodo lista?
        //nodo al canvas
       //console.log("nodo inicial:", nodoini);
+      console.log(esawea);
       esawea.forEach(abc => {
-        graph.addNode(abc.posicion_x, abc.posicion_x);
+        const nodoini = new Node(abc.posicion_x,abc.posicion_y,0,abc.id); 
+        nodoini.label = abc.nombre; 
+        nodoini.setFillColor('black'); 
+        graph.addNodeObject(nodoini);
       });
       console.log(graph.nodes);
       //console.log(graph.nodes);
     }
 
 
-    function guardarNodos() {
-      graph.nodes.forEach(nod => {
-        console.log(nod.label);
-        console.log(nod.x);
-        console.log(nod.y);
-        guardar(nod.label,nod.x,nod.y);
-      });
-      //guardar();
-    }
+    
 
 
     function draw() {
