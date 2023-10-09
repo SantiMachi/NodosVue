@@ -117,7 +117,9 @@
   <script>
     //elvue
     let url = 'http://localhost:4000/users';
+    let url2 = 'http://localhost:4000/enlaces';
     let esawea = [];
+    let esawea2 = [];
     let nodoSel = null;
     
     new Vue({
@@ -136,9 +138,22 @@
           }
         }
       },
+      data2() {
+        return {
+          enlaces: [],
+          dialog: false,
+          operacion: '',
+          enlace: {
+            id: null,
+            nodo_inicio_id: 0,
+            nodo_fin_id: 0,
+            valor_numerico: 0
+          }
+        }
+      },
       created() {
-        this.mostrar()
-        
+        this.mostrar();
+        this.mostrar2();
       },
       methods: {
         //MÉTODOS PARA EL CRUD
@@ -151,6 +166,19 @@
               esawea = [...this.userss];
               console.log(esawea);
               nodoInicial();
+            })
+            
+            
+        },
+        mostrar2: function () {
+          axios.get(url2)
+            .then(response => {
+              esawea2 = [];
+              this.enlaces = response.data;
+              
+              esawea2 = [...this.enlaces];
+              console.log(esawea2);
+              edgeInicial();
             })
             
             
@@ -558,13 +586,14 @@
 
 
     class UndirectedEdge {
-      constructor(n0, n1, weight = 0) {
-        if (!n0 || !n1 ){
+      constructor(n0, n1, weight, id) {
+        /* if (!n0 || !n1 ){
             this.id = 0
         }
         else{
             this.id=n0.id*10000 + n1.id;
-        }
+        } */
+        this.id = id;
         this.n0 = n0;
         this.n1 = n1;
         this.weight = weight;
@@ -781,7 +810,7 @@
         this.updateData();
       }
 
-      joinNodes(n0, n1, edge) {
+      joinNodes1(n0, n1, edge) {
         if (!this.nodes.includes(n0)) {
           this.nodes.push(n0);
         }
@@ -1133,6 +1162,40 @@
         graph.addNodeObject(nodoini);
       });
       console.log(graph.nodes);
+      //console.log(graph.nodes);
+    }
+
+
+    function edgeInicial() {
+      graph.edges=[];
+       //nodo lista?
+       //nodo al canvas
+      //console.log("nodo inicial:", nodoini);
+      console.log(esawea2);
+
+
+      
+      esawea2.forEach(abc => {
+        var nodoinicio = null;
+        var nodofin = null;
+        graph.nodes.forEach(nodot1 => {
+          if(nodot1.id==abc.nodo_inicio_id){
+            nodoinicio = nodot1;
+          }
+          console.log(nodoinicio);
+        });
+        graph.nodes.forEach(nodot2 => {
+          if(nodot2.id==abc.nodo_fin_id){
+            nodofin = nodot2;
+          }
+          console.log(nodofin);
+        });
+        //console.log(this.nodofin);
+        //console.log(this.nodoinicio);
+        const edgeini = new UndirectedEdge(nodoinicio,nodofin,abc.valor_numerico,abc.id);
+        graph.joinNodes1(nodoinicio,nodofin,edgeini);
+      });
+      console.log(graph.edges);
       //console.log(graph.nodes);
     }
 
