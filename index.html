@@ -176,23 +176,11 @@
 
 
         },
-        mostrar2: function () {
-          axios.get(url2)
-            .then(response => {
-              esawea2 = [];
-              this.enlaces = response.data;
-              esawea2 = [...this.enlaces];
-              console.log(esawea2);
-              edgeInicial();
-            })
-
-
-        },
         crear: function () {
           let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y };
           axios.post(url, parametros)
             .then(response => {
-              console.log(parametros);
+              
             });
           this.users.nombre = "";
           this.users.posicion_x = "";
@@ -210,14 +198,16 @@
             });
         },
         borrar: function (id) {
-          nodoSel = selectedNode.id;
-          id = nodoSel;
-          console.log(id);
-          esawea.forEach(elm => {
-            if (elm.id == id) {
+          Swal.fire({
+            title: '¿Confirma eliminar el registro?',
+            confirmButtonText: `Confirmar`,
+            showCancelButton: true,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              //procedimiento borrar
               axios.delete(url + "/" + id)
                 .then(response => {
-                  console.log('funciona');
+                  this.mostrar();
                 });
             }
           });
@@ -259,9 +249,19 @@
 
         },
         borrar2: function () {
+          console.log('pasas que cosaron');
+          axios.delete(url);
+          
+        },
 
+        //Botones y formularios
+        guardar: function () {
+          this.borrar2();
+          console.log('pasas que cosan');
           graph.nodes.forEach(nod => {
-
+            console.log(nod.label);
+            console.log(nod.x);
+            console.log(nod.y);
             this.users.nombre = nod.label;
             this.users.posicion_x = nod.x;
             this.users.posicion_y = nod.y;
@@ -281,101 +281,7 @@
             this.dialog = false;
 
           });
-          setTimeout(() => {
-            this.mostrar();
-            setTimeout(() => {
-              this.mostrar2();
-            }, 200);
-          }, 200);
-
-
-        },
-        borrar22: function () {
           
-          var ck = 0;
-          
-          this.enlaces.push(this.enlace);
-          graph.edges.forEach(edg => {
-
-            console.log('datoenlace: '+this.enlaces[ck].nodo_inicio_id);
-            
-            console.log(edg.n0.id);
-            this.enlaces[ck].nodo_inicio_id = edg.n0.id;
-            this.enlaces[ck].nodo_fin_id = edg.n1.id;
-            this.enlaces[ck].valor_numerico = edg.weight;
-            this.operacion1 = 'crear';
-            this.enlaces.forEach(element => {
-              if (edg.id == element.id) {
-                this.operacion1 = 'editar';
-                this.enlaces[ck].id = edg.id;
-              }
-            });
-            if (this.operacion1 == 'crear') {
-              this.crear();
-            }
-            if (this.operacion1 == 'editar') {
-              this.editar();
-            }
-            this.dialog1 = false;
-            ck++;
-          });
-          setTimeout(() => {
-            this.mostrar();
-            setTimeout(() => {
-              this.mostrar2();
-            }, 200);
-          }, 200);
-
-
-        },
-        buerra: function () {
-
-          this.borrar();
-
-
-          /* graph.nodes.forEach(nod => {
-            
-            this.users.nombre = nod.label;
-            this.users.posicion_x = nod.x;
-            this.users.posicion_y = nod.y;
-            this.operacion='crear';
-            if (this.operacion == 'crear') {
-              this.crear();
-            }
-            if (this.operacion == 'editar') {
-              this.editar();
-            }
-            this.dialog = false;
-          }); */
-
-        },
-
-        //Botones y formularios
-        guardar: function () {
-          this.borrar2();
-          console.log('enlaces'+this.enlaces);
-          setTimeout(() => {
-            this.borrar22();
-          }, 200);
-
-
-
-
-          /* graph.nodes.forEach(nod => {
-            
-            this.users.nombre = nod.label;
-            this.users.posicion_x = nod.x;
-            this.users.posicion_y = nod.y;
-            this.operacion='crear';
-            if (this.operacion == 'crear') {
-              this.crear();
-            }
-            if (this.operacion == 'editar') {
-              this.editar();
-            }
-            this.dialog = false;
-          }); */
-
         },
         formNuevo: function () {
           this.dialog = true;
@@ -535,9 +441,9 @@
 
 
     class Node extends Ball {
-      constructor(x, y, val, id) {
+      constructor(x, y, val) {
         super(x, y, 0, 0);
-        this.id = id;
+        this.id=val;
         this.isSelected = false;
         this.t = 0;
         this.label = "";
@@ -1249,10 +1155,7 @@
       selectedNode.setFillColor(e.target.value);
     });
 
-
     nodeDeleteButton.addEventListener("click", e => {
-      nodoSel = selectedNode.id;
-      console.log(nodoSel);
       graph.deleteNode(selectedNode);
       nodeMenu.style.display = 'none';
     });
@@ -1364,58 +1267,30 @@
 
 
     function nodoInicial() {
-      graph.nodes = [];
-      //nodo lista?
-      //nodo al canvas
+      /* const nodoini = new Node(338,240,1); 
+      nodoini.label = "XD"; 
+      nodoini.setFillColor('black'); 
+    */
+      //graph.addNode(nodoini); //nodo lista?
+       //nodo al canvas
       //console.log("nodo inicial:", nodoini);
-      console.log(esawea);
-
       esawea.forEach(abc => {
-        const nodoini = new Node(abc.posicion_x, abc.posicion_y, 0, abc.id);
-        nodoini.label = abc.nombre;
-        nodoini.setFillColor('black');
-        graph.addNodeObject(nodoini);
+        graph.addNode(abc.posicion_x, abc.posicion_x);
       });
       console.log(graph.nodes);
       //console.log(graph.nodes);
     }
 
 
-    function edgeInicial() {
-      graph.edges = [];
-      //nodo lista?
-      //nodo al canvas
-      //console.log("nodo inicial:", nodoini);
-      console.log(esawea2);
-
-
-
-      esawea2.forEach(abc => {
-        var nodoinicio = null;
-        var nodofin = null;
-        graph.nodes.forEach(nodot1 => {
-          if (nodot1.id == abc.nodo_inicio_id) {
-            nodoinicio = nodot1;
-          }
-          console.log(nodoinicio);
-        });
-        graph.nodes.forEach(nodot2 => {
-          if (nodot2.id == abc.nodo_fin_id) {
-            nodofin = nodot2;
-          }
-          console.log(nodofin);
-        });
-        //console.log(this.nodofin);
-        //console.log(this.nodoinicio);
-        const edgeini = new UndirectedEdge(nodoinicio, nodofin, abc.valor_numerico, abc.id);
-        graph.joinNodes1(nodoinicio, nodofin, edgeini);
+    function guardarNodos() {
+      graph.nodes.forEach(nod => {
+        console.log(nod.label);
+        console.log(nod.x);
+        console.log(nod.y);
+        guardar(nod.label,nod.x,nod.y);
       });
-      console.log(graph.edges);
-      //console.log(graph.nodes);
+      //guardar();
     }
-
-
-
 
 
     function draw() {
