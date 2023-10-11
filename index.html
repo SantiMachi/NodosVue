@@ -137,11 +137,7 @@
             nombre: '',
             posicion_x: 0,
             posicion_y: 0
-          }
-        }
-      },
-      data2() {
-        return {
+          },
           enlaces: [],
           dialog1: false,
           operacion1: '',
@@ -170,7 +166,7 @@
               this.userss = response.data;
 
               esawea = [...this.userss];
-              console.log(esawea);
+              console.log('nodos: '+this.userss);
               nodoInicial();
             })
 
@@ -182,7 +178,7 @@
               esawea2 = [];
               this.enlaces = response.data;
               esawea2 = [...this.enlaces];
-              console.log(esawea2);
+              console.log('enlace: '+this.enlaces);
               edgeInicial();
             })
 
@@ -203,7 +199,7 @@
           //console.log(parametros);                   
           axios.put(url + "/" + this.users.id, parametros)
             .then(response => {
-              this.mostrar();
+              //this.mostrar();
             })
             .catch(error => {
               console.log(error);
@@ -238,7 +234,7 @@
           //console.log(parametros);                   
           axios.put(url2 + "/" + this.enlace.id, parametros1)
             .then(response => {
-              this.mostrar2();
+              //this.mostrar2();
             })
             .catch(error => {
               console.log(error);
@@ -261,7 +257,7 @@
         borrar2: function () {
 
           graph.nodes.forEach(nod => {
-
+            console.log('nodo: ' + this.userss);
             this.users.nombre = nod.label;
             this.users.posicion_x = nod.x;
             this.users.posicion_y = nod.y;
@@ -282,47 +278,42 @@
 
           });
           setTimeout(() => {
-            this.mostrar();
+            //this.mostrar();
             setTimeout(() => {
-              this.mostrar2();
+              //this.mostrar2();
             }, 200);
           }, 200);
 
 
         },
         borrar22: function () {
-          
-          var ck = 0;
-          
-          this.enlaces.push(this.enlace);
           graph.edges.forEach(edg => {
-
-            console.log('datoenlace: '+this.enlaces[ck].nodo_inicio_id);
+            console.log('unenlace: ' + this.enlaces);
+            console.log('datoenlace: '+this.enlace);
             
             console.log(edg.n0.id);
-            this.enlaces[ck].nodo_inicio_id = edg.n0.id;
-            this.enlaces[ck].nodo_fin_id = edg.n1.id;
-            this.enlaces[ck].valor_numerico = edg.weight;
+            this.enlace.nodo_inicio_id = edg.n0.id;
+            this.enlace.nodo_fin_id = edg.n1.id;
+            this.enlace.valor_numerico = edg.weight;
             this.operacion1 = 'crear';
             this.enlaces.forEach(element => {
               if (edg.id == element.id) {
                 this.operacion1 = 'editar';
-                this.enlaces[ck].id = edg.id;
+                this.enlace.id = edg.id;
               }
             });
             if (this.operacion1 == 'crear') {
-              this.crear();
+              this.crear2();
             }
             if (this.operacion1 == 'editar') {
-              this.editar();
+              this.editar2();
             }
             this.dialog1 = false;
-            ck++;
           });
           setTimeout(() => {
-            this.mostrar();
+            //this.mostrar();
             setTimeout(() => {
-              this.mostrar2();
+              //this.mostrar2();
             }, 200);
           }, 200);
 
@@ -352,10 +343,12 @@
 
         //Botones y formularios
         guardar: function () {
-          this.borrar2();
+          console.log('enlaces'+this.userss);
           console.log('enlaces'+this.enlaces);
+          this.borrar2();
+          
           setTimeout(() => {
-            this.borrar22();
+            this.borrar22(this.enlaces);
           }, 200);
 
 
