@@ -101,7 +101,7 @@
             <input type="color" id="edge_cp" name="colorPicker">
           </div>
 
-          <div class="context_menu_item" id="edge_delete_b">Eliminar</div>
+          <div class="context_menu_item" id="edge_delete_b" @click="borrare(this.edgeSel)">Eliminar</div>
         </div>
 
         <canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
@@ -244,11 +244,11 @@
           edgeSel = selectedEdge.id;
           id = edgeSel;
           console.log(id);
-          esawea.forEach(elm => {
+          esawea2.forEach(elm => {
             if (elm.id == id) {
               axios.delete(url2 + "/" + id)
                 .then(response => {
-                  console.log('funciona');
+                  console.log('funciona 2');
                 });
             }
           });
@@ -748,7 +748,7 @@
         //console.log(angle*180/Math.PI);
         const endX = centerX;//centerX - this.n1.r*Math.cos(angle);
         const endY = centerY;//centerY - this.n1.r*Math.sin(angle);
-        const arrowLength = 200;
+        const arrowLength = 10;
 
 
 
