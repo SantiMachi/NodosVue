@@ -782,7 +782,7 @@
       
 
       //create edge
-      joinNodes(n0, n1,valor) {
+      joinNodes(n0, n1) {
         if (!this.nodes.includes(n0)) {
           this.nodes.push(n0);
         }
@@ -790,7 +790,7 @@
           this.nodes.push(n1);
         }
 
-        newEdge = new UndirectedEdge(n0, n1, valor);
+        newEdge = new UndirectedEdge(n0, n1);
         this.edges.push(newEdge);
         n0.edges.push(newEdge);
         n1.edges.push(newEdge);
