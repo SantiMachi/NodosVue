@@ -978,62 +978,40 @@
     console.table(shortestDistances);
   }
 
-
-
+  //DURACION DEL PROEYCTO
   findProjectDuration() {
     const numNodes = this.nodes.length;
     const INF = Number.POSITIVE_INFINITY;
   
     // Inicializar las fechas de inicio más tempranas con valores infinitos
-    const earlyStart = new Array(numNodes).fill(INF);
-  
-    // Inicializar las fechas de finalización más tardías con valores infinitos
-    const lateFinish = new Array(numNodes).fill(INF);
-  
-    // Establecer la fecha de inicio más temprana del nodo de inicio en 0
-    earlyStart[0] = 0;
+    const earlyStart = new Array(numNodes).fill(0);  // Inicializamos en 0 en lugar de INF
   
     // Calcular las fechas de inicio más tempranas
     for (let i = 0; i < numNodes; i++) {
       const node = this.nodes[i];
       for (const edge of node.edges) {
         const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
-  
-        earlyStart[targetNode.val - 1] = Math.min(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
+        earlyStart[targetNode.val - 1] = Math.max(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
       }
     }
   
-    // Calcular las fechas de finalización más tardías
-    lateFinish[numNodes - 1] = earlyStart[numNodes - 1];
+    // La duración total del proyecto es la fecha de finalización del último nodo
+    const projectDuration = earlyStart[numNodes - 1];
   
-    for (let i = numNodes - 1; i >= 0; i--) {
-      const node = this.nodes[i];
-      for (const edge of node.edges) {
-        const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
-  
-        lateFinish[node.val - 1] = Math.min(lateFinish[node.val - 1], lateFinish[targetNode.val - 1] - edge.weight);
-      }
-    }
-  
-    // Calcular la duración total del proyecto
-    const projectDuration = lateFinish[numNodes - 1];
-  
-    console.log('Duración total del proyecto:', projectDuration);
+    return projectDuration;
   }
-
+  //CAMINO CRITICO
 
   findCriticalPath() {
     const numNodes = this.nodes.length;
     const INF = Number.POSITIVE_INFINITY;
   
-    // Inicializar las fechas de inicio más tempranas con valores infinitos
+    // Calcular la duración total del proyecto
+    const projectDuration = this.findProjectDuration();
+  
+    // Inicializar las fechas de inicio más tempranas y más tardías con valores infinitos
     const earlyStart = new Array(numNodes).fill(INF);
-  
-    // Inicializar las fechas de finalización más tardías con valores infinitos
     const lateFinish = new Array(numNodes).fill(INF);
-  
-    // Ruta crítica para almacenar los nodos en la ruta crítica
-    const criticalPath = [];
   
     // Establecer la fecha de inicio más temprana del nodo de inicio en 0
     earlyStart[0] = 0;
@@ -1043,39 +1021,33 @@
       const node = this.nodes[i];
       for (const edge of node.edges) {
         const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
-  
         earlyStart[targetNode.val - 1] = Math.min(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
       }
     }
   
     // Calcular las fechas de finalización más tardías
-    lateFinish[numNodes - 1] = earlyStart[numNodes - 1];
+    lateFinish[numNodes - 1] = projectDuration;
   
     for (let i = numNodes - 1; i >= 0; i--) {
       const node = this.nodes[i];
       for (const edge of node.edges) {
         const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
-  
         lateFinish[node.val - 1] = Math.min(lateFinish[node.val - 1], lateFinish[targetNode.val - 1] - edge.weight);
       }
     }
   
-    // Calcular la duración total del proyecto
-    const projectDuration = lateFinish[numNodes - 1];
-  
-    // Identificar los nodos en la ruta crítica
+    // Encontrar y mostrar la ruta crítica
+    const criticalPath = [];
     for (let i = 0; i < numNodes; i++) {
       const node = this.nodes[i];
-      const totalFloat = lateFinish[i] - earlyStart[i];
-  
-      if (totalFloat === 0) {
+      const slack = lateFinish[i] - earlyStart[i];
+      if (slack === 0) {
         criticalPath.push(node.label);
       }
     }
-  
-    console.log('Ruta Crítica:', criticalPath.join(' -> '));
+    criticalPath.push(this.nodes[numNodes - 1].label);
+    console.log('Camino Crítico:', criticalPath.join(' -> '));
   }
-
 
     }
 
@@ -1429,36 +1401,51 @@
       graph.update();
     }
 
-    /*
-    const nodoJhonson1 = new Node(138, 240, 1);
+// Crear nodos y agregarlos al grafo
+/*
+const nodoJhonson1 = new Node(78, 210, 1);
 nodoJhonson1.label = 'p1';
 graph.addNodeObject(nodoJhonson1);
 
-const nodoJhonson2 = new Node(240, 334, 2);
+const nodoJhonson2 = new Node(138, 290, 2);
 nodoJhonson2.label = 'p2';
-graph.CreateEdge(nodoJhonson1, nodoJhonson2, 12); // Corregir el peso a 12
+graph.addNodeObject(nodoJhonson2);
 
-const nodoJhonson3 = new Node(440, 34, 3);
+
+const nodoJhonson3 = new Node(238, 340, 3);
 nodoJhonson3.label = 'p3';
-graph.CreateEdge(nodoJhonson2, nodoJhonson3, 10);
+graph.addNodeObject(nodoJhonson3);
 
-const nodoJhonson4 = new Node(760, 370, 4);
+
+const nodoJhonson4 = new Node(298, 400, 4);
 nodoJhonson4.label = 'p4';
-graph.CreateEdge(nodoJhonson3, nodoJhonson4, 2);
+graph.addNodeObject(nodoJhonson4);
 
-
-const nodoJhonson5 = new Node(960, 470, 5);
+const nodoJhonson5 = new Node(398, 490, 5);
 nodoJhonson5.label = 'p5';
-graph.CreateEdge(nodoJhonson2, nodoJhonson5, 2);
-graph.CreateEdge(nodoJhonson4, nodoJhonson5, 2);
+graph.addNodeObject(nodoJhonson5);
 
+
+// 1 al 2
+graph.CreateEdge(nodoJhonson1,nodoJhonson2,12)
+//2 al 3
+graph.CreateEdge(nodoJhonson2,nodoJhonson3,10)
+//2 al 4
+graph.CreateEdge(nodoJhonson2,nodoJhonson4,12)
+//4 al 5
+graph.CreateEdge(nodoJhonson4,nodoJhonson5,4)
+
+//3 al 5
+graph.CreateEdge(nodoJhonson3,nodoJhonson5,10)
 
 graph.johnson();
 
-graph.findProjectDuration();
+//graph.findProjectDurationShort();
 graph.findCriticalPath()
-*/
 
+const projectDuration = graph.findProjectDuration();
+console.log('Duración total del proyecto:', projectDuration);
+*/
 
 
     draw();
