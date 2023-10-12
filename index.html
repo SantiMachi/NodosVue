@@ -68,7 +68,7 @@
         <h1>Nodos generatrol</h1>
         <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
-          <button class="w3-button" id="calcular-boton">Calcular</button>
+          <button class="w3-button" id="calcular-boton" onclick="Graph.findCriticalPath()">Calcular</button>
           <button class="w3-button" id="calcular-boton" onclick="matriz()">Matriz</button>
           <button class="w3-button" id="calcular-boton" onclick="nodoInicial()">Recuperar</button>
           <button class="w3-button" id="calcular-boton" @click="guardar()">Guardar</button>
@@ -101,7 +101,7 @@
             <input type="color" id="edge_cp" name="colorPicker">
           </div>
 
-          <div class="context_menu_item" id="edge_delete_b" @click="borrare(this.edgeSel)">Eliminar</div>
+          <div class="context_menu_item" id="edge_delete_b">Eliminar</div>
         </div>
 
         <canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
@@ -117,6 +117,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.0.2/dist/sweetalert2.all.min.js"></script>
 
   <script>
+    
     //elvue
     let url = 'http://localhost:4000/users';
     let url2 = 'http://localhost:4000/enlaces';
@@ -137,7 +138,11 @@
             nombre: '',
             posicion_x: 0,
             posicion_y: 0
-          },
+          }
+        }
+      },
+      data2() {
+        return {
           enlaces: [],
           dialog1: false,
           operacion1: '',
@@ -166,7 +171,7 @@
               this.userss = response.data;
 
               esawea = [...this.userss];
-              console.log('nodos: '+this.userss);
+              console.log(esawea);
               nodoInicial();
             })
 
@@ -178,7 +183,7 @@
               esawea2 = [];
               this.enlaces = response.data;
               esawea2 = [...this.enlaces];
-              console.log('enlace: '+this.enlaces);
+              console.log(esawea2);
               edgeInicial();
             })
 
@@ -199,7 +204,7 @@
           //console.log(parametros);                   
           axios.put(url + "/" + this.users.id, parametros)
             .then(response => {
-              //this.mostrar();
+              this.mostrar();
             })
             .catch(error => {
               console.log(error);
@@ -234,7 +239,7 @@
           //console.log(parametros);                   
           axios.put(url2 + "/" + this.enlace.id, parametros1)
             .then(response => {
-              //this.mostrar2();
+              this.mostrar2();
             })
             .catch(error => {
               console.log(error);
@@ -244,11 +249,11 @@
           edgeSel = selectedEdge.id;
           id = edgeSel;
           console.log(id);
-          esawea2.forEach(elm => {
+          esawea.forEach(elm => {
             if (elm.id == id) {
               axios.delete(url2 + "/" + id)
                 .then(response => {
-                  console.log('funciona 2');
+                  console.log('funciona');
                 });
             }
           });
@@ -257,7 +262,7 @@
         borrar2: function () {
 
           graph.nodes.forEach(nod => {
-            console.log('nodo: ' + this.userss);
+
             this.users.nombre = nod.label;
             this.users.posicion_x = nod.x;
             this.users.posicion_y = nod.y;
@@ -278,42 +283,47 @@
 
           });
           setTimeout(() => {
-            //this.mostrar();
+            this.mostrar();
             setTimeout(() => {
-              //this.mostrar2();
+              this.mostrar2();
             }, 200);
           }, 200);
 
 
         },
         borrar22: function () {
+          
+          var ck = 0;
+          
+          this.enlaces.push(this.enlace);
           graph.edges.forEach(edg => {
-            console.log('unenlace: ' + this.enlaces);
-            console.log('datoenlace: '+this.enlace);
+
+            console.log('datoenlace: '+this.enlaces[ck].nodo_inicio_id);
             
             console.log(edg.n0.id);
-            this.enlace.nodo_inicio_id = edg.n0.id;
-            this.enlace.nodo_fin_id = edg.n1.id;
-            this.enlace.valor_numerico = edg.weight;
+            this.enlaces[ck].nodo_inicio_id = edg.n0.id;
+            this.enlaces[ck].nodo_fin_id = edg.n1.id;
+            this.enlaces[ck].valor_numerico = edg.weight;
             this.operacion1 = 'crear';
             this.enlaces.forEach(element => {
               if (edg.id == element.id) {
                 this.operacion1 = 'editar';
-                this.enlace.id = edg.id;
+                this.enlaces[ck].id = edg.id;
               }
             });
             if (this.operacion1 == 'crear') {
-              this.crear2();
+              this.crear();
             }
             if (this.operacion1 == 'editar') {
-              this.editar2();
+              this.editar();
             }
             this.dialog1 = false;
+            ck++;
           });
           setTimeout(() => {
-            //this.mostrar();
+            this.mostrar();
             setTimeout(() => {
-              //this.mostrar2();
+              this.mostrar2();
             }, 200);
           }, 200);
 
@@ -343,12 +353,10 @@
 
         //Botones y formularios
         guardar: function () {
-          console.log('enlaces'+this.userss);
-          console.log('enlaces'+this.enlaces);
           this.borrar2();
-          
+          console.log('enlaces'+this.enlaces);
           setTimeout(() => {
-            this.borrar22(this.enlaces);
+            this.borrar22();
           }, 200);
 
 
@@ -746,10 +754,9 @@
         const centerY = this.n1.y;
         const angle = Math.atan((centerY - startY) / (centerX - startX));
         //console.log(angle*180/Math.PI);
-        //a
         const endX = centerX;//centerX - this.n1.r*Math.cos(angle);
         const endY = centerY;//centerY - this.n1.r*Math.sin(angle);
-        const arrowLength = 10;
+        const arrowLength = 200;
 
 
 
@@ -972,7 +979,6 @@
     console.table(shortestDistances);
   }
 
-  //DURACION DEL PROEYCTO
   findProjectDuration() {
     const numNodes = this.nodes.length;
     const INF = Number.POSITIVE_INFINITY;
@@ -980,68 +986,109 @@
     // Inicializar las fechas de inicio más tempranas con valores infinitos
     const earlyStart = new Array(numNodes).fill(0);  // Inicializamos en 0 en lugar de INF
   
-    // Calcular las fechas de inicio más tempranas
+    // Encontrar los nodos sin aristas salientes
+    const nodesWithEdges = new Set();
+    for (const edge of this.edges) {
+      nodesWithEdges.add(edge.n0);
+      nodesWithEdges.add(edge.n1);
+    }
+  
+    // Calcular las fechas de inicio más tempranas solo para los nodos con aristas
     for (let i = 0; i < numNodes; i++) {
       const node = this.nodes[i];
+  
+      if (!nodesWithEdges.has(node)) {
+        continue; // Omitir nodos sin aristas salientes
+      }
+  
       for (const edge of node.edges) {
         const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
         earlyStart[targetNode.val - 1] = Math.max(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
       }
     }
   
-    // La duración total del proyecto es la fecha de finalización del último nodo
-    const projectDuration = earlyStart[numNodes - 1];
-  
+    // La duración total del proyecto es la fecha de finalización del último nodo con aristas
+    let projectDuration = 0;
+    for (let i = numNodes - 1; i >= 0; i--) {
+      if (nodesWithEdges.has(this.nodes[i])) {
+        projectDuration = earlyStart[i];
+        break;
+      }
+    }
+    console.log(projectDuration);
     return projectDuration;
   }
-  //CAMINO CRITICO
+  
 
+
+
+  
+  
+  
+  
   findCriticalPath() {
-    const numNodes = this.nodes.length;
-    const INF = Number.POSITIVE_INFINITY;
-  
-    // Calcular la duración total del proyecto
     const projectDuration = this.findProjectDuration();
+    const numNodes = this.nodes.length;
   
-    // Inicializar las fechas de inicio más tempranas y más tardías con valores infinitos
-    const earlyStart = new Array(numNodes).fill(INF);
-    const lateFinish = new Array(numNodes).fill(INF);
+    // Crear un grafo dirigido para encontrar el camino crítico
+    const directedGraph = new Map();
   
-    // Establecer la fecha de inicio más temprana del nodo de inicio en 0
-    earlyStart[0] = 0;
-  
-    // Calcular las fechas de inicio más tempranas
-    for (let i = 0; i < numNodes; i++) {
-      const node = this.nodes[i];
-      for (const edge of node.edges) {
-        const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
-        earlyStart[targetNode.val - 1] = Math.min(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
-      }
+    for (const node of this.nodes) {
+      directedGraph.set(node, []);
     }
   
-    // Calcular las fechas de finalización más tardías
-    lateFinish[numNodes - 1] = projectDuration;
-  
-    for (let i = numNodes - 1; i >= 0; i--) {
-      const node = this.nodes[i];
-      for (const edge of node.edges) {
-        const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
-        lateFinish[node.val - 1] = Math.min(lateFinish[node.val - 1], lateFinish[targetNode.val - 1] - edge.weight);
-      }
+    for (const edge of this.edges) {
+      const sourceNode = edge.n0;
+      const targetNode = edge.n1;
+      directedGraph.get(sourceNode).push(targetNode);
     }
   
-    // Encontrar y mostrar la ruta crítica
-    const criticalPath = [];
-    for (let i = 0; i < numNodes; i++) {
-      const node = this.nodes[i];
-      const slack = lateFinish[i] - earlyStart[i];
-      if (slack === 0) {
-        criticalPath.push(node.label);
-      }
-    }
-    criticalPath.push(this.nodes[numNodes - 1].label);
+    const startNode = this.nodes[0];
+    const criticalPath = this.findPathWithLongestDuration(startNode, directedGraph);
+  
+    // Mostrar el camino crítico
     console.log('Camino Crítico:', criticalPath.join(' -> '));
   }
+
+  
+  findPathWithLongestDuration(node, directedGraph) {
+    if (directedGraph.get(node).length === 0) {
+      return [node.label];
+    }
+  
+    let longestPath = [];
+    let maxDuration = 0;
+  
+    for (const nextNode of directedGraph.get(node)) {
+      const path = this.findPathWithLongestDuration(nextNode, directedGraph);
+      const pathDuration = path.reduce((acc, label) => acc + this.getEdgeWeight(node, this.getNodeByLabel(label)), 0);
+  
+      if (pathDuration > maxDuration) {
+        maxDuration = pathDuration;
+        longestPath = path;
+      }
+    }
+  
+    return [node.label, ...longestPath];
+  }
+  
+  getEdgeWeight(nodeA, nodeB) {
+    for (const edge of this.edges) {
+      if (
+        (edge.n0 === nodeA && edge.n1 === nodeB) ||
+        (edge.n0 === nodeB && edge.n1 === nodeA)
+      ) {
+        return edge.weight;
+      }
+    }
+    return 0;
+  }
+  
+  getNodeByLabel(label) {
+    return this.nodes.find(node => node.label === label);
+  }
+  
+
 
     }
 
@@ -1067,7 +1114,7 @@
     let isDrawingEdge = false;
     let isEditing = false;
 
-    graph = new Graph();
+    const graph = new Graph();
 
     var mouse = {
       x: undefined,
@@ -1396,7 +1443,7 @@
     }
 
 // Crear nodos y agregarlos al grafo
-/*
+
 const nodoJhonson1 = new Node(78, 210, 1);
 nodoJhonson1.label = 'p1';
 graph.addNodeObject(nodoJhonson1);
@@ -1419,7 +1466,7 @@ const nodoJhonson5 = new Node(398, 490, 5);
 nodoJhonson5.label = 'p5';
 graph.addNodeObject(nodoJhonson5);
 
-
+/*
 // 1 al 2
 graph.CreateEdge(nodoJhonson1,nodoJhonson2,12)
 //2 al 3
@@ -1440,6 +1487,7 @@ graph.findCriticalPath()
 const projectDuration = graph.findProjectDuration();
 console.log('Duración total del proyecto:', projectDuration);
 */
+graph.findCriticalPath()
 
 
     draw();
