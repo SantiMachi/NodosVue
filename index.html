@@ -1148,7 +1148,45 @@
         node.fillColor = 'red'; // Cambiar el color a rojo
       }
     }
+
   }
+
+  findPathWithLongestDuration(node, directedGraph) {
+    if (directedGraph.get(node).length === 0) {
+      return [node.label];
+    }
+  
+    let longestPath = [];
+    let maxDuration = 0;
+  
+    for (const nextNode of directedGraph.get(node)) {
+      const path = this.findPathWithLongestDuration(nextNode, directedGraph);
+      const pathDuration = path.reduce((acc, label) => acc + this.getEdgeWeight(node, this.getNodeByLabel(label)), 0);
+  
+      if (pathDuration > maxDuration) {
+        maxDuration = pathDuration;
+        longestPath = path;
+      }
+    }
+  
+    return [node.label, ...longestPath];
+  }
+  
+    getEdgeWeight(nodeA, nodeB) {
+      for (const edge of this.edges) {
+        if (
+          (edge.n0 === nodeA && edge.n1 === nodeB) ||
+          (edge.n0 === nodeB && edge.n1 === nodeA)
+        ) {
+          return edge.weight;
+        }
+      }
+      return 0;
+    }
+  
+    getNodeByLabel(label) {
+      return this.nodes.find(node => node.label === label);
+    }
 
     }
 
