@@ -68,7 +68,7 @@
         <h1>Nodos generatrol</h1>
         <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
-          <button class="w3-button" id="calcular-boton" onclick="Graph.findCriticalPath()">Calcular</button>
+          <button class="w3-button" id="calcular-boton" onclick="Juason()">Calcular</button>
           <button class="w3-button" id="calcular-boton" onclick="matriz()">Matriz</button>
           <button class="w3-button" id="calcular-boton" onclick="nodoInicial()">Recuperar</button>
           <button class="w3-button" id="calcular-boton" @click="guardar()">Guardar</button>
@@ -101,7 +101,7 @@
             <input type="color" id="edge_cp" name="colorPicker">
           </div>
 
-          <div class="context_menu_item" id="edge_delete_b">Eliminar</div>
+          <div class="context_menu_item" id="edge_delete_b" @click="borrare(this.edgeSel)">Eliminar</div>
         </div>
 
         <canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
@@ -117,7 +117,6 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.0.2/dist/sweetalert2.all.min.js"></script>
 
   <script>
-    
     //elvue
     let url = 'http://localhost:4000/users';
     let url2 = 'http://localhost:4000/enlaces';
@@ -138,11 +137,7 @@
             nombre: '',
             posicion_x: 0,
             posicion_y: 0
-          }
-        }
-      },
-      data2() {
-        return {
+          },
           enlaces: [],
           dialog1: false,
           operacion1: '',
@@ -171,7 +166,7 @@
               this.userss = response.data;
 
               esawea = [...this.userss];
-              console.log(esawea);
+              console.log('nodos: '+this.userss);
               nodoInicial();
             })
 
@@ -183,7 +178,7 @@
               esawea2 = [];
               this.enlaces = response.data;
               esawea2 = [...this.enlaces];
-              console.log(esawea2);
+              console.log('enlace: '+this.enlaces);
               edgeInicial();
             })
 
@@ -204,7 +199,7 @@
           //console.log(parametros);                   
           axios.put(url + "/" + this.users.id, parametros)
             .then(response => {
-              this.mostrar();
+              //this.mostrar();
             })
             .catch(error => {
               console.log(error);
@@ -239,7 +234,7 @@
           //console.log(parametros);                   
           axios.put(url2 + "/" + this.enlace.id, parametros1)
             .then(response => {
-              this.mostrar2();
+              //this.mostrar2();
             })
             .catch(error => {
               console.log(error);
@@ -249,11 +244,11 @@
           edgeSel = selectedEdge.id;
           id = edgeSel;
           console.log(id);
-          esawea.forEach(elm => {
+          esawea2.forEach(elm => {
             if (elm.id == id) {
               axios.delete(url2 + "/" + id)
                 .then(response => {
-                  console.log('funciona');
+                  console.log('funciona 2');
                 });
             }
           });
@@ -262,7 +257,7 @@
         borrar2: function () {
 
           graph.nodes.forEach(nod => {
-
+            console.log('nodo: ' + this.userss);
             this.users.nombre = nod.label;
             this.users.posicion_x = nod.x;
             this.users.posicion_y = nod.y;
@@ -283,47 +278,42 @@
 
           });
           setTimeout(() => {
-            this.mostrar();
+            //this.mostrar();
             setTimeout(() => {
-              this.mostrar2();
+              //this.mostrar2();
             }, 200);
           }, 200);
 
 
         },
         borrar22: function () {
-          
-          var ck = 0;
-          
-          this.enlaces.push(this.enlace);
           graph.edges.forEach(edg => {
-
-            console.log('datoenlace: '+this.enlaces[ck].nodo_inicio_id);
+            console.log('unenlace: ' + this.enlaces);
+            console.log('datoenlace: '+this.enlace);
             
             console.log(edg.n0.id);
-            this.enlaces[ck].nodo_inicio_id = edg.n0.id;
-            this.enlaces[ck].nodo_fin_id = edg.n1.id;
-            this.enlaces[ck].valor_numerico = edg.weight;
+            this.enlace.nodo_inicio_id = edg.n0.id;
+            this.enlace.nodo_fin_id = edg.n1.id;
+            this.enlace.valor_numerico = edg.weight;
             this.operacion1 = 'crear';
             this.enlaces.forEach(element => {
               if (edg.id == element.id) {
                 this.operacion1 = 'editar';
-                this.enlaces[ck].id = edg.id;
+                this.enlace.id = edg.id;
               }
             });
             if (this.operacion1 == 'crear') {
-              this.crear();
+              this.crear2();
             }
             if (this.operacion1 == 'editar') {
-              this.editar();
+              this.editar2();
             }
             this.dialog1 = false;
-            ck++;
           });
           setTimeout(() => {
-            this.mostrar();
+            //this.mostrar();
             setTimeout(() => {
-              this.mostrar2();
+              //this.mostrar2();
             }, 200);
           }, 200);
 
@@ -353,10 +343,12 @@
 
         //Botones y formularios
         guardar: function () {
-          this.borrar2();
+          console.log('enlaces'+this.userss);
           console.log('enlaces'+this.enlaces);
+          this.borrar2();
+          
           setTimeout(() => {
-            this.borrar22();
+            this.borrar22(this.enlaces);
           }, 200);
 
 
@@ -398,7 +390,7 @@
     });
 
 
-    console.log("chambea");
+    console.log("!chambea");
     cont = 0;
     cont2 = 0;
     array1 = [];
@@ -520,7 +512,10 @@
         else {
           this.dy = 0;
         }
+      }
 
+      updatedDraw(){
+        this.update();
         this.draw();
       }
     }
@@ -547,6 +542,7 @@
         this.labelColor = 'black';
         this.font = '24px Montserrat, sans-serif';
         this.edges = [];
+        this.isCritical = false;
         //Guardar label, val, value color, labelcolor, font,id
 
         /*this.label = document.createElement("input");
@@ -568,6 +564,10 @@
         var body = document.body;
         body.appendChild(this.labelContainer);*/
       }
+
+      setCritical() {
+        this.isCritical = true;
+      }
 
       setFillColor(color) {
         this.fillColor = color;
@@ -612,6 +612,10 @@
         }
 
         super.update();
+      }
+
+      updatedDraw(){
+        this.update();
         this.draw();
       }
     }
@@ -679,35 +683,11 @@
         this.n1 = n1;
         this.weight = weight;
         this.isSelected = false;
+        this.isSelfDirected = false;
         this.strokeColor = 'black';
         this.weightColor = 'black';
         this.font = '24px Montserrat, sans-serif';
         //para la bd , n0.id,n1.id, weight,strokecolor, weightcolor,font
-      }
-
-      setStrokeColor(color) {
-        this.strokeColor = color;
-      }
-
-      isInside(x, y) {
-        const slope = (this.n1.y - this.n0.y) / (this.n1.x - this.n0.x);
-        const intercept = this.n0.y - slope * this.n0.x;
-
-        const a = slope * (this.n1.x - this.n0.x);
-        const b = -(this.n1.x - this.n0.x);
-        const c = intercept * (this.n1.x - this.n0.x);
-        if (Math.abs(a * x + b * y + c) / Math.sqrt(a ** 2 + b ** 2) < 30) return true;
-        else return false;
-      }
-
-      draw() {
-        const startX = this.n0.x;
-        const startY = this.n0.y;
-        const centerX = this.n1.x;
-        const centerY = this.n1.y;
-        const angle = Math.atan2(centerY - startY, centerX - startX);
-        const endX = centerX - this.n1.r * Math.cos(angle);
-        const endY = centerY - this.n1.r * Math.sin(angle);
 
 
         ctx.beginPath();
@@ -715,19 +695,113 @@
         ctx.fillStyle = this.weightColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this.weight.toString(), (startX + endX) / 2, ((startY + endY) / 2) - 15);
-
+        ctx.fillText(this.weight.toString(), (this.startX + this.targetX) / 2, 
+                                            ((this.startY + this.targetY) / 2) - 15);
+        ctx.closePath();
 
         ctx.beginPath();
         ctx.strokeStyle = this.strokeColor;
         ctx.lineWidth = 4;
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(endX, endY);
+        ctx.moveTo(this.startX, this.startY);
+        ctx.lineTo(this.targetX, this.targetY);
         ctx.stroke();
+        ctx.closePath();
 
+        this.arcr = 2*Math.sqrt(Math.pow(this.startX - this.endX, 2) + Math.pow(this.startY - this.endY, 2));
+        this.arcr = Math.min(this.arcr, this.n0.r/3);
+        this.centerDist = this.n0.r + this.arcr/2;
+        this.teta1 = Math.pow(this.arcr, 2) + Math.pow(this.centerDist, 2) -  Math.pow(this.n0.r, 2) ;
+        this.teta1 = Math.PI - Math.acos(this.teta1/(Math.pow(this.arcr, 2) * Math.pow(this.centerDist, 2)));
+        this.teta2 = 2*Math.PI - this.teta1;
+      }
+
+      setStrokeColor(color) {
+        this.strokeColor = color;
+      }
+
+      isInside(x, y) {
+        if(this.isSelfDirected){
+          const centerX = this.startX + this.centerDist*Math.cos(this.direction);
+          const centerY = this.startY + this.centerDist*Math.sin(this.direction);
+          const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+          if(Math.abs(dist - this.arcr) < 30) return true;
+          else return false;
+        }
+        else{
+          const slope = (this.n1.y - this.n0.y) / (this.n1.x - this.n0.x);
+          const intercept = this.n0.y - slope * this.n0.x;
+
+          const a = slope * (this.n1.x - this.n0.x);
+          const b = -(this.n1.x - this.n0.x);
+          const c = intercept * (this.n1.x - this.n0.x);
+          if (Math.abs(a * x + b * y + c) / Math.sqrt(a ** 2 + b ** 2) < 30) return true;
+          else return false;
+        }
+      }
+
+      draw() {
+        
+
+        if(this.isSelfDirected){
+
+          ctx.beginPath();
+          ctx.font = this.font;
+          ctx.fillStyle = this.weightColor;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(this.weight.toString(), (this.startX + (this.centerDist+this.arcr+15)*Math.cos(this.direction)), 
+                                               (this.startY + (this.centerDist+this.arcr+15)*Math.sin(this.direction)));
+          ctx.closePath();
+
+          ctx.beginPath();
+          ctx.strokeStyle = this.strokeColor;
+          ctx.lineWidth = 4;
+          //console.log(this.arcr);
+          ctx.arc(this.startX + this.centerDist*Math.cos(this.direction),
+                  this.startY + this.centerDist*Math.sin(this.direction), this.arcr, this.teta1, this.teta2, true);
+          ctx.stroke();
+          ctx.closePath();
+        }
+        else{
+
+          ctx.beginPath();
+          ctx.font = this.font;
+          ctx.fillStyle = this.weightColor;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(this.weight.toString(), (this.startX + this.targetX) / 2, 
+                                              ((this.startY + this.targetY) / 2) - 15);
+          ctx.closePath();
+
+          ctx.beginPath();
+          ctx.strokeStyle = this.strokeColor;
+          ctx.lineWidth = 4;
+          ctx.moveTo(this.startX, this.startY);
+          ctx.lineTo(this.targetX, this.targetY);
+          ctx.stroke();
+          ctx.closePath();
+        }
+        
       }
 
       update() {
+
+        this.startX = this.n0.x;
+        this.startY = this.n0.y;
+        if(!this.isSelfDirected){
+          this.endX = this.n1.x;
+          this.endY = this.n1.y;
+        }
+        this.direction = Math.atan2(this.endY - this.startY, this.endX - this.startX);
+        this.targetX = this.endX - this.n1.r * Math.cos(this.direction);
+        this.targetY = this.endY - this.n1.r * Math.sin(this.direction);
+
+        this.arcr = 1.5*Math.sqrt(Math.pow(this.startX - this.endX, 2) + Math.pow(this.startY - this.endY, 2));
+        this.arcr = Math.max(this.arcr,0.5* this.n0.r);
+        this.centerDist = this.n0.r + this.arcr/2;
+        let alfa = Math.acos( ( Math.pow(this.arcr, 2) + Math.pow(this.centerDist, 2) -  Math.pow(this.n0.r, 2) )/(2*this.arcr*this.centerDist));
+        this.teta1 = Math.PI + this.direction - alfa;
+        this.teta2 = Math.PI + this.direction + alfa;
 
         if (this.isSelected) {
           this.strokeColor = 'orange';
@@ -735,55 +809,73 @@
         else {
           this.strokeColor = 'black';
         }
+      }
 
-        this.draw();
+      undatedDraw(){
+        update();
+        draw();
       }
     }
 
     class DirectedEdge extends UndirectedEdge {
       constructor(n0, n1, weight) {
         super(n0, n1, weight);
+        this.arrowDirection = this.direction;
+        this.arrowLength = 20;
+        this.headX = this.targetX;
+        this.headY = this.targetY;
       }
 
       draw() {
         super.draw();
 
-        const startX = this.n0.x;
-        const startY = this.n0.y;
-        const centerX = this.n1.x;
-        const centerY = this.n1.y;
-        const angle = Math.atan((centerY - startY) / (centerX - startX));
-        //console.log(angle*180/Math.PI);
-        const endX = centerX;//centerX - this.n1.r*Math.cos(angle);
-        const endY = centerY;//centerY - this.n1.r*Math.sin(angle);
-        const arrowLength = 200;
-
-
-
         ctx.beginPath();
-        ctx.moveTo(endX, endY);
-        ctx.lineTo(endX - arrowLength * Math.cos((Math.PI / 6) - angle), endY - arrowLength * Math.cos((Math.PI / 6) - angle));
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(endX - arrowLength * Math.cos((Math.PI / 6) - angle), endY - arrowLength * Math.cos((Math.PI / 6) - angle));
-        ctx.lineTo(endX - arrowLength * Math.cos((Math.PI / 6) + angle), endY - arrowLength * Math.sin((Math.PI / 6) + angle));
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(endX - arrowLength * Math.cos((Math.PI / 6) + angle), endY - arrowLength * Math.sin((Math.PI / 6) + angle));
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-
+        ctx.fillStyle = this.strokeColor;
+        ctx.lineWidth = 4;
+        ctx.moveTo(this.headX , this.headY);
+        ctx.lineTo(this.headX - this.arrowLength * Math.cos((Math.PI/6) - this.arrowDirection),
+                   this.headY + this.arrowLength * Math.sin((Math.PI/6) - this.arrowDirection));
+        ctx.lineTo(this.headX - this.arrowLength * Math.cos((Math.PI/6) + this.arrowDirection),
+                   this.headY - this.arrowLength * Math.sin((Math.PI/6) + this.arrowDirection));
+        //ctx.stroke();
         ctx.fill();
-
+        ctx.closePath();
         //console.log("Estoy en el directed");
 
       }
 
       update() {
-        this.draw();
+        super.update();
+
+        if(this.isSelfDirected){
+          
+          this.headX = this.startX + this.centerDist*Math.cos(this.direction) + this.arcr*Math.cos(this.teta2);
+          this.headY = this.startY + this.centerDist*Math.sin(this.direction) + this.arcr*Math.sin(this.teta2);
+
+          this.teta2 = this.teta2 + Math.acos(Math.sqrt(1-Math.pow(this.arrowLength*(Math.sqrt(3)/2)/this.arcr, 2)/2));
+          this.arrowDirection = this.teta2 - Math.PI/2;
+          
+        }
+        else{
+          this.arrowDirection = this.direction;
+
+          this.headX = this.targetX;
+          this.headY = this.targetY;
+          this.targetX = this.endX - (this.n1.r + this.arrowLength*(Math.sqrt(3)/2) ) * Math.cos(this.direction);
+          this.targetY = this.endY - (this.n1.r + this.arrowLength*(Math.sqrt(3)/2) ) * Math.sin(this.direction);
+        } 
+
+        if (this.isSelected) {
+          this.strokeColor = 'orange';
+        }
+        else {
+          this.strokeColor = 'black';
+        }
         //console.log("Estoy en el update");
+      }
+      updatedDraw(){
+        this.update();
+        this.draw();
       }
     }
 
@@ -939,11 +1031,11 @@
 
       update() {
         for (const edge of this.edges) {
-          edge.update();
+          edge.updatedDraw();
         }
 
         for (const node of this.nodes) {
-          node.update();
+          node.updatedDraw();
         }
       }
 
@@ -979,6 +1071,7 @@
     console.table(shortestDistances);
   }
 
+  //DURACION DEL PROEYCTO
   findProjectDuration() {
     const numNodes = this.nodes.length;
     const INF = Number.POSITIVE_INFINITY;
@@ -986,111 +1079,76 @@
     // Inicializar las fechas de inicio más tempranas con valores infinitos
     const earlyStart = new Array(numNodes).fill(0);  // Inicializamos en 0 en lugar de INF
   
-    // Encontrar los nodos sin aristas salientes
-    const nodesWithEdges = new Set();
-    for (const edge of this.edges) {
-      nodesWithEdges.add(edge.n0);
-      nodesWithEdges.add(edge.n1);
-    }
-  
-    // Calcular las fechas de inicio más tempranas solo para los nodos con aristas
+    // Calcular las fechas de inicio más tempranas
     for (let i = 0; i < numNodes; i++) {
       const node = this.nodes[i];
-  
-      if (!nodesWithEdges.has(node)) {
-        continue; // Omitir nodos sin aristas salientes
-      }
-  
       for (const edge of node.edges) {
         const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
         earlyStart[targetNode.val - 1] = Math.max(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
       }
     }
   
-    // La duración total del proyecto es la fecha de finalización del último nodo con aristas
-    let projectDuration = 0;
-    for (let i = numNodes - 1; i >= 0; i--) {
-      if (nodesWithEdges.has(this.nodes[i])) {
-        projectDuration = earlyStart[i];
-        break;
-      }
-    }
-    console.log(projectDuration);
+    // La duración total del proyecto es la fecha de finalización del último nodo
+    const projectDuration = earlyStart[numNodes - 1];
+  
     return projectDuration;
   }
-  
+  //CAMINO CRITICO
 
-
-
-  
-  
-  
-  
   findCriticalPath() {
-    const projectDuration = this.findProjectDuration();
     const numNodes = this.nodes.length;
+    const INF = Number.POSITIVE_INFINITY;
   
-    // Crear un grafo dirigido para encontrar el camino crítico
-    const directedGraph = new Map();
+    // Calcular la duración total del proyecto
+    const projectDuration = this.findProjectDuration();
   
-    for (const node of this.nodes) {
-      directedGraph.set(node, []);
+    // Inicializar las fechas de inicio más tempranas y más tardías con valores infinitos
+    const earlyStart = new Array(numNodes).fill(INF);
+    const lateFinish = new Array(numNodes).fill(INF);
+  
+    // Establecer la fecha de inicio más temprana del nodo de inicio en 0
+    earlyStart[0] = 0;
+  
+    // Calcular las fechas de inicio más tempranas
+    for (let i = 0; i < numNodes; i++) {
+      const node = this.nodes[i];
+      for (const edge of node.edges) {
+        const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
+        earlyStart[targetNode.val - 1] = Math.min(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
+      }
     }
   
-    for (const edge of this.edges) {
-      const sourceNode = edge.n0;
-      const targetNode = edge.n1;
-      directedGraph.get(sourceNode).push(targetNode);
+    // Calcular las fechas de finalización más tardías
+    lateFinish[numNodes - 1] = projectDuration;
+  
+    for (let i = numNodes - 1; i >= 0; i--) {
+      const node = this.nodes[i];
+      for (const edge of node.edges) {
+        const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
+        lateFinish[node.val - 1] = Math.min(lateFinish[node.val - 1], lateFinish[targetNode.val - 1] - edge.weight);
+      }
     }
   
-    const startNode = this.nodes[0];
-    const criticalPath = this.findPathWithLongestDuration(startNode, directedGraph);
-  
-    // Mostrar el camino crítico
+    // Encontrar y mostrar la ruta crítica
+    const criticalPath = [];
+    for (let i = 0; i < numNodes; i++) {
+      const node = this.nodes[i];
+      const slack = lateFinish[i] - earlyStart[i];
+      if (slack === 0) {
+        criticalPath.push(node.label);
+      }
+    }
+    criticalPath.push(this.nodes[numNodes - 1].label);
     console.log('Camino Crítico:', criticalPath.join(' -> '));
-  }
 
-  
-  findPathWithLongestDuration(node, directedGraph) {
-    if (directedGraph.get(node).length === 0) {
-      return [node.label];
-    }
-  
-    let longestPath = [];
-    let maxDuration = 0;
-  
-    for (const nextNode of directedGraph.get(node)) {
-      const path = this.findPathWithLongestDuration(nextNode, directedGraph);
-      const pathDuration = path.reduce((acc, label) => acc + this.getEdgeWeight(node, this.getNodeByLabel(label)), 0);
-  
-      if (pathDuration > maxDuration) {
-        maxDuration = pathDuration;
-        longestPath = path;
-      }
-    }
-  
-    return [node.label, ...longestPath];
+    for (const label of criticalPath) {
+    const node = this.getNodeByLabel(label);
+      if (node) {
+        node.setCritical(); // Marcar como crítico
+        node.fillColor = 'red'; // Cambiar el color a rojo
+      }
+    }
   }
-  
-  getEdgeWeight(nodeA, nodeB) {
-    for (const edge of this.edges) {
-      if (
-        (edge.n0 === nodeA && edge.n1 === nodeB) ||
-        (edge.n0 === nodeB && edge.n1 === nodeA)
-      ) {
-        return edge.weight;
-      }
-    }
-    return 0;
-  }
-  
-  getNodeByLabel(label) {
-    return this.nodes.find(node => node.label === label);
-  }
-
-  //bracnchPedro
-  
-
 
     }
 
@@ -1116,7 +1174,7 @@
     let isDrawingEdge = false;
     let isEditing = false;
 
-    const graph = new Graph();
+    graph = new Graph();
 
     var mouse = {
       x: undefined,
@@ -1142,22 +1200,44 @@
       else if (isDrawingEdge && selectedNode && selectedEdge) {
         selectedEdge.n1.x = mouse.x;
         selectedEdge.n1.y = mouse.y;
+
+        let f = true;
+        for(nodo of graph.nodes){
+          if(nodo.isInside(mouse.x, mouse.y)){
+              if(nodo == selectedNode){
+                selectedEdge.isSelfDirected = true;
+                selectedEdge.endX = mouse.x;
+                selectedEdge.endY = mouse.y;
+                f = false;
+              }
+              break;
+          }
+        }
+
+        if(f){
+          selectedEdge.isSelfDirected = false;
+        }
       }
     });
 
     canvas.addEventListener("mousedown", (e) => {
 
       if (isEditing) {
-        if (selectedNode) selectedNode.isSelected = false;
-        nodeMenu.style.display = 'none';
+        if (selectedNode) {
+          selectedNode.isSelected = false;
+          nodeMenu.style.display = 'none';
+        }
+        
 
-        if (selectedEdge) selectedEdge.isSelected = false;
+        if (selectedEdge){
+        selectedEdge.isSelected = false;
         edgeMenu.style.display = 'none';
-
+        }
         //selectedNode = null;
         //selectedEdge = null;
         isEditing = false;
       }//boton 0 click izquierdo
+  
       else if (e.button == 0) {
         for (node of graph.nodes) {
           if (node.isInside(mouse.x, mouse.y)) {
@@ -1192,6 +1272,10 @@
             if (node != selectedNode) {
               graph.joinNodes1(selectedNode, node, selectedEdge);
               break;
+            }
+            else{
+              selectedEdge.isSelfDirected = true;
+              graph.joinNodes1(selectedNode, node, selectedEdge);
             }
           }
         }
@@ -1430,7 +1514,9 @@
     }
 
 
-
+    function Juason(){
+        graph.findCriticalPath();
+    }
 
 
     function draw() {
@@ -1438,66 +1524,12 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (selectedEdge) {
-        selectedEdge.update();
+        selectedEdge.updatedDraw();
       }
 
       graph.update();
     }
-
-// Crear nodos y agregarlos al grafo
-
-const nodoJhonson1 = new Node(78, 210, 1);
-nodoJhonson1.label = 'p1';
-graph.addNodeObject(nodoJhonson1);
-
-const nodoJhonson2 = new Node(138, 290, 2);
-nodoJhonson2.label = 'p2';
-graph.addNodeObject(nodoJhonson2);
-
-
-const nodoJhonson3 = new Node(238, 340, 3);
-nodoJhonson3.label = 'p3';
-graph.addNodeObject(nodoJhonson3);
-
-
-const nodoJhonson4 = new Node(298, 400, 4);
-nodoJhonson4.label = 'p4';
-graph.addNodeObject(nodoJhonson4);
-
-const nodoJhonson5 = new Node(398, 490, 5);
-nodoJhonson5.label = 'p5';
-graph.addNodeObject(nodoJhonson5);
-
-/*
-// 1 al 2
-graph.CreateEdge(nodoJhonson1,nodoJhonson2,12)
-//2 al 3
-graph.CreateEdge(nodoJhonson2,nodoJhonson3,10)
-//2 al 4
-graph.CreateEdge(nodoJhonson2,nodoJhonson4,12)
-//4 al 5
-graph.CreateEdge(nodoJhonson4,nodoJhonson5,4)
-
-//3 al 5
-graph.CreateEdge(nodoJhonson3,nodoJhonson5,10)
-
-graph.johnson();
-
-//graph.findProjectDurationShort();
-graph.findCriticalPath()
-
-const projectDuration = graph.findProjectDuration();
-console.log('Duración total del proyecto:', projectDuration);
-*/
-graph.findCriticalPath()
-
-
     draw();
-
-
-
-
-
 
   </script>
 </body>
