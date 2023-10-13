@@ -435,6 +435,7 @@
         this.strokeColor = 'black';
         this.R = 40;
         this.r = this.R;
+        this.isCritical =false;
       }
 
       inertialMove(x1, y1) {
@@ -470,6 +471,13 @@
         ctx.fill();
 
         //console.log("Estoy en el draw");
+      }
+
+      setCritical() {
+          this.isCritical = true;
+      }
+      setnotCritical(){
+        this.isCritical = false;
       }
 
       update() {
@@ -1070,8 +1078,6 @@
     // Mostrar la matriz de distancias más cortas en la consola
     console.table(shortestDistances);
   }
-
-  //DURACION DEL PROEYCTO
   findProjectDuration() {
     const numNodes = this.nodes.length;
     const INF = Number.POSITIVE_INFINITY;
@@ -1079,76 +1085,128 @@
     // Inicializar las fechas de inicio más tempranas con valores infinitos
     const earlyStart = new Array(numNodes).fill(0);  // Inicializamos en 0 en lugar de INF
   
-    // Calcular las fechas de inicio más tempranas
+    // Encontrar los nodos sin aristas salientes
+    const nodesWithEdges = new Set();
+    for (const edge of this.edges) {
+      nodesWithEdges.add(edge.n0);
+      nodesWithEdges.add(edge.n1);
+    }
+  
+    // Calcular las fechas de inicio más tempranas solo para los nodos con aristas
     for (let i = 0; i < numNodes; i++) {
       const node = this.nodes[i];
+  
+      if (!nodesWithEdges.has(node)) {
+        continue; // Omitir nodos sin aristas salientes
+      }
+  
       for (const edge of node.edges) {
         const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
         earlyStart[targetNode.val - 1] = Math.max(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
       }
     }
   
-    // La duración total del proyecto es la fecha de finalización del último nodo
-    const projectDuration = earlyStart[numNodes - 1];
+    // La duración total del proyecto es la fecha de finalización del último nodo con aristas
+    let projectDuration = 0;
+    for (let i = numNodes - 1; i >= 0; i--) {
+      if (nodesWithEdges.has(this.nodes[i])) {
+        projectDuration = earlyStart[i];
+        break;
+      }
+    }
   
     return projectDuration;
   }
-  //CAMINO CRITICO
+  
 
+
+
+  
+  
+  
+  
   findCriticalPath() {
-    const numNodes = this.nodes.length;
-    const INF = Number.POSITIVE_INFINITY;
-  
-    // Calcular la duración total del proyecto
-    const projectDuration = this.findProjectDuration();
-  
-    // Inicializar las fechas de inicio más tempranas y más tardías con valores infinitos
-    const earlyStart = new Array(numNodes).fill(INF);
-    const lateFinish = new Array(numNodes).fill(INF);
-  
-    // Establecer la fecha de inicio más temprana del nodo de inicio en 0
-    earlyStart[0] = 0;
-  
-    // Calcular las fechas de inicio más tempranas
-    for (let i = 0; i < numNodes; i++) {
-      const node = this.nodes[i];
-      for (const edge of node.edges) {
-        const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
-        earlyStart[targetNode.val - 1] = Math.min(earlyStart[targetNode.val - 1], earlyStart[node.val - 1] + edge.weight);
-      }
-    }
-  
-    // Calcular las fechas de finalización más tardías
-    lateFinish[numNodes - 1] = projectDuration;
-  
-    for (let i = numNodes - 1; i >= 0; i--) {
-      const node = this.nodes[i];
-      for (const edge of node.edges) {
-        const targetNode = edge.n0 === node ? edge.n1 : edge.n0;
-        lateFinish[node.val - 1] = Math.min(lateFinish[node.val - 1], lateFinish[targetNode.val - 1] - edge.weight);
-      }
-    }
-  
-    // Encontrar y mostrar la ruta crítica
-    const criticalPath = [];
-    for (let i = 0; i < numNodes; i++) {
-      const node = this.nodes[i];
-      const slack = lateFinish[i] - earlyStart[i];
-      if (slack === 0) {
-        criticalPath.push(node.label);
-      }
-    }
-    criticalPath.push(this.nodes[numNodes - 1].label);
-    console.log('Camino Crítico:', criticalPath.join(' -> '));
+  const numNodes = this.nodes.length;
 
-    for (const label of criticalPath) {
-    const node = this.getNodeByLabel(label);
-      if (node) {
-        node.setCritical(); // Marcar como crítico
-        node.fillColor = 'red'; // Cambiar el color a rojo
-      }
-    }
+  // Crear un grafo dirigido para encontrar el camino crítico
+  const directedGraph = new Map();
+
+  for (const node of this.nodes) {
+    directedGraph.set(node, []);
   }
+
+  for (const edge of this.edges) {
+    const sourceNode = edge.n0;
+    const targetNode = edge.n1;
+    directedGraph.get(sourceNode).push(targetNode);
+  }
+
+  const startNode = this.nodes[0];
+  const criticalPath = this.findPathWithLongestDuration(startNode, directedGraph);
+
+  // Marcar todos los nodos como no críticos y cambiar su color a negro
+  for (const node of this.nodes) {
+    node.setnotCritical(); // Marcar como no crítico
+    node.fillColor = 'black'; // Cambiar el color a negro
+  }
+
+  // Cambiar el color de los nodos críticos a rojo
+  for (const label of criticalPath.path) {
+    const node = this.getNodeByLabel(label);
+    if (node) {
+      node.setCritical(); // Marcar como crítico
+      node.fillColor = 'red'; // Cambiar el color a rojo
+    }
+  }
+
+  // Mostrar el camino crítico
+  console.log('Camino Crítico:', criticalPath.path.join(' -> '));
+}
+
+  
+  findPathWithLongestDuration(node, directedGraph) {
+  if (directedGraph.get(node).length === 0) {
+    return { path: [node.label], duration: 0 };
+  }
+
+  let longestPath = { path: [], duration: 0 };
+
+  for (const nextNode of directedGraph.get(node)) {
+    const nextPath = this.findPathWithLongestDuration(nextNode, directedGraph);
+    const pathDuration = nextPath.duration + this.getEdgeWeight(node, this.getNodeByLabel(nextPath.path[0]));
+
+    if (pathDuration > longestPath.duration) {
+      longestPath = { path: [node.label, ...nextPath.path], duration: pathDuration };
+    }
+  }
+
+  return longestPath;
+}
+
+
+
+  getEdgeWeight(nodeA, nodeB) {
+    for (const edge of this.edges) {
+      if (
+        (edge.n0 === nodeA && edge.n1 === nodeB) ||
+        (edge.n0 === nodeB && edge.n1 === nodeA)
+      ) {
+        return edge.weight;
+      }
+    }
+    return 0;
+  }
+  
+  getNodeByLabel(label) {
+    return this.nodes.find(node => node.label === label);
+  }
+
+
+
+
+
+
+
 
     }
 
