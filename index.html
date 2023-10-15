@@ -585,6 +585,15 @@
         else this.valueColor = 'white';
       }
 
+
+      setUnassigned() {
+      this.fillColor = 'black'; // Marcar como no asignado (color negro)
+       }
+
+      setAssigned() {
+        this.fillColor = 'green'; // Marcar como asignado (color verde)
+      }
+
       draw() {
 
 
@@ -924,6 +933,7 @@
 
 
 
+    
 
     class Graph {
       constructor() {
@@ -1049,35 +1059,8 @@
 
 
 
-      //JHSON------------------------
+  //JHSON------------------------
 
-      johnson() {
-    const INF = Number.POSITIVE_INFINITY;
-    const numNodes = this.nodes.length;
-  
-    // Crear una matriz para almacenar las distancias más cortas entre todos los pares de nodos
-    const shortestDistances = new Array(numNodes).fill(null).map(() => new Array(numNodes).fill(INF));
-  
-    // Llenar la matriz con las distancias calculadas
-    for (let i = 0; i < numNodes; i++) {
-      for (let j = 0; j < numNodes; j++) {
-        if (i === j) {
-          shortestDistances[i][j] = 0;
-        } else {
-          const nodeA = this.nodes[i];
-          const nodeB = this.nodes[j];
-  
-          const edge = this.edges.find(e => (e.n0 === nodeA && e.n1 === nodeB) || (e.n0 === nodeB && e.n1 === nodeA));
-          if (edge) {
-            shortestDistances[i][j] = edge.weight;
-          }
-        }
-      }
-    }
-  
-    // Mostrar la matriz de distancias más cortas en la consola
-    console.table(shortestDistances);
-  }
   findProjectDuration() {
     const numNodes = this.nodes.length;
     const INF = Number.POSITIVE_INFINITY;
@@ -1199,6 +1182,133 @@
   }
 
 
+  //ALGORITMO ASIGNACION
+  assignNodes() {
+  // Inicializa un conjunto para almacenar los nodos asignados
+  const assignedNodes = new Set();
+
+  // Recorre todas las aristas para encontrar los nodos destino
+  for (const edge of this.edges) {
+    const targetNode = edge.n1; // El nodo destino de la arista
+
+    // Agrega el nodo destino al conjunto de nodos asignados
+    assignedNodes.add(targetNode);
+    console.log(assignedNodes);
+  }
+
+  // Recorre todos los nodos y marca los no asignados
+  for (const node of this.nodes) {
+    if (!assignedNodes.has(node)) {
+      // Marca el nodo como no asignado
+      node.setUnassigned();
+    }
+  }
+
+  assignedNodes.forEach(node => {
+    node.setAssigned();
+  });
+}
+
+generateCostMatrix() {
+  // Obtén la cantidad de nodos
+  const numNodes = this.nodes.length;
+
+  // Inicializa la matriz de costos con valores infinitos
+  const costMatrix = new Array(numNodes).fill(null).map(() => new Array(numNodes).fill(Number.POSITIVE_INFINITY));
+
+  // Llena la matriz de costos con los pesos de las aristas
+  for (let i = 0; i < numNodes; i++) {
+    for (let j = 0; j < numNodes; j++) {
+      if (i !== j) {
+        const nodeA = this.nodes[i];
+        const nodeB = this.nodes[j];
+
+        // Busca la arista entre nodeA y nodeB y obtén su peso
+        const edge = this.edges.find(e => (e.n0 === nodeA && e.n1 === nodeB) || (e.n0 === nodeB && e.n1 === nodeA));
+
+        if (edge) {
+          costMatrix[i][j] = edge.weight;
+        }
+      }
+    }
+  }
+
+  // Mostrar la matriz de costos en la consola
+  console.log('Matriz de Costos:');
+  console.log('      ' + this.nodes.map(node => node.label).join('    '));
+  for (let i = 0; i < numNodes; i++) {
+    console.log(this.nodes[i].label + '  ' + costMatrix[i].map(cost => (cost === Number.POSITIVE_INFINITY ? '∞' : cost)).join('    '));
+  }
+
+  return costMatrix;
+}
+
+resourceAssignment() {
+    // Generar la matriz de costos
+    const costMatrix = this.generateCostMatrix();
+
+    // Mostrar los resultados en la consola
+
+    const resultMatrix = this.applyAssignmentAlgorithm(costMatrix);
+// Mostrar los resultados en la consola
+console.log('Resultado de Asignación de Recursos:');
+    console.table(resultMatrix);
+    
+
+    
+  }
+
+  applyAssignmentAlgorithm(costMatrix) {
+  const numNodes = costMatrix.length;
+
+  // Verificar que la matriz de costos sea cuadrada
+  if (costMatrix.some(row => row.length !== numNodes)) {
+    console.log('La matriz de costos no es cuadrada. No se puede realizar una asignación.');
+    return;
+  }
+
+  // Inicializar la asignación
+  const assignment = new Array(numNodes).fill(-1);
+
+  // Realizar la asignación
+  for (let j = 0; j < numNodes; j++) {
+    let minCost = Number.POSITIVE_INFINITY;
+    let minCostNode = -1;
+
+    for (let i = 0; i < numNodes; i++) {
+      if (assignment.includes(i)) continue;
+
+      if (costMatrix[i][j] < minCost) {
+        minCost = costMatrix[i][j];
+        minCostNode = i;
+      }
+    }
+
+    if (minCostNode !== -1) {
+      assignment[j] = minCostNode;
+    }
+  }
+
+  // Mostrar la asignación de recursos
+  console.log('Asignación de Recursos:');
+  console.log('      ' + this.nodes.map(node => node.label).join('    '));
+  for (let i = 0; i < numNodes; i++) {
+    let row = this.nodes[i].label + '  ';
+    for (let j = 0; j < numNodes; j++) {
+      row += assignment[j] === i ? 'X    ' : '-    ';
+    }
+    console.log(row);
+  }
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1206,6 +1316,9 @@
 
 
     }
+
+
+
 
 
 
@@ -1570,8 +1683,32 @@
 
 
     function Juason(){
-        graph.findCriticalPath();
+        //graph.findCriticalPath();
+        graph.assignNodes();
+        graph.resourceAssignment();
+        graph.update()
     }
+
+
+const nodoJhonson1 = new Node(78, 210, 1);
+nodoJhonson1.label = 'p1';
+graph.addNodeObject(nodoJhonson1);
+
+const nodoJhonson2 = new Node(138, 290, 2);
+nodoJhonson2.label = 'p2';
+graph.addNodeObject(nodoJhonson2);
+
+
+const nodoJhonson3 = new Node(238, 340, 3);
+nodoJhonson3.label = 'p3';
+graph.addNodeObject(nodoJhonson3);
+
+
+const nodoJhonson4 = new Node(298, 400, 4);
+nodoJhonson4.label = 'p4';
+graph.addNodeObject(nodoJhonson4);
+
+
 
 
     function draw() {
