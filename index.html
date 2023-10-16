@@ -707,6 +707,8 @@
         ctx.stroke();
         ctx.closePath();
 
+        this.relativeX = 0;
+        this.relativeY = 0;
         this.arcr = 2*Math.sqrt(Math.pow(this.startX - this.endX, 2) + Math.pow(this.startY - this.endY, 2));
         this.arcr = Math.min(this.arcr, this.n0.r/3);
         this.centerDist = this.n0.r + this.arcr/2;
@@ -791,6 +793,10 @@
         if(!this.isSelfDirected){
           this.endX = this.n1.x;
           this.endY = this.n1.y;
+        }
+        else{
+          this.endX = this.n1.x + this.relativeX;
+          this.endY = this.n1.y + this.relativeY;
         }
         this.direction = Math.atan2(this.endY - this.startY, this.endX - this.startX);
         this.targetX = this.endX - this.n1.r * Math.cos(this.direction);
@@ -1244,8 +1250,8 @@
           if(nodo.isInside(mouse.x, mouse.y)){
               if(nodo == selectedNode){
                 selectedEdge.isSelfDirected = true;
-                selectedEdge.endX = mouse.x;
-                selectedEdge.endY = mouse.y;
+                selectedEdge.relativeX = mouse.x - selectedEdge.n0.x;
+                selectedEdge.relativeY = mouse.y - selectedEdge.n0.y;
                 f = false;
               }
               break;
