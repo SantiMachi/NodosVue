@@ -13,12 +13,17 @@
             <tr>
                 <th></th> <!-- Encabezado vacío para la esquina superior izquierda -->
                 <script>
-                    // Recuperamos el array1 desde localStorage
-                    var array1 = JSON.parse(localStorage.getItem('array1'));
 
-                    // Creamos encabezados de columna basados en array1
-                    for (var i = 0; i < array1.length; i++) {
-                        document.write("<th>" + array1[i] + "</th>");
+                    const storedJsonString = localStorage.getItem("adjMatrix");
+                    const matrix = JSON.parse(storedJsonString);
+
+                    const n = matrix.length;
+                    for (let i = 0; i < n; i++) {
+                        for (let j = 0; j < n; j++) {
+                            
+                            console.log(matrix[i][j], " ");
+                        }
+                        console.log("\n");
                     }
                 </script>
             </tr>

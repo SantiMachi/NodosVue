@@ -1,5 +1,3 @@
-import { Node } from './Node.mjs';
-
 class UndirectedEdge {
     constructor(n0, n1, weight, id) {
       /* if (!n0 || !n1 ){
@@ -214,5 +212,3 @@ class UndirectedEdge {
       this.draw();
     }
   }
-
-  export {DirectedEdge, UndirectedEdge};

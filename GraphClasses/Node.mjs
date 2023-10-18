@@ -197,5 +197,4 @@ class Node extends Ball {
     }
 }
 
-export {Ball, Node};
 
