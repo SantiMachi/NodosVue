@@ -1,4 +1,6 @@
-class UndirectedEdge {
+import { Node } from "./Node.mjs";
+
+export class UndirectedEdge {
     constructor(n0, n1, weight, id) {
       /* if (!n0 || !n1 ){
           this.id = 0
@@ -99,8 +101,19 @@ class UndirectedEdge {
         ctx.fillStyle = this.weightColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this.weight.toString(), (this.startX + this.targetX) / 2, 
-                                            ((this.startY + this.targetY) / 2) - 15);
+
+        let normal_direction = this.direction;
+        if(this.direction < Math.PI){ 
+          normal_direction  = this.direction - (Math.PI/2);
+        }
+        else{
+          normal_direction  = this.direction + (Math.PI/2);
+        }
+        const px = 20*Math.cos(normal_direction);
+        const py = 20*Math.sin(normal_direction);
+        
+        ctx.fillText(this.weight.toString(), ((this.startX + this.targetX) / 2) + px, 
+                                             ((this.startY + this.targetY) / 2) + py);
         ctx.closePath();
 
         ctx.beginPath();
@@ -123,8 +136,8 @@ class UndirectedEdge {
         this.endY = this.n1.y;
       }
       else{
-        this.endX = this.n1.x + this.relativeX;
-        this.endY = this.n1.y + this.relativeY;
+        this.endX = this.n0.x + this.relativeX;
+        this.endY = this.n0.y + this.relativeY;
       }
       this.direction = Math.atan2(this.endY - this.startY, this.endX - this.startX);
       this.targetX = this.endX - this.n1.r * Math.cos(this.direction);
@@ -151,7 +164,7 @@ class UndirectedEdge {
     }
   }
 
-  class DirectedEdge extends UndirectedEdge {
+export class DirectedEdge extends UndirectedEdge {
     constructor(n0, n1, weight) {
       super(n0, n1, weight);
       this.arrowDirection = this.direction;
@@ -212,3 +225,5 @@ class UndirectedEdge {
       this.draw();
     }
   }
+
+  export{ Node } from "./Node.mjs"

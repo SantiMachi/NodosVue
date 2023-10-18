@@ -118,11 +118,13 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.0.2/dist/sweetalert2.all.min.js"></script>
 
+  <!--
   <script src="GraphClasses/Node.mjs"></script>
   <script src="GraphClasses/Edge.mjs"></script>
-  <script src="GraphClasses/Graph.mjs"></script>
-  <script>
+  <script src="GraphClasses/Graph.mjs"></script> -->
+  <script type="module">
     //elvue
+    import {Node, DirectedEdge, UndirectedEdge, Graph} from "/.GraphClasses/Graph.mjs"
     let url = 'http://localhost:4000/users';
     let url2 = 'http://localhost:4000/enlaces';
     let esawea = [];

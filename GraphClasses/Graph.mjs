@@ -1,4 +1,6 @@
-class Graph {
+import { UndirectedEdge, DirectedEdge, Node } from "./Edge.mjs";
+export { UndirectedEdge, DirectedEdge, Node } 
+export class Graph {
     constructor() {
       this.n = 0;
       this.nodes = [];

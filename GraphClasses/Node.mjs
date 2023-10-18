@@ -1,4 +1,4 @@
-class Ball {
+export class Ball {
     constructor(x, y, dx, dy) {
       this.x = x;
       this.y = y;
@@ -96,7 +96,7 @@ class Ball {
 }
 
 
-class Node extends Ball {
+export class Node extends Ball {
     constructor(x, y, val, id) {
       super(x, y, 0, 0);
       this.id = id;
