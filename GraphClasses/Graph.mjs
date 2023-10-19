@@ -1,7 +1,8 @@
 import { UndirectedEdge, DirectedEdge, Node } from "./Edge.mjs";
 export { UndirectedEdge, DirectedEdge, Node } 
 export class Graph {
-    constructor() {
+    constructor(ctx) {
+      this.ctx = ctx;
       this.n = 0;
       this.nodes = [];
       this.edges = [];
@@ -70,7 +71,7 @@ export class Graph {
       this.updateData();
     }
 
-    joinNodes1(n0, n1, edge) {
+    joinNodesWithEdge(n0, n1, edge) {
       if (!this.nodes.includes(n0)) {
         this.nodes.push(n0);
       }
@@ -102,6 +103,7 @@ export class Graph {
       const i = this.nodes.indexOf(n0);
       this.nodes.splice(i, 1);
 
+      this.updateIndexation();
       this.updateData();
     }
 
@@ -114,13 +116,23 @@ export class Graph {
       this.updateData();
     }
 
+    updateIndexation(){
+      this.n = 0;
+      for(var node of this.nodes){
+        this.n++;
+        node.val = this.n;
+      }
+    }
+
     update() {
+
+      //console.log("contex>", this.ctx);
       for (const edge of this.edges) {
-        edge.updatedDraw();
+        edge.updatedDraw(this.ctx);
       }
 
       for (const node of this.nodes) {
-        node.updatedDraw();
+        node.updatedDraw(this.ctx);
       }
     }
   

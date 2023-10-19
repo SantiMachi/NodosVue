@@ -30,11 +30,11 @@ export class Ball {
 
 
     isInside(x, y) {
-      if (Math.sqrt((this.x - x) ** 2 + (this.y - y) ** 2) <= node.r) return true;
+      if (Math.sqrt((this.x - x) ** 2 + (this.y - y) ** 2) <= this.r) return true;
       else return false;
     }
 
-    draw() {
+    draw(ctx) {
 
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
@@ -89,9 +89,9 @@ export class Ball {
       }
     }
 
-    updatedDraw(){
+    updatedDraw(ctx){
       this.update();
-      this.draw();
+      this.draw(ctx);
     }
 }
 
@@ -145,10 +145,10 @@ export class Node extends Ball {
       else this.valueColor = 'white';
     }
 
-    draw() {
+    draw(ctx) {
 
 
-      super.draw();
+      super.draw(ctx);
 
       ctx.beginPath();
       ctx.font = this.font;
@@ -191,9 +191,10 @@ export class Node extends Ball {
       super.update();
     }
 
-    updatedDraw(){
+    updatedDraw(ctx){
+
       this.update();
-      this.draw();
+      this.draw(ctx);
     }
 }
 

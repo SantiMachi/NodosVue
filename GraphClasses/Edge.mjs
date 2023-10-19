@@ -19,24 +19,6 @@ export class UndirectedEdge {
       this.font = '24px Montserrat, sans-serif';
       //para la bd , n0.id,n1.id, weight,strokecolor, weightcolor,font
 
-
-      ctx.beginPath();
-      ctx.font = this.font;
-      ctx.fillStyle = this.weightColor;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(this.weight.toString(), (this.startX + this.targetX) / 2, 
-                                          ((this.startY + this.targetY) / 2) - 15);
-      ctx.closePath();
-
-      ctx.beginPath();
-      ctx.strokeStyle = this.strokeColor;
-      ctx.lineWidth = 4;
-      ctx.moveTo(this.startX, this.startY);
-      ctx.lineTo(this.targetX, this.targetY);
-      ctx.stroke();
-      ctx.closePath();
-
       this.relativeX = 0;
       this.relativeY = 0;
       this.arcr = 2*Math.sqrt(Math.pow(this.startX - this.endX, 2) + Math.pow(this.startY - this.endY, 2));
@@ -71,7 +53,7 @@ export class UndirectedEdge {
       }
     }
 
-    draw() {
+    draw(ctx) {
       
 
       if(this.isSelfDirected){
@@ -158,9 +140,9 @@ export class UndirectedEdge {
       }
     }
 
-    undatedDraw(){
+    undatedDraw(ctx){
       update();
-      draw();
+      draw(ctx);
     }
   }
 
@@ -173,8 +155,8 @@ export class DirectedEdge extends UndirectedEdge {
       this.headY = this.targetY;
     }
 
-    draw() {
-      super.draw();
+    draw(ctx) {
+      super.draw(ctx);
 
       ctx.beginPath();
       ctx.fillStyle = this.strokeColor;
@@ -220,9 +202,9 @@ export class DirectedEdge extends UndirectedEdge {
       }
       //console.log("Estoy en el update");
     }
-    updatedDraw(){
+    updatedDraw(ctx){
       this.update();
-      this.draw();
+      this.draw(ctx);
     }
   }
 
