@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado del Algoritmo Northwest Corner</title>
+</head>
+<body>
+    <h1>Resultado del Algoritmo Northwest Corner</h1>
+    <label for="numFilas">Número de filas:</label>
+    <input type="number" id="numFilas">
+    <label for="numColumnas">Número de columnas:</label>
+    <input type="number" id="numColumnas">
+    <button onclick="crearTabla()">Crear Tabla</button>
+    <button onclick="fillTable();">Crear Northwest</button>
+    <!--button onclick="optimizar();">Optimizar y Mostrar Total</button-->
+    <table id="tabla" border="1">
+        <!-- Aquí se creará la tabla generada dinámicamente -->
+    </table>
+
+    <script src="northwest1.js"></script>
+    <script>
+        // Función para optimizar y mostrar el costo total.
+        /*function optimizar() {
+            obtenerDatosDeInputs();
+            result = northwestCorner(supply, demand, cost);
+            fillTable();
+        }*/
+    </script>
+</body>
+</html>
