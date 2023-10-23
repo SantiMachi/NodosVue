@@ -383,6 +383,11 @@ maxCostAssignment(costMatrix) {
 }
 
 findAssingment(maximize = true){
+
+  for(var edge of this.edges){
+    edge.isAssigned = false;
+  }
+
   let assignment = [];
   console.log(this.getCostMatrix());
   if(maximize){
@@ -396,7 +401,7 @@ findAssingment(maximize = true){
   for(const pair of assignment){
     for(var edge of this.sources[pair[0]].edges){
       if(edge.n1 ==  this.destinations[pair[1]]){
-        edge.setStrokeColor("blue");
+        edge.isAssigned = true;
         break;
       }
     }

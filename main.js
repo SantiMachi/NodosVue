@@ -491,7 +491,8 @@ let url = 'http://localhost:4000/users';
 
    edgeDeleteButton.addEventListener("click", e => {
      graph.deleteEdge(selectedEdge);
-     nodeMenu.style.display = 'none';
+     selectedEdge = null;
+     edgeMenu.style.display = 'none';
    });
    function showNodeMenu(x, y) {
 

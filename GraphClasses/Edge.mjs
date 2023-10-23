@@ -14,8 +14,10 @@ export class UndirectedEdge {
       this.weight = weight;
       this.isSelected = false;
       this.isSelfDirected = false;
-      this.strokeColor = 'black';
-      this.weightColor = 'black';
+      this.defaultStrokeColor = 'black';
+      this.defaultWeightColor = 'black';
+      this.strokeColor = this.defaultStrokeColor;
+      this.weightColor = this.defaultWeightColor;
       this.font = '24px Montserrat, sans-serif';
       //para la bd , n0.id,n1.id, weight,strokecolor, weightcolor,font
 
@@ -30,7 +32,7 @@ export class UndirectedEdge {
     }
 
     setStrokeColor(color) {
-      this.strokeColor = color;
+      this.defaultStrokeColor = color;
     }
 
     isInside(x, y) {
@@ -136,7 +138,7 @@ export class UndirectedEdge {
         this.strokeColor = 'orange';
       }
       else {
-        this.strokeColor = 'black';
+        this.strokeColor = this.defaultStrokeColor;
       }
     }
 
@@ -149,6 +151,7 @@ export class UndirectedEdge {
 export class DirectedEdge extends UndirectedEdge {
     constructor(n0, n1, weight) {
       super(n0, n1, weight);
+      this.isAssigned = false;
       this.arrowDirection = this.direction;
       this.arrowLength = 20;
       this.headX = this.targetX;
@@ -197,9 +200,14 @@ export class DirectedEdge extends UndirectedEdge {
       if (this.isSelected) {
         this.strokeColor = 'orange';
       }
-      else {
-        this.strokeColor = 'black';
-      }
+      else{
+        if(this.isAssigned) {
+          this.strokeColor = 'blue';
+        }
+        else{
+          this.strokeColor = this.defaultStrokeColor; 
+        }
+    }
       //console.log("Estoy en el update");
     }
     updatedDraw(ctx){
