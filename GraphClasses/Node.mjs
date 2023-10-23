@@ -183,10 +183,16 @@ export class Node extends Ball {
         this.strokeWidth = 15;
         this.strokeColor = "orange";
       }
+      else if(this.isCritical){
+        this.strokeWidth = 15;
+        this.strokeColor = "blue";
+      }
       else{
         this.strokeWidth = 1;
         this.strokeColor = "black";
       }
+
+
 
       super.update();
     }

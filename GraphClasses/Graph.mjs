@@ -116,234 +116,293 @@ export class Graph {
       this.updateData();
     }
 
-    updateIndexation(){
-      this.n = 0;
-      for(var node of this.nodes){
-        this.n++;
-        node.val = this.n;
-      }
+  updateIndexation(){
+    this.n = 0;
+    for(var node of this.nodes){
+      this.n++;
+      node.val = this.n;
+    }
+  }
+
+  update() {
+
+    //console.log("contex>", this.ctx);
+    for (const edge of this.edges) {
+      edge.updatedDraw(this.ctx);
     }
 
-    update() {
-
-      //console.log("contex>", this.ctx);
-      for (const edge of this.edges) {
-        edge.updatedDraw(this.ctx);
-      }
-
-      for (const node of this.nodes) {
-        node.updatedDraw(this.ctx);
-      }
+    for (const node of this.nodes) {
+      node.updatedDraw(this.ctx);
     }
+  }
   
-    getAdjMatrix(){
-      var matrix = [];
-      const n = this.nodes.length;
-      for (let i = 0; i < n; i++) {
-        const row = [];
-        for (let j = 0; j < n; j++) {
-          row.push(-1);
-        }
-        matrix.push(row);
+  getAdjMatrix(){
+    var matrix = [];
+    const n = this.nodes.length;
+    for (let i = 0; i < n; i++) {
+      const row = [];
+      for (let j = 0; j < n; j++) {
+        row.push(Infinity);
       }
-
-      for(const edge of this.edges){
-        let oi = this.nodes.indexOf(edge.n0); 
-        let di = this.nodes.indexOf(edge.n1); 
-        matrix[oi][di] = edge.weight;
-      }
-
-      const jsonString = JSON.stringify(matrix);
-      localStorage.setItem("adjMatrix", jsonString);
-      return matrix;
+      matrix.push(row);
     }
 
-    getCostMatrix(){
+    for(const edge of this.edges){
+      let oi = this.nodes.indexOf(edge.n0); 
+      let di = this.nodes.indexOf(edge.n1); 
+      matrix[oi][di] = parseFloat(edge.weight);
+    }
+
+    const jsonString = JSON.stringify(matrix);
+    localStorage.setItem("adjMatrix", jsonString);
+    return matrix;
+  }
+
+  getCostMatrix(){
       this.sources = [];
       this.destinations = [];
       const n = this.nodes.length;
       for (let i = 0; i < n; i++) {
         if(this.nodes[i].isSource){
-          this.sources.push(i);
+          this.sources.push(this.nodes[i]);
         }
         else{
-          this.destinations.push(i);
+          this.destinations.push(this.nodes[i]);
         }
       }
 
       var matrix = [];
       const ni = this.sources.length;
       const nj = this.destinations.length;
-      for (let i = 0; i < ni; i++) {
-        const row = [];
-        for (let j = 0; j < nj; j++) {
-          row.push(0);
-        }
-        matrix.push(row);
+    
+    for (let i = 0; i < ni; i++) {
+      const row = [];
+      for (let j = 0; j < nj; j++) {
+        row.push(Infinity);
       }
+      matrix.push(row);
+    }
 
-      for(const edge of this.edges){ 
+    for(const edge of this.edges){ 
       if(edge.n0.isSource && !edge.n1.isSource){
         let oi = this.sources.indexOf(edge.n0); 
         let di = this.destinations.indexOf(edge.n1);
-        matrix[oi][di] = edge.weight;
+        console.log("oi ", oi);
+        console.log("di", di);
+        matrix[oi][di] = parseFloat(edge.weight);
       }
     }
-
-    for (let i = 0; i < ni; i++) {
-        const row = [];
-        for (let j = 0; j < nj; j++) {
-          console.log(matrix[i][j]);
-        }
-        console.log("\n");
-      }
     return matrix;
   }
 
-    getEdgeWeight(nodeA, nodeB) {
-      for (const edge of this.edges) {
-        if (
-          (edge.n0 === nodeA && edge.n1 === nodeB) ||
-          (edge.n0 === nodeB && edge.n1 === nodeA)
-        ) {
-          return edge.weight;
+  getEdgeWeight(nodeA, nodeB) {
+    for (const edge of this.edges) {
+      if (
+        (edge.n0 === nodeA && edge.n1 === nodeB) ||
+        (edge.n0 === nodeB && edge.n1 === nodeA)
+      ) {
+        return edge.weight;
+      }
+    }
+    return 0;
+  }
+
+  getNodeByLabel(label) {
+    return this.nodes.find(node => node.label === label);
+  }
+
+
+  hasDisconnectedNodes(matrix) {
+      for (let i = 0; i < matrix.length; i++) {
+          if (matrix[i].every(value => value === -1) && matrix.every(row => row[i] === -1)) {
+              return true;
+          }
+      }
+      return false;
+  }
+
+  johnsonCriticalPath(matrix) {
+      const n = matrix.length;
+      const dist = new Array(n).fill(0);
+
+      for (let i = 0; i < n; i++) {
+          for (let j = 0; j < n; j++) {
+              if (matrix[i][j] !== Infinity) {
+                  dist[j] = Math.max(dist[j], dist[i] + matrix[i][j]);
+              }
+          }
+      }
+
+      const criticalPath = [];
+      let current = dist.indexOf(Math.max(...dist));
+
+      while (current !== -1) {
+          criticalPath.unshift(current);
+          let prev = -1;
+          for (let i = 0; i < n; i++) {
+              if (matrix[i][current] !== Infinity && dist[current] === dist[i] + matrix[i][current]) {
+                  prev = i;
+                  break;
+              }
+          }
+          current = prev;
+      }
+
+      return criticalPath;
+  }
+
+  findCriticalPath(){
+    const criticalPath = this.johnsonCriticalPath(this.getAdjMatrix());
+    console.log(this.getAdjMatrix());
+    console.log(criticalPath);
+    for(const node of this.nodes){
+      node.isCritical = false;
+    }
+
+    for(const i of criticalPath){
+      this.nodes[i].isCritical = true;
+    }
+  }
+
+minCostAssignment(costMatrix) {
+    const n = costMatrix.length; // Número de nodos de origen y destino
+    const assigned = new Array(n).fill(false); // Arreglo para rastrear nodos asignados
+    const assignment = []; // Arreglo para almacenar las asignaciones
+
+    // Paso 1: Asignar nodos basados en filas de menor costo.
+    for (let i = 0; i < n; i++) {
+        // Copiamos la fila actual de la matriz de costos.
+        const row = costMatrix[i].slice();
+
+        // Encontramos el costo mínimo en la fila.
+        let minVal = Math.min(...row);
+
+        // Si el costo mínimo es "Infinity," esto significa que no hay conexiones directas.
+        if (minVal === Infinity) {
+            continue; // Ignoramos esta fila y pasamos a la siguiente.
         }
+
+        // Encontramos el índice del nodo de destino con el costo mínimo.
+        let minIndex = row.indexOf(minVal);
+
+        // Marcar el nodo de origen como asignado.
+        assigned[i] = true;
+
+        // Registrar la asignación en el formato [nodo de origen, nodo de destino].
+        assignment.push([i, minIndex]);
+    }
+
+    // Paso 2: Continuar con el algoritmo de asignación de costo mínimo.
+    while (assignment.length < n) {
+        // Inicializamos variables para rastrear el costo mínimo y los índices de los nodos.
+        let minVal = Infinity;
+        let minI = -1;
+        let minJ = -1;
+
+        // Recorremos la matriz de costos y buscamos los nodos no asignados.
+        for (let i = 0; i < n; i++) {
+            if (!assigned[i]) { // Si el nodo de origen no está asignado.
+                for (let j = 0; j < costMatrix[i].length; j++) {
+                    if (!assigned[j] && costMatrix[i][j] < minVal) { // Si el nodo de destino no está asignado y el costo es menor.
+                        minVal = costMatrix[i][j];
+                        minI = i; // Nodo de origen con costo mínimo.
+                        minJ = j; // Nodo de destino con costo mínimo.
+                    }
+                }
+            }
+        }
+
+        // Marcar ambos nodos (de origen y destino) como asignados.
+        assigned[minI] = true;
+        assigned[minJ] = true;
+
+        // Registrar la asignación en el formato [nodo de origen, nodo de destino].
+        assignment.push([minI, minJ]);
+    }
+
+    return assignment; // Devolver la asignación óptima.
+}
+
+maxCostAssignment(costMatrix) {
+    const n = costMatrix.length; // Número de nodos de origen y destino
+    const assigned = new Array(n).fill(false); // Arreglo para rastrear nodos asignados
+    const assignment = []; // Arreglo para almacenar las asignaciones
+
+    // Paso 1: Asignar nodos basados en filas de mayor costo.
+    for (let i = 0; i < n; i++) {
+        // Copiamos la fila actual de la matriz de costos.
+        const row = costMatrix[i].slice();
+
+        // Encontramos el costo máximo en la fila.
+        let maxVal = Math.max(...row);
+
+        // Si el costo máximo es "-Infinity," esto significa que no hay conexiones directas.
+        if (maxVal === -Infinity) {
+            continue; // Ignoramos esta fila y pasamos a la siguiente.
+        }
+
+        // Encontramos el índice del nodo de destino con el costo máximo.
+        let maxIndex = row.indexOf(maxVal);
+
+        // Marcar el nodo de origen como asignado.
+        assigned[i] = true;
+
+        // Registrar la asignación en el formato [nodo de origen, nodo de destino].
+        assignment.push([i, maxIndex]);
+    }
+
+    // Paso 2: Continuar con el algoritmo de asignación de costo máximo.
+    while (assignment.length < n) {
+        // Inicializamos variables para rastrear el costo máximo y los índices de los nodos.
+        let maxVal = -Infinity;
+        let maxI = -1;
+        let maxJ = -1;
+
+        // Recorremos la matriz de costos y buscamos los nodos no asignados.
+        for (let i = 0; i < n; i++) {
+            if (!assigned[i]) { // Si el nodo de origen no está asignado.
+                for (let j = 0; j < costMatrix[i].length; j++) {
+                    if (!assigned[j] && costMatrix[i][j] > maxVal) { // Si el nodo de destino no está asignado y el costo es mayor.
+                        maxVal = costMatrix[i][j];
+                        maxI = i; // Nodo de origen con costo máximo.
+                        maxJ = j; // Nodo de destino con costo máximo.
+                    }
+                }
+            }
+        }
+
+        // Marcar ambos nodos (de origen y destino) como asignados.
+        assigned[maxI] = true;
+        assigned[maxJ] = true;
+
+        // Registrar la asignación en el formato [nodo de origen, nodo de destino].
+        assignment.push([maxI, maxJ]);
+    }
+
+    return assignment; // Devolver la asignación óptima de costo máximo.
+}
+
+findAssingment(maximize = true){
+  let assignment = [];
+  console.log(this.getCostMatrix());
+  if(maximize){
+    assignment = this.maxCostAssignment(this.getCostMatrix());
+  }
+  else{
+    assignment = this.minCostAssignment(this.getCostMatrix());
+  }
+
+  console.log(assignment);
+  for(const pair of assignment){
+    for(var edge of this.sources[pair[0]].edges){
+      if(edge.n1 ==  this.destinations[pair[1]]){
+        edge.setStrokeColor("blue");
+        break;
       }
-      return 0;
-    }
-
-    getNodeByLabel(label) {
-      return this.nodes.find(node => node.label === label);
-    }
-
-
-findCriticalPath(adjMatrix) {
-const numNodes = adjMatrix.length;
-const earliestStart = new Array(numNodes).fill(0);
-const latestStart = new Array(numNodes).fill(Infinity);
-const stack = [];
-const criticalPath = [];
-
-// Calculate earliest start times
-for (let i = 0; i < numNodes; i++) {
-  for (let j = 0; j < numNodes; j++) {
-    if (adjMatrix[i][j] > 0) {
-      earliestStart[j] = Math.max(earliestStart[j], earliestStart[i] + adjMatrix[i][j]);
     }
   }
 }
 
-// Calculate latest start times
-for (let i = numNodes - 1; i >= 0; i--) {
-  latestStart[i] = earliestStart[numNodes - 1];
-  for (let j = 0; j < numNodes; j++) {
-    if (adjMatrix[i][j] > 0) {
-      latestStart[i] = Math.min(latestStart[i], latestStart[j] - adjMatrix[i][j]);
-    }
-  }
-  if (earliestStart[i] === latestStart[i]) {
-    criticalPath.push(i);
-  }
-}
-
-for(node of this.nodes){
-  node.fillColor = "black";
-}
-
-criticalPath.reverse(); // Reverse to get the path in the correct order
-for(const i of criticalPath){
-      this.nodes[i].fillColor = "red";
-    }
-    return criticalPath;
-}
-
-clearArrays(...arrays) {
-for (const arr of arrays) {
-  arr.fill(false);  
-}
-}
-
-solveAssignmentProblem(adjacencyMatrix) {
-const numRows = adjacencyMatrix.length;
-const numCols = adjacencyMatrix[0].length;
-
-// Step 1: Subtract the minimum value from each row
-for (let i = 0; i < numRows; i++) {
-  const row = adjacencyMatrix[i];
-  const minVal = Math.min(...row);
-  for (let j = 0; j < numCols; j++) {
-    adjacencyMatrix[i][j] -= minVal;
-  }
-}
-
-// Step 2: Subtract the minimum value from each column
-for (let j = 0; j < numCols; j++) {
-  const col = adjacencyMatrix.map(row => row[j]);
-  const minVal = Math.min(...col);
-  for (let i = 0; i < numRows; i++) {
-    adjacencyMatrix[i][j] -= minVal;
-  }
-}
-
-// Step 3: Cover the zeros with the minimum number of lines
-const rowCovered = new Array(numRows).fill(false);
-const colCovered = new Array(numCols).fill(false);
-const lines = Math.min(numRows, numCols);
-
-for (let step = 1; step <= 3; step++) {
-  for (let i = 0; i < numRows; i++) {
-    for (let j = 0; j < numCols; j++) {
-      if (adjacencyMatrix[i][j] === 0 && !rowCovered[i] && !colCovered[j]) {
-        rowCovered[i] = true;
-        colCovered[j] = true;
-      }
-    }
-  }
-  this.clearArrays(rowCovered, colCovered);
-}
-
-// Step 4: Find the minimum uncovered value
-let minUncovered = Infinity;
-for (let i = 0; i < numRows; i++) {
-  for (let j = 0; j < numCols; j++) {
-    if (!rowCovered[i] && !colCovered[j] && adjacencyMatrix[i][j] < minUncovered) {
-      minUncovered = adjacencyMatrix[i][j];
-    }
-  }
-}
-
-// Step 5: Modify the matrix
-for (let i = 0; i < numRows; i++) {
-  for (let j = 0; j < numCols; j++) {
-    if (rowCovered[i] && colCovered[j]) {
-      adjacencyMatrix[i][j] += minUncovered;
-    } else if (!rowCovered[i] && !colCovered[j]) {
-      adjacencyMatrix[i][j] -= minUncovered;
-    }
-  }
-}
-
-// Step 6: Repeat until an optimal assignment is found
-const assignment = new Array(numRows).fill(-1);
-for (let i = 0; i < numRows; i++) {
-  for (let j = 0; j < numCols; j++) {
-    if (adjacencyMatrix[i][j] === 0 && assignment[i] === -1) {
-      assignment[i] = j;
-    }
-  }
-}
-
-// Calculate the maximum value of the assignment
-let maxAssignmentValue = 0;
-for (let i = 0; i < numRows; i++) {
-  if (assignment[i] !== -1) {
-    maxAssignmentValue += adjacencyMatrix[i][assignment[i]];
-  }
-}
-
-console.log("Monto maximizado", maxAssignmentValue);
-return maxAssignmentValue;
-}
 
 
 

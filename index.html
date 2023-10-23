@@ -59,19 +59,17 @@
 
 <body class="w3-content" style="max-width:1200px">
 
-
   <div id="app">
-
-
     <v-app>
       <v-main>
         <h1>Nodos generatrol</h1>
         <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
-          <button class="w3-button" id="calcular-boton" onclick="Juason()">Calcular</button>
-          <button class="w3-button" id="calcular-boton" onclick="matriz()">Matriz</button>
-          <button class="w3-button" id="calcular-boton" onclick="nodoInicial()">Recuperar</button>
-          <button class="w3-button" id="calcular-boton" @click="guardar()">Guardar</button>
+          <button class="w3-button" id="criticalPath_btn">Encontrar Camino Critico</button>
+          <button class="w3-button" id="assignment_btn">Encontrar Asignacion</button>
+          <button class="w3-button" id="adjMatrix_btn">Matriz de Adyacencia</button>
+          <button class="w3-button" id="load_btn">Recuperar</button>
+          <button class="w3-button" id="save_btn">Guardar</button>
           <a class="w3-button" href="ayuda_jhonson.html" id="ayuda-boton">?</a>
         </div>
 
@@ -79,6 +77,10 @@
           <div class="context_menu_item" id="node_name_b">
             <label for="colorPicker">Nombre</label>
             <input type="text" id="node_name_p">
+          </div>
+          <div class="context_menu_item" id="is_source_b">
+            <label for="checkbox">Nodo fuente:</label>`
+            <input type="checkbox" id="is_source_p">
           </div>
           <div class="context_menu_item" id="node_val_b">
             <label for="colorPicker">Valor</label>
@@ -118,11 +120,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.0.2/dist/sweetalert2.all.min.js"></script>
 
-  <!--
-  <script src="GraphClasses/Node.mjs"></script>
-  <script src="GraphClasses/Edge.mjs"></script>
-  <script src="GraphClasses/Graph.mjs"></script> -->
   <script type="module" src="main.js"></script>
+ 
 </body>
 
 </html>

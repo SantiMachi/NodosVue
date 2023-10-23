@@ -429,15 +429,12 @@ let url = 'http://localhost:4000/users';
      }
    });
 
-   function matriz() {
-     window.location.href = 'matriz.html';
-   }
-   // Redireccionamos a la Página 2
-   //menu contextuales
+
    const nodeMenu = document.getElementById("node_cm");
    const edgeMenu = document.getElementById("edge_cm");
 
    const nodeNamePicker = document.getElementById("node_name_p");
+   const isSourcePicker = document.getElementById("is_source_p");
    const nodeValPicker = document.getElementById("node_val_p");
    const nodeColorPicker = document.getElementById("node_cp");
    const nodeDeleteButton = document.getElementById("node_delete_b");
@@ -455,6 +452,15 @@ let url = 'http://localhost:4000/users';
    nodeNamePicker.addEventListener("input", e => {
      selectedNode.label = e.target.value;
    });
+
+   isSourcePicker.addEventListener("change", e => {
+    if(isSourcePicker.checked){
+        selectedNode.isSource = true;
+    }
+    else{
+        selectedNode.isSource = false;
+    }
+  });
 
    nodeValPicker.addEventListener("input", e => {
      selectedNode.val = e.target.value;
@@ -516,43 +522,23 @@ let url = 'http://localhost:4000/users';
 
    }
 
-   /*
-   function handleOptionClick(option) {
-       console.log("Clicked:", option);
-       if(option == "Eliminar"){
-   
-           if(selectedNode){
-               for(const edge of selectedNode.edges){
-                   const indexToRemove = graph.edges.indexOf(edge);
-                   graph.edges.splice(indexToRemove, 1);
-               }
-               const indexToRemove = graph.nodes.indexOf(selectedNode);
-               graph.nodes.splice(indexToRemove, 1);
-           
-           }
-           else if(selectedEdge){
-               const indexToRemove = graph.edges.indexOf(selectedEdge);
-               graph.edges.splice(indexToRemove, 1);
-               selectedNode = null;
-               selectedEdge = null;
-           }
-       }
-       else if(option == "Editar"){
-           if(selectedNode){
-               var nuevoElemento = prompt("Ingrese el valor del nodo:");
-               selectedNode.var = nuevoElemento;
-               selectedNode.update();
-           }
-           else if(selectedEdge){
-               var nuevoElemento = prompt("Ingrese el peso de la arista:");
-               selectedEdge.weight = nuevoElemento;
-               selectedEdge.update();
-           }
-       }
-       contextMenu.style.display = "none";
-   }*/
+   const criticalPathButton = document.getElementById("criticalPath_btn");
+   const adjMatrixButton = document.getElementById("adjMatrix_btn");
+   const assignmentButton = document.getElementById("assignment_btn");
+   const saveButton = document.getElementById("save_btn");
+   const loadButton = document.getElementById("load_btn");
 
+   criticalPathButton.addEventListener("click", e =>{   
+    graph.findCriticalPath();
+   });
 
+   assignmentButton.addEventListener("click", e =>{   
+    graph.findAssingment();
+   });
+
+   adjMatrixButton.addEventListener("click", e => {
+    console.log(matrizita);
+   });
 
    function getBrightness(rgbColor) {
      // Remove any whitespace and convert the color string to lowercase
@@ -560,15 +546,11 @@ let url = 'http://localhost:4000/users';
 
      // Check if the color string starts with "rgb(" and ends with ")"
      if (rgbColor.startsWith("#")) {
-       // Extract the RGB values as numbers
        rgbColor = rgbColor.substring(1, 7);
        const red = parseInt(rgbColor.substring(0, 2), 16);
        const green = parseInt(rgbColor.substring(2, 4), 16);
        const blue = parseInt(rgbColor.substring(4, 6), 16);
 
-       //console.log(rgbColor);
-       //console.log("red:" , red);
-       // Calculate the brightness (average of red, green, and blue)
        const brightness = (red + green + blue) / 3;
 
        return brightness;
@@ -631,11 +613,6 @@ let url = 'http://localhost:4000/users';
    }
 
 
-   function Juason(){
-       graph.findCriticalPath();
-   }
-
-
    function draw() {
      requestAnimationFrame(draw);
 
@@ -646,53 +623,6 @@ let url = 'http://localhost:4000/users';
 
      graph.update();
    }
-
-// Crear nodos y agregarlos al grafo
-/*
-const nodoJhonson1 = new Node(78, 210, 1);
-nodoJhonson1.label = 'p1';
-graph.addNodeObject(nodoJhonson1);
-
-const nodoJhonson2 = new Node(138, 290, 2);
-nodoJhonson2.label = 'p2';
-graph.addNodeObject(nodoJhonson2);
-
-
-const nodoJhonson3 = new Node(238, 340, 3);
-nodoJhonson3.label = 'p3';
-graph.addNodeObject(nodoJhonson3);
-
-
-const nodoJhonson4 = new Node(298, 400, 4);
-nodoJhonson4.label = 'p4';
-graph.addNodeObject(nodoJhonson4);
-
-const nodoJhonson5 = new Node(398, 490, 5);
-nodoJhonson5.label = 'p5';
-graph.addNodeObject(nodoJhonson5);
-
-
-// 1 al 2
-graph.CreateEdge(nodoJhonson1,nodoJhonson2,12)
-//2 al 3
-graph.CreateEdge(nodoJhonson2,nodoJhonson3,10)
-//2 al 4
-graph.CreateEdge(nodoJhonson2,nodoJhonson4,12)
-//4 al 5
-graph.CreateEdge(nodoJhonson4,nodoJhonson5,4)
-
-//3 al 5
-graph.CreateEdge(nodoJhonson3,nodoJhonson5,10)
-
-graph.johnson();
-
-//graph.findProjectDurationShort();
-graph.findCriticalPath()
-
-const projectDuration = graph.findProjectDuration();
-console.log('Duración total del proyecto:', projectDuration);
-*/
-
 
    draw();
 
