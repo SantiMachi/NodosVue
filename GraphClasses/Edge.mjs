@@ -132,12 +132,6 @@ export class UndirectedEdge {
       this.teta1 = Math.PI + this.direction - alfa;
       this.teta2 = Math.PI + this.direction + alfa;
 
-      if (this.isSelected) {
-        this.strokeColor = 'orange';
-      }
-      else {
-        this.strokeColor = 'black';
-      }
     }
 
     undatedDraw(ctx){
@@ -194,12 +188,7 @@ export class DirectedEdge extends UndirectedEdge {
         this.targetY = this.endY - (this.n1.r + this.arrowLength*(Math.sqrt(3)/2) ) * Math.sin(this.direction);
       } 
 
-      if (this.isSelected) {
-        this.strokeColor = 'orange';
-      }
-      else {
-        this.strokeColor = 'black';
-      }
+
       //console.log("Estoy en el update");
     }
     updatedDraw(ctx){

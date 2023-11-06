@@ -187,8 +187,8 @@ export class Graph {
       if(edge.n0.isSource && !edge.n1.isSource){
         let oi = this.sources.indexOf(edge.n0); 
         let di = this.destinations.indexOf(edge.n1);
-        console.log("oi ", oi);
-        console.log("di", di);
+       // console.log("oi ", oi);
+        //console.log("di", di);
         matrix[oi][di] = parseFloat(edge.weight);
       }
     }
@@ -395,11 +395,17 @@ findAssingment(maximize = true){
   console.log(assignment);
   for(const pair of assignment){
     for(var edge of this.sources[pair[0]].edges){
-      if(edge.n1 ==  this.destinations[pair[1]]){
-        edge.setStrokeColor("blue");
-        break;
+      console.log(edge.strokeColor);
+      if(edge.n1 === this.destinations[pair[1]]){
+        //console.log("tusi");
+        edge.strokeColor = "blue";
+        //break;
       }
     }
+  }
+
+  for(const edge of this.edges){
+    console.log(edge.strokeColor);
   }
 }
 
