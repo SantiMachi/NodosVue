@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editable Matrix in HTML</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        td {
+            border: 1px solid black;
+            padding: 0;
+        }
+        input {
+            width: 100%; /* Expand input to fill cell */
+            border: none; /* Remove input border */
+            text-align: center;
+        }
+        .addRow, .addColumn {
+            cursor: pointer;
+            text-align: center;
+            background-color: lightgray;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+
+<div id="matrixContainer"></div>
+
+<script>
+function createMatrix(size, step) {
+    var matrixContainer = document.getElementById('matrixContainer');
+    matrixContainer.innerHTML = ''; // Clear previous matrix
+
+    var table = document.createElement('table');
+
+    for (var i = 0; i < parseInt(size, 10) + 1; i++) {
+        var row = table.insertRow();
+        for (var j = 0; j < parseInt(size, 10) + 1; j++) {
+                var cell = row.insertCell();
+                var input = document.createElement('input');
+                input.type = 'number';
+                input.step = parseInt(step, 10);
+                cell.appendChild(input);
+            }
+        }
+    }
+
+    matrixContainer.appendChild(table);
+}
+
+function growMatrix() {
+    var table = document.querySelector('#matrixContainer table');
+    var cols = table.rows[0].cells.length - 1;
+
+    var newRow = table.insertRow(table.rows.length - 1);
+
+    for (var i = 0; i < cols; i++) {
+        var cell = newRow.insertCell();
+        var input = document.createElement('input');
+        input.type = 'number';
+        cell.appendChild(input);
+    }
+}
+
+</script>
+
+</body>
+</html>

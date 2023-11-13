@@ -12,7 +12,6 @@ export class UndirectedEdge {
       this.n0 = n0;
       this.n1 = n1;
       this.weight = weight;
-      this.isAssigned = false;
       this.isSelected = false;
       this.isSelfDirected = false;
       this.defaultStrokeColor = 'black';
@@ -201,12 +200,14 @@ export class DirectedEdge extends UndirectedEdge {
       if (this.isSelected) {
         this.strokeColor = 'orange';
       }
-      else if(this.isAssigned){
-        this.strokeColor = 'blue';
-      }
-      else {
-        this.strokeColor = this.defaultStrokeColor;
-      }
+      else{
+        if(this.isAssigned) {
+          this.strokeColor = 'blue';
+        }
+        else{
+          this.strokeColor = this.defaultStrokeColor; 
+        }
+    }
       //console.log("Estoy en el update");
     }
     updatedDraw(ctx){

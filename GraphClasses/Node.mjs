@@ -1,3 +1,5 @@
+import {getBrightness} from "../Utilities/RGBUtils.mjs"
+
 export class Ball {
     constructor(x, y, dx, dy) {
       this.x = x;
@@ -12,8 +14,8 @@ export class Ball {
     }
 
     inertialMove(x1, y1) {
-      this.dx = x1 - x;
-      this.dy = y1 - y;
+      this.dx = x1 - this.x;
+      this.dy = y1 - this.y;
 
       this.x = x1;
       this.y = y1;
