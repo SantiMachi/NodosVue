@@ -1,6 +1,6 @@
-import "./GraphClasses/GraphDriver.mjs";
+import "./Algorithms/DijstraDriver.mjs";
 
-import {downloadFile, uploadFile, graph, findShortestPath} from "./GraphClasses/GraphDriver.mjs";
+import {downloadFile, uploadFile, graph, findShortestPath} from "./Algorithms/DijstraDriver.mjs";
 
 const criticalPathButton = document.getElementById("criticalPath_btn");
 const adjMatrixButton = document.getElementById("adjMatrix_btn");

@@ -1,6 +1,6 @@
-import {Node, DirectedEdge, UndirectedEdge, Graph} from "./Graph.mjs"
+import {Node, DirectedEdge, UndirectedEdge, Graph} from "../GraphClasses/Graph.mjs"
 
-console.log("chambea")
+console.log("chambeaDijstrack")
 
 var canvas = document.querySelector("canvas");
 var ctx = canvas.getContext("2d");
@@ -322,7 +322,53 @@ export function uploadFile(){
   
         reader.readAsText(selectedFile);
     });
+  }  
+  
+export function downloadFile() {
+  
+    var nodes = [];
+    var edges = [];
+
+    for(var node of graph.nodes){
+        node.edges.splice(0, node.edges.length);
+        nodes.push(node);
+    }
+    for(var edge of graph.edges){
+        edges.push(edge);
+    }
+    const jsonString = JSON.stringify({
+        nodes : nodes,
+        edges : edges
+    });
+    const filename = 'Project1.json';
+  
+    // Create a blob with the data
+    const blob = new Blob([jsonString], { type: 'application/json' });
+  
+    // Create a temporary URL for the file
+    const url = window.URL.createObjectURL(blob);
+  
+    // Create a link and trigger a click to download the file
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+  
+    // Clean up
+    window.URL.revokeObjectURL(url);
   }
+
+function draw() {
+    requestAnimationFrame(draw);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (selectedEdge) {
+    selectedEdge.updatedDraw(ctx);
+    }
+
+    graph.update();
+    //console.log(graph);
+}
 
 
 
@@ -391,53 +437,6 @@ class Dijkstra{
 
         return nodoMin;
     }
-}
-  
-  
-export function downloadFile() {
-  
-    var nodes = [];
-    var edges = [];
-
-    for(var node of graph.nodes){
-        node.edges.splice(0, node.edges.length);
-        nodes.push(node);
-    }
-    for(var edge of graph.edges){
-        edges.push(edge);
-    }
-    const jsonString = JSON.stringify({
-        nodes : nodes,
-        edges : edges
-    });
-    const filename = 'Project1.json';
-  
-    // Create a blob with the data
-    const blob = new Blob([jsonString], { type: 'application/json' });
-  
-    // Create a temporary URL for the file
-    const url = window.URL.createObjectURL(blob);
-  
-    // Create a link and trigger a click to download the file
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-  
-    // Clean up
-    window.URL.revokeObjectURL(url);
-  }
-
-function draw() {
-    requestAnimationFrame(draw);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (selectedEdge) {
-    selectedEdge.updatedDraw(ctx);
-    }
-
-    graph.update();
-    //console.log(graph);
 }
 
 

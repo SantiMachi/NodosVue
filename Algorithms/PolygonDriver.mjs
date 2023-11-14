@@ -1,4 +1,4 @@
-import {Node, DirectedEdge, UndirectedEdge, Graph} from "./Graph.mjs"
+import {Node, DirectedEdge, UndirectedEdge, Graph} from "../GraphClasses/Graph.mjs"
 
 console.log("chambea")
 
