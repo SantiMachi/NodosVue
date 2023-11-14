@@ -1,38 +1,16 @@
-import "./Algorithms/DijstraDriver.mjs";
+import "./Algorithms/kruskalDriver.mjs";
 
-import {downloadFile, uploadFile, graph, findShortestPath} from "./Algorithms/DijstraDriver.mjs";
+import {downloadFile, uploadFile, graph, Treekruskal} from "./Algorithms/kruskalDriver.mjs";;
 
-const criticalPathButton = document.getElementById("criticalPath_btn");
-const adjMatrixButton = document.getElementById("adjMatrix_btn");
-const dijkstraButton = document.getElementById("dijkstra_btn");
-const assignmentButton = document.getElementById("assignment_btn");
-const saveButton = document.getElementById("save_btn");
-const loadButton = document.getElementById("load_btn");
+const kruskalbutton = document.getElementById("kruskal_btn");
 
 
-dijkstraButton.addEventListener("click", e =>{   
-  findShortestPath();
+
+kruskalbutton.addEventListener("click", e =>{   
+  Treekruskal();
 });
 
-criticalPathButton.addEventListener("click", e =>{   
-graph.findCriticalPath();
-});
 
-assignmentButton.addEventListener("click", e =>{   
-graph.findAssingment();
-});
-
-adjMatrixButton.addEventListener("click", e => {
-console.log(matrizita);
-});
-
-saveButton.addEventListener("click", e =>{
-  downloadFile();
-})
-
-loadButton.addEventListener('click', function() {
-  uploadFile();
-});
 
 
 
