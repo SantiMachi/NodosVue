@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Matriz de Adyacencia</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            margin-left: 10px; /* Ajusta el margen izquierdo del botón */
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Visualizador de Matriz de Adyacencia</h1>
+    
+    <div id="matrixContainer"></div>
+    
+    <button onclick="agregarNodo()">Agregar Nodo</button>
+    <button onclick="obtenerMatriz()">Obtener Matriz</button>
+
+    <script>
+        let matrix = [
+            [0, 2, 0, 6, 0],
+            [2, 0, 3, 8, 5],
+            [0, 3, 0, 0, 7],
+            [6, 8, 0, 0, 9],
+            [0, 5, 7, 9, 0]
+        ];
+
+        let nodeNames = ['Nodo A', 'Nodo B', 'Nodo C', 'Nodo D', 'Nodo E'];
+
+        function displayMatrix(matrix, nodeNames) {
+            const matrixContainer = document.getElementById('matrixContainer');
+            matrixContainer.innerHTML = '';
+
+            const table = document.createElement('table');
+
+            // Encabezado con nombres de nodos
+            const headerRow = document.createElement('tr');
+            headerRow.appendChild(document.createElement('th')); // Celda vacía en la esquina superior izquierda
+
+            for (let i = 0; i < nodeNames.length; i++) {
+                const th = document.createElement('th');
+                th.textContent = nodeNames[i];
+                headerRow.appendChild(th);
+            }
+
+            table.appendChild(headerRow);
+
+            // Cuerpo de la matriz
+            for (let i = 0; i < matrix.length; i++) {
+                const row = document.createElement('tr');
+
+                // Primer celda con nombre de nodo
+                const nodeNameCell = document.createElement('td');
+                nodeNameCell.textContent = nodeNames[i];
+                row.appendChild(nodeNameCell);
+
+                for (let j = 0; j < matrix[i].length; j++) {
+                    const cell = document.createElement('td');
+                    cell.textContent = matrix[i][j].toString();
+                    cell.addEventListener('click', () => editarCelda(i, j));
+                    row.appendChild(cell);
+                }
+
+                // Botón para eliminar el nodo
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.classList.add('delete-button');
+                deleteButton.addEventListener('click', () => eliminarNodo(i));
+
+                // Contenedor para el botón "Eliminar"
+                const deleteButtonContainer = document.createElement('div');
+                deleteButtonContainer.classList.add('delete-button-container');
+                deleteButtonContainer.appendChild(deleteButton);
+
+                // Agregar el contenedor al final de la fila
+                row.appendChild(deleteButtonContainer);
+
+                table.appendChild(row);
+            }
+
+            matrixContainer.appendChild(table);
+        }
+
+        function agregarNodo() {
+            const newNodeName = prompt('Ingrese el nombre del nuevo nodo:');
+            if (newNodeName) {
+                nodeNames.push(newNodeName);
+
+                // Agregar una nueva fila y columna con valores por defecto (0)
+                for (let i = 0; i < matrix.length; i++) {
+                    matrix[i].push(0);
+                }
+                const newRow = new Array(matrix[0].length).fill(0);
+                matrix.push(newRow);
+
+                displayMatrix(matrix, nodeNames);
+            }
+        }
+
+        function editarCelda(fila, columna) {
+            const nuevoValor = prompt(`Ingrese el nuevo valor para la celda [${nodeNames[fila]}, ${nodeNames[columna]}]:`);
+            if (nuevoValor !== null) {
+                matrix[fila][columna] = parseInt(nuevoValor) || 0;
+                displayMatrix(matrix, nodeNames);
+            }
+        }
+
+        function eliminarNodo(index) {
+            // Eliminar la fila correspondiente a la matriz
+            matrix.splice(index, 1);
+
+            // Eliminar la columna correspondiente a la matriz
+            for (let i = 0; i < matrix.length; i++) {
+                matrix[i].splice(index, 1);
+            }
+
+            // Eliminar el nombre del nodo
+            nodeNames.splice(index, 1);
+
+            displayMatrix(matrix, nodeNames);
+        }
+
+        function obtenerMatriz() {
+            console.log('Matriz de Adyacencia:', matrix);
+            console.log('Nombres de Nodos:', nodeNames);
+        }
+
+        // Visualizar la matriz por defecto al cargar la página
+        displayMatrix(matrix, nodeNames);
+    </script>
+</body>
+</html>
