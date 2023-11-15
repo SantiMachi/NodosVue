@@ -16,14 +16,13 @@ export class Element{
         ctx.fillStyle = this.fillColor;
         ctx.fillRect(this.x, this.y, this.width, this.height); 
         ctx.closePath();
-        console.log(this.x , this.y, this.width, this.height);
+        //console.log(this.x , this.y, this.width, this.height);
     }
 
     update(){
-        if(this.isSelected) this.fillColor = "green";
+        if(this.isSelected) this.fillColor = "#006aff";
         else this.fillColor = this.defaultFillColor;
     }
-
     updateDraw(ctx){
         this.update();
         this.draw(ctx);

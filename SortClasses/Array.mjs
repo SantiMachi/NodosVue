@@ -14,7 +14,7 @@ export  class Array{
         this.margin = 30;
         this.spacing = 10;
         this.transition = false;
-        this.dx = 10;
+        this.dx = 2;
         this.u = null;
         this.v = null;
 
@@ -38,15 +38,20 @@ export  class Array{
     push(value){
         
         this.maxValue = Math.max(value, this.maxValue);
+        //this.update();
 
-        this.updateElementWidht();
         let h = this.maxHeight*(value/this.maxValue);
-        let element = new Element(value, this.position(this.n), 
-        this.y, this.elementWidth, h);
+        let element = new Element(value, this.position(this.n), this.y, this.elementWidth, h);
 
         this.elements.push(element);
 
         this.n++;   
+    }
+
+    updateDraw(){
+        //console.log(this.transition);
+        this.update();
+        this.draw();
     }
 
     draw(){
@@ -77,22 +82,22 @@ export  class Array{
             this.elements[this.u].isSelected = true;
             
             if(this.v > this.u){
-                this.elements[u].x += this.dx;
-                for(let i = u+1; i <= v; i++){
-                    elements[i].x -= this.dx;
+                this.elements[this.u].x += this.dx;
+                for(let i = this.u+1; i <= this.v; i++){
+                    this.elements[i].x -= this.dx * 1/(this.v - this.u);
                 }
             }
             else if(this.v < this.u){
-                this.elements[u].x -= this.dx;
-                for(let i = v; i < u; i++){
-                    elements[i].x += this.dx;
+                this.elements[this.u].x -= this.dx;
+                for(let i = this.v; i < this.u; i++){
+                    this.elements[i].x += this.dx * 1/(this.u - this.v);
                 }
             }
             
 
-            const target = this.position(v);
-            if((this.elements[u].x - target) <= 3){
-                this.elements[u].x = target;
+            const target = this.position(this.v);
+            if(Math.abs(this.elements[this.u].x - target) <= 3){
+                this.elements[this.u].x = target;
                 
                 if(this.v > this.u){
                     for(let i = this.u+1; i <= this.v; i++){

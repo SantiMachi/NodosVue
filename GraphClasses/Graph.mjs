@@ -124,7 +124,7 @@ export class Graph {
     }
   }
 
-  update() {
+  updatedDraw() {
 
     //console.log("contex>", this.ctx);
     for (const edge of this.edges) {

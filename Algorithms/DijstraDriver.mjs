@@ -366,7 +366,7 @@ function draw() {
     selectedEdge.updatedDraw(ctx);
     }
 
-    graph.update();
+    graph.updatedDraw();
     //console.log(graph);
 }
 
