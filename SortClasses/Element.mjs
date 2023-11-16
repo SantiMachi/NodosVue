@@ -14,7 +14,7 @@ export class Element{
     draw(ctx){
         ctx.beginPath();
         ctx.fillStyle = this.fillColor;
-        ctx.fillRect(this.x, this.y, this.width, this.height); 
+        ctx.fillRect(this.x, this.y - this.height, this.width, this.height); 
         ctx.closePath();
         //console.log(this.x , this.y, this.width, this.height);
     }

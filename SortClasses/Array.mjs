@@ -21,10 +21,35 @@ export  class Array{
         this.maxValue = 0.1;
     }
 
-    move(u, v){
+    checkTransition(){
+        if(this.transition){
+            console.log("in transition");
+            setTimeout(this.checkTransition , 100);
+        }
+        else{
+            console.log("transition finished");
+            return true;
+        }
+    }
+
+    async move(u, v){
         this.transition = true;
         this.u = u;
         this.v = v;
+
+        return new Promise((resolve) => {
+            function checkAttribute() {
+                if (this.transition == false) {
+                  console.log("resolved");
+                  resolve(true);
+                  
+                } else {
+                  setTimeout(checkAttribute, 100);
+                }
+              }
+          
+            checkAttribute();
+        });
     }
 
     updateElementWidht(){
@@ -55,9 +80,13 @@ export  class Array{
     }
 
     draw(){
+        var selectedItem = null;
         for(var element of this.elements){
-            element.updateDraw(this.ctx);
+            if(!element.isSelected) element.updateDraw(this.ctx);
+            else selectedItem = element;
         }
+
+        if(selectedItem) selectedItem.updateDraw(this.ctx);
     }
 
     swap(u , v){
@@ -113,6 +142,7 @@ export  class Array{
                 this.elements[this.u].isSelected = false;
                 this.swap(this.u, this.v);
                 this.transition = false;
+                //console.log("should resolve");
             
             }
 

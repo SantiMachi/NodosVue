@@ -10,6 +10,8 @@ canvas.height = window.innerHeight;
 const movelo = document.getElementById("movelo");
 
 movelo.addEventListener("click", e =>{
+    //array.move(1, 6);
+    //console.log("llamado");
     bubbleSort();
 })
 
@@ -36,11 +38,19 @@ function animation(){
 animation();
 
 
-function bubbleSort(){
+async function bubbleSort(){
+    
     for(let i = 0; i < array.n-1; i ++){
-        for(let j = 0; i < array.n-i-1; i++){
-            if(array.elements[j] > array.elements[j+1]){
-                array.move(j, j+1);
+        for(let j = 0; j < array.n-i-1; j++){
+            console.log("pin");
+            if(array.elements[j].value > array.elements[j+1].value){
+                try{
+                    await array.move(j, j+1);
+                    console.log("movement finished");
+                }
+                catch{
+                    console.log("movement fucked");
+                }
             }
         }
     }
