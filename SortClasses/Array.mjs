@@ -14,7 +14,7 @@ export  class Array{
         this.margin = 30;
         this.spacing = 10;
         this.transition = false;
-        this.dx = 2;
+        this.dx = 6;
         this.u = null;
         this.v = null;
 
@@ -24,7 +24,7 @@ export  class Array{
     checkTransition(){
         if(this.transition){
             console.log("in transition");
-            setTimeout(this.checkTransition , 100);
+            setTimeout(this.checkTransition , 10);
         }
         else{
             console.log("transition finished");
@@ -38,17 +38,18 @@ export  class Array{
         this.v = v;
 
         return new Promise((resolve) => {
-            function checkAttribute() {
-                if (this.transition == false) {
+            function checkAttribute(object) {
+                if (object.transition == false) {
                   console.log("resolved");
                   resolve(true);
                   
                 } else {
-                  setTimeout(checkAttribute, 100);
+                  console.log("not resolved");
+                  setTimeout(checkAttribute, 0, object);
                 }
               }
           
-            checkAttribute();
+            checkAttribute(this);
         });
     }
 
@@ -66,11 +67,13 @@ export  class Array{
         //this.update();
 
         let h = this.maxHeight*(value/this.maxValue);
-        let element = new Element(value, this.position(this.n), this.y, this.elementWidth, h);
+        let element = new Element(value, this.n, this.position(this.n), this.y, this.elementWidth, h);
 
         this.elements.push(element);
 
         this.n++;   
+
+        this.updateElementAtributes();
     }
 
     updateDraw(){
@@ -93,6 +96,21 @@ export  class Array{
         var element = this.elements[u];
         this.elements.splice(u, 1);
         this.elements.splice(v, 0, element);
+
+
+        /*for(var e of this.elements){
+            console.log(e.value);
+        }*/
+        this.updateDraw();
+    }
+
+    updateElementAtributes(){
+        for(let  i = 0; i < this.n; i++){
+            var element = this.elements[i];
+            element.index = i;
+            element.width = this.elementWidth;
+            element.height = this.maxHeight*(element.value/this.maxValue);
+        }
     }
 
     position(i){
@@ -100,13 +118,10 @@ export  class Array{
     }
 
     update(){
-        this.updateElementWidht();
         
-        for(var element of this.elements){
-            element.width = this.elementWidth;
-            element.height = this.maxHeight*(element.value/this.maxValue);
-        }
-
+        this.updateElementWidht();
+        this.updateElementAtributes();
+        this.spacing = Math.max(this.elementWidth/30, 2);
         if(this.transition){
             this.elements[this.u].isSelected = true;
             
@@ -125,7 +140,7 @@ export  class Array{
             
 
             const target = this.position(this.v);
-            if(Math.abs(this.elements[this.u].x - target) <= 3){
+            if(Math.abs(this.elements[this.u].x - target) <= this.dx){
                 this.elements[this.u].x = target;
                 
                 if(this.v > this.u){
@@ -140,8 +155,8 @@ export  class Array{
                 }
             
                 this.elements[this.u].isSelected = false;
-                this.swap(this.u, this.v);
                 this.transition = false;
+                this.swap(this.u, this.v);
                 //console.log("should resolve");
             
             }

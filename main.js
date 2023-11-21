@@ -8,10 +8,16 @@ const dijkstraButton = document.getElementById("dijkstra_btn");
 const assignmentButton = document.getElementById("assignment_btn");
 const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
-
+const resetButton = document.getElementById("reset_btn");
 
 dijkstraButton.addEventListener("click", e =>{   
   findShortestPath();
+});
+
+resetButton.addEventListener("click", e =>{   
+  for(var edge of graph.edges){
+    edge.isAssigned = false;
+  }
 });
 
 criticalPathButton.addEventListener("click", e =>{   
@@ -19,7 +25,7 @@ graph.findCriticalPath();
 });
 
 assignmentButton.addEventListener("click", e =>{   
-graph.findAssingment();
+graph.findAssingment(false);
 });
 
 adjMatrixButton.addEventListener("click", e => {
