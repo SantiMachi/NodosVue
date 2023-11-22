@@ -11,13 +11,21 @@ const movelo = document.getElementById("movelo");
 
 
 var array = new Array(ctx, 500, 700, 200);
-
+var carray = array.elements.slice();
+var steps = [];
 movelo.addEventListener("click", e =>{
     //array.move(1, 6);
     //console.log("llamado");
     //bubbleSort();
     array.dx = 5;
-    mergeSort(0, array.n-1);
+    
+    carray = array.elements.slice()
+    console.log(carray);
+    steps = [];
+    bubbleSort(0, array.n-1);
+
+    console.log("steps", steps)
+    array.playAnimation(steps);
     //array.move(1, 0);
     
 })
@@ -42,56 +50,50 @@ function animation(){
 animation();
 
 
-async function bubbleSort(){
-    steps = [];
+function bubbleSort(){
     for(let i = 0; i < array.n-1; i ++){
         for(let j = 0; j < array.n-i-1; j++){
-            console.log("pin");
-            if(array.elements[j].value > array.elements[j+1].value){
-                try{
-                    steps.push(j, j+1);
-                    //console.log("movement finished");
-                }
-                catch(error){
-                    //console.log("movement fucked", error);
-                }
+            if(carray[j].value > carray[j+1].value){
+                steps.push([carray[j], j+1]);
+                let temp = carray[j+1];
+                carray[j+1] = carray[j];
+                carray[j] = temp;
             }
         }
     }
-
-    return steps;
 }
 
 
-async function mergeSort(b, e){
+function mergeSort(b, e){
     if(b >= e) return;
     var h = Math.floor((b+e)/2);
     console.log( "b", b,"h", h, "e", e);
     mergeSort(b, h);
     mergeSort(h+1,e);
 
+    
     var i = b;
     var j = h+1;
     var c = [];
     //var g = [];
     while((i <= h) && (j <= e)){
-        if(array.elements[i].value < array.elements[j].value){
-            c.push(array.elements[i]);
+        if(carray[i].value < carray[j].value){
+            c.push(carray[i]);
             i++;
         }
         else{
-            c.push(array.elements[j]);
+            c.push(carray[j]);
             j++;
         }
     }
 
     while(i <= h){
-        c.push(array.elements[i]);
+        c.push(carray[i]);
         i++;
     }
 
     while(j <= e){
-        c.push(array.elements[j]);
+        c.push(carray[j]);
         j++;
     }
 
@@ -102,18 +104,7 @@ async function mergeSort(b, e){
         array.elements[b+k].value = c[k];
     } */  
     for(let k = 0; k < c.length; k++){
-        
-        //console.log(x, b+k);
-        //var x = array.elements.indexOf(c[k]);
-        try{
-            //console.log("u", c[k].index,"v", b+k);
-            await array.move(c[k].index, b+k);
-            //console.log("movement finished");
-        }
-        catch(error){
-            //console.log("movement fucked", error);
-        }
+        steps.push([c[k], b+k]);
+        carray[b+k] = c[k];
     }
-
-    console.log(array.elements);
 }

@@ -13,44 +13,24 @@ export  class Array{
         this.elementWidth = this.defaultWidth;
         this.margin = 30;
         this.spacing = 10;
-        this.transition = false;
+        this.animation = null;
+        this.step = 0;
         this.dx = 6;
+        this.ou = null;
         this.u = null;
         this.v = null;
 
         this.maxValue = 0.1;
     }
 
-    checkTransition(){
-        if(this.transition){
-            console.log("in transition");
-            setTimeout(this.checkTransition , 10);
-        }
-        else{
-            console.log("transition finished");
-            return true;
-        }
-    }
+    playAnimation(steps){
+        this.animation = steps;
+        this.step = 0;
 
-    async move(u, v){
-        this.transition = true;
-        this.u = u;
-        this.v = v;
-
-        return new Promise((resolve) => {
-            function checkAttribute(object) {
-                if (object.transition == false) {
-                  console.log("resolved");
-                  resolve(true);
-                  
-                } else {
-                  console.log("not resolved");
-                  setTimeout(checkAttribute, 0, object);
-                }
-              }
-          
-            checkAttribute(this);
-        });
+        this.ou = this.animation[this.step][0];
+        console.log("ou", this.ou);
+        this.u = this.ou.index;
+        this.v = this.animation[this.step][1];
     }
 
     updateElementWidht(){
@@ -77,7 +57,7 @@ export  class Array{
     }
 
     updateDraw(){
-        //console.log(this.transition);
+        //console.log(this.animation);
         this.update();
         this.draw();
     }
@@ -96,12 +76,6 @@ export  class Array{
         var element = this.elements[u];
         this.elements.splice(u, 1);
         this.elements.splice(v, 0, element);
-
-
-        /*for(var e of this.elements){
-            console.log(e.value);
-        }*/
-        this.updateDraw();
     }
 
     updateElementAtributes(){
@@ -122,8 +96,8 @@ export  class Array{
         this.updateElementWidht();
         this.updateElementAtributes();
         this.spacing = Math.max(this.elementWidth/30, 2);
-        if(this.transition){
-            this.elements[this.u].isSelected = true;
+        if(this.animation){
+            this.ou.isSelected = true;
             
             if(this.v > this.u){
                 this.elements[this.u].x += this.dx;
@@ -153,12 +127,23 @@ export  class Array{
                         this.elements[i].x = this.position(i+1);
                     }
                 }
-            
-                this.elements[this.u].isSelected = false;
-                this.transition = false;
                 this.swap(this.u, this.v);
+                this.ou.isSelected = false;
+                if(this.step <= this.animation.length-2){
+                    this.step++;
+
+                    this.ou = this.animation[this.step][0];
+                    this.u = this.ou.index;
+                    this.v = this.animation[this.step][1];
+                }
+                else{
+                    this.animation = null;
+                    this.step = 0;
+                    this.ou = null;
+                    this.u = null;
+                    this.v = null;
+                }
                 //console.log("should resolve");
-            
             }
 
         }
