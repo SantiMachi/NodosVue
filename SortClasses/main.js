@@ -43,21 +43,23 @@ animation();
 
 
 async function bubbleSort(){
-    
+    steps = [];
     for(let i = 0; i < array.n-1; i ++){
         for(let j = 0; j < array.n-i-1; j++){
             console.log("pin");
             if(array.elements[j].value > array.elements[j+1].value){
                 try{
-                    await array.move(j, j+1);
-                    console.log("movement finished");
+                    steps.push(j, j+1);
+                    //console.log("movement finished");
                 }
                 catch(error){
-                    console.log("movement fucked", error);
+                    //console.log("movement fucked", error);
                 }
             }
         }
     }
+
+    return steps;
 }
 
 
@@ -75,29 +77,21 @@ async function mergeSort(b, e){
     while((i <= h) && (j <= e)){
         if(array.elements[i].value < array.elements[j].value){
             c.push(array.elements[i]);
-            //g.push(array.elements[i].value);
-            //console.log("b:", array.elements[i].value);
             i++;
         }
         else{
             c.push(array.elements[j]);
-            //g.push(array.elements[j].value);
-            //console.log("e:", array.elements[j].value);
             j++;
         }
     }
 
     while(i <= h){
         c.push(array.elements[i]);
-        //g.push(array.elements[i].value);
-        //console.log("b:", array.elements[i].value);
         i++;
     }
 
     while(j <= e){
         c.push(array.elements[j]);
-        //g.push(array.elements[j].value);
-        //console.log("e:", array.elements[j].value); 
         j++;
     }
 
@@ -112,12 +106,12 @@ async function mergeSort(b, e){
         //console.log(x, b+k);
         //var x = array.elements.indexOf(c[k]);
         try{
-            console.log("u", c[k].index,"v", b+k);
+            //console.log("u", c[k].index,"v", b+k);
             await array.move(c[k].index, b+k);
-            console.log("movement finished");
+            //console.log("movement finished");
         }
         catch(error){
-            console.log("movement fucked", error);
+            //console.log("movement fucked", error);
         }
     }
 
