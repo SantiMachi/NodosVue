@@ -222,6 +222,7 @@ export class Graph {
   }
 
   johnsonCriticalPath(matrix) {
+    console.log(matrix);
       const n = matrix.length;
       const dist = new Array(n).fill(0);
 
@@ -265,170 +266,94 @@ export class Graph {
   }
 
   
+  //Algorimto de Asignacion
+  
   minCostAssignment(costMatrix) {
-    const n = costMatrix.length; // Número de nodos de origen y destino
-    const assigned = new Array(n).fill(false); // Arreglo para rastrear nodos asignados
-    const assignment = []; // Arreglo para almacenar las asignaciones
+    return this.costAssignment(costMatrix, false);
+  }
 
-    // Paso 1: Asignar nodos basados en filas de menor costo.
+  maxCostAssignment(Matrix) {
+    console.log(Matrix)
+    return this.costAssignment(Matrix, true);
+  }
+
+  costAssignment(costMatrix, isMax) {
+    console.log(costMatrix);
+    const n = costMatrix.length;
+    const assigned = new Array(n).fill(false);
+    const assignment = [];
+
     for (let i = 0; i < n; i++) {
-        // Copiamos la fila actual de la matriz de costos.
-        const row = costMatrix[i].slice();
-
-        // Encontramos el costo mínimo en la fila.
-        let minVal = Math.min(...row);
-
-        // Si el costo mínimo es "Infinity," esto significa que no hay conexiones directas.
-        if (minVal === Infinity) {
-            continue; // Ignoramos esta fila y pasamos a la siguiente.
-        }
-
-        // Si todos los valores en la fila son iguales, asignamos el mismo nodo de origen a todos los nodos de destino.
-        if (row.every((val) => val === minVal)) {
-            for (let j = 0; j < n; j++) {
-                assignment.push([i, j]);
-            }
-        } else {
-            // Encontramos el índice del nodo de destino con el costo mínimo.
-            let minIndex = row.indexOf(minVal);
-
-            // Marcar el nodo de origen como asignado.
-            assigned[i] = true;
-
-            // Registrar la asignación en el formato [nodo de origen, nodo de destino].
-            assignment.push([i, minIndex]);
-        }
-    }
-
-    // Paso 2: Continuar con el algoritmo de asignación de costo mínimo.
-    while (assignment.length < n) {
-        // Inicializamos variables para rastrear el costo mínimo y los índices de los nodos.
-        let minVal = Infinity;
-        let minI = -1;
-        let minJ = -1;
-
-        // Recorremos la matriz de costos y buscamos los nodos no asignados.
-        for (let i = 0; i < n; i++) {
-            if (!assigned[i]) { // Si el nodo de origen no está asignado.
-                for (let j = 0; j < costMatrix[i].length; j++) {
-                    if (!assigned[j] && costMatrix[i][j] < minVal) { // Si el nodo de destino no está asignado y el costo es menor.
-                        minVal = costMatrix[i][j];
-                        minI = i; // Nodo de origen con costo mínimo.
-                        minJ = j; // Nodo de destino con costo mínimo.
-                    }
-                }
-            }
-        }
-
-        // Marcar ambos nodos (de origen y destino) como asignados.
-        assigned[minI] = true;
-        assigned[minJ] = true;
-
-        // Registrar la asignación en el formato [nodo de origen, nodo de destino].
-        assignment.push([minI, minJ]);
-    }
-    console.log("s")
-
-    return assignment; // Devolver la asignación óptima.
-}
-
-maxCostAssignment(costMatrix) {
-  const n = costMatrix.length; // Número de nodos de origen y destino
-  const assigned = new Array(n).fill(false); // Arreglo para rastrear nodos asignados
-  const assignment = []; // Arreglo para almacenar las asignaciones
-
-  // Paso 1: Asignar nodos basados en filas de mayor costo.
-  for (let i = 0; i < n; i++) {
-      // Copiamos la fila actual de la matriz de costos.
       const row = costMatrix[i].slice();
+      const extremaVal = isMax ? Math.max(...row) : Math.min(...row);
 
-      // Encontramos el costo máximo en la fila.
-      let maxVal = Math.max(...row);
-
-      // Si el costo máximo es "-Infinity," esto significa que no hay conexiones directas.
-      if (maxVal === -Infinity) {
-          continue; // Ignoramos esta fila y pasamos a la siguiente.
+      if (extremaVal === (isMax ? -Infinity : Infinity)) {
+        continue;
       }
 
-      // Si todos los valores en la fila son iguales, asignamos el mismo nodo de origen a todos los nodos de destino.
-      if (row.every((val) => val === maxVal)) {
-          for (let j = 0; j < n; j++) {
-              assignment.push([j, i]);
-          }
+      if (row.every((val) => val === extremaVal)) {
+        for (let j = 0; j < n; j++) {
+          assignment.push(isMax ? [j, i] : [i, j]);
+        }
       } else {
-          // Encontramos el índice del nodo de destino con el costo máximo.
-          let maxIndex = row.indexOf(maxVal);
-
-          // Marcar el nodo de origen como asignado.
-          assigned[i] = true;
-
-          // Registrar la asignación en el formato [nodo de origen, nodo de destino].
-          assignment.push([i, maxIndex]);
-      }
-  }
-
-  // Paso 2: Continuar con el algoritmo de asignación de costo máximo.
-  while (assignment.length < n) {
-      // Inicializamos variables para rastrear el costo máximo y los índices de los nodos.
-      let maxVal = -Infinity;
-      let maxI = -1;
-      let maxJ = -1;
-
-      // Recorremos la matriz de costos y buscamos los nodos no asignados.
-      for (let i = 0; i < n; i++) {
-          if (!assigned[i]) { // Si el nodo de origen no está asignado.
-              for (let j = 0; j < costMatrix[i].length; j++) {
-                  if (!assigned[j] && costMatrix[i][j] > maxVal) { // Si el nodo de destino no está asignado y el costo es mayor.
-                      maxVal = costMatrix[i][j];
-                      maxI = i; // Nodo de origen con costo máximo.
-                      maxJ = j; // Nodo de destino con costo máximo.
-                  }
-              }
-          }
-      }
-
-      // Marcar ambos nodos (de origen y destino) como asignados.
-      assigned[maxI] = true;
-      assigned[maxJ] = true;
-
-      // Registrar la asignación en el formato [nodo de origen, nodo de destino].
-      assignment.push([maxI, maxJ]);
-  }
-
-  return assignment; // Devolver la asignación óptima de costo máximo.
-}
-
-findAssingment(maximize = true){
-
-  for(var edge of this.edges){
-    edge.isAssigned = false;
-  }
-
-  let assignment = [];
-  console.log(this.getCostMatrix());
-  if(maximize){
-    assignment = this.maxCostAssignment(this.getCostMatrix());
-  }
-  else{
-    assignment = this.minCostAssignment(this.getCostMatrix());
-  }
-
-  console.log(assignment);
-  for(const pair of assignment){
-    for(var edge of this.sources[pair[0]].edges){
-      if(edge.n1 ==  this.destinations[pair[1]]){
-        edge.isAssigned = true;
-        break;
+        const extremaIndex = row.indexOf(extremaVal);
+        assigned[i] = true;
+        assignment.push(isMax ? [i, extremaIndex] : [extremaIndex, i]);
       }
     }
+
+    while (assignment.length < n) {
+      let extremaVal = isMax ? -Infinity : Infinity;
+      let extremaI = -1;
+      let extremaJ = -1;
+
+      for (let i = 0; i < n; i++) {
+        if (!assigned[i]) {
+          for (let j = 0; j < costMatrix[i].length; j++) {
+            if (
+              !assigned[j] &&
+              ((isMax && costMatrix[i][j] > extremaVal) || (!isMax && costMatrix[i][j] < extremaVal))
+            ) {
+              extremaVal = costMatrix[i][j];
+              extremaI = i;
+              extremaJ = j;
+            }
+          }
+        }
+      }
+
+      assigned[extremaI] = true;
+      assigned[extremaJ] = true;
+      assignment.push(isMax ? [extremaI, extremaJ] : [extremaJ, extremaI]);
+    }
+
+    return assignment;
   }
 
-  for(const edge of this.edges){
-    console.log(edge.strokeColor);
+  findAssingment(maximize = true) {
+    for (var edge of this.edges) {
+      edge.isAssigned = false;
+    }
+
+    const assignment = maximize ? this.maxCostAssignment(this.getCostMatrix()) : this.minCostAssignment(this.getCostMatrix());
+
+  
+    console.log("Assignment:");
+    console.table(assignment); 
+
+    for (const pair of assignment) {
+      for (var edge of this.sources[pair[0]].edges) {
+        if (edge.n1 == this.destinations[pair[1]]) {
+          edge.isAssigned = true;
+          break;
+        }
+      }
+    }
+    for(const edge of this.edges){
+      console.log(edge.isAssigned);
+    }
+    // Perform additional actions with the assignment if needed.
   }
-}
 
-
-
-
+  // ... (otros métodos)
 }
