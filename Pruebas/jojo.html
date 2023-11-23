@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú Desplegable Sobre Puesto con Ocultar</title>
+  <style>
+    /* Estilos para el contenedor principal del menú */
+    .dropdown {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    /* Estilos para el botón del menú */
+    .dropdown-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Estilos para el contenedor desplegable */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      z-index: 1001;
+    }
+
+    /* Estilos para los elementos dentro del contenedor desplegable */
+    .dropdown-content div {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    /* Cambia el color del fondo al pasar el ratón sobre un elemento del menú */
+    .dropdown-content div:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Contenedor principal del menú -->
+<div class="dropdown">
+  <!-- Botón del menú -->
+  <button class="dropdown-button" onclick="toggleDropdown()">Mostrar Menú</button>
+  
+  <!-- Contenido del menú desplegable -->
+  <div class="dropdown-content" id="myDropdown">
+    <div onclick="showContent('Contenido 1')">Contenido 1</div>
+    <div onclick="showContent('Contenido 2')">Contenido 2</div>
+    <div onclick="showContent('Contenido 3')">Contenido 3</div>
+  </div>
+</div>
+
+<!-- Contenedor para mostrar el contenido seleccionado -->
+<div id="contentContainer" style="margin-top: 50px;"></div>
+
+
+
+</body>
+</html>

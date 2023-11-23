@@ -6,9 +6,11 @@ const criticalPathButton = document.getElementById("criticalPath_btn");
 const adjMatrixButton = document.getElementById("adjMatrix_btn");
 const dijkstraButton = document.getElementById("dijkstra_btn");
 const assignmentButton = document.getElementById("assignment_btn");
+const matrixButton = document.getElementById("adj_Button");
+const newNodeButton = document.getElementById("new_button");
 const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
-
+var matrixContainer = document.getElementById("myDropdown");
 
 dijkstraButton.addEventListener("click", e =>{   
   findShortestPath();
@@ -22,8 +24,12 @@ assignmentButton.addEventListener("click", e =>{
 graph.findAssingment();
 });
 
-adjMatrixButton.addEventListener("click", e => {
-console.log(matrizita);
+matrixButton.addEventListener("click", e => {
+  toggleDropdown();
+})
+
+newNodeButton.addEventListener("click", e => {
+  graph.adj.agregarNodo();
 });
 
 saveButton.addEventListener("click", e =>{
@@ -33,6 +39,17 @@ saveButton.addEventListener("click", e =>{
 loadButton.addEventListener('click', function() {
   uploadFile();
 });
+
+
+    // Función para alternar la visibilidad del menú desplegable
+function toggleDropdown() {
+  matrixContainer.style.display = (matrixContainer.style.display === "block") ? "none" : "block";
+}
+
+
+
+
+matrixContainer.appendChild(graph.adj.container);
 
 
 

@@ -99,12 +99,12 @@ export class Ball {
 
 
 export class Node extends Ball {
-    constructor(x, y, val, id) {
+    constructor(x, y, val, id, label = "") {
       super(x, y, 0, 0);
       this.id = id;
       this.isSelected = false;
       this.t = 0;
-      this.label = "";
+      this.label = label;
       this.val = val;
       this.valueColor = 'white';
       this.labelColor = 'black';

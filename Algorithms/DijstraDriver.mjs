@@ -94,7 +94,7 @@ canvas.addEventListener("mousedown", (e) => {
     }
 
     if (!isDragging && !isDrawingEdge && !isEditing) {
-        graph.addNode(mouse.x, mouse.y, 0);
+        graph.addNode(mouse.x, mouse.y, "");
         console.log("Nodo creado ejex", mouse.x, "ejeY", mouse.y);
     }
     }
@@ -179,6 +179,7 @@ window.addEventListener("contextmenu", (e) => {
 //escuchar cambio nombre
 nodeNamePicker.addEventListener("input", e => {
     selectedNode.label = e.target.value;
+    graph.updateData();
 });
 
 isSourcePicker.addEventListener("change", e => {

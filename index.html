@@ -15,6 +15,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
   <style>
 
+        .matrix_table{
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .new_button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            margin-left: 10px; /* Ajusta el margen izquierdo del botón */
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        } 
+    /* Estilos para el contenedor principal del menú */
+    .dropdown {
+
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    /* Estilos para el botón del menú */
+    .dropdown-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Estilos para el contenedor desplegable */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      z-index: 1001;
+    }
+
+    /* Estilos para los elementos dentro del contenedor desplegable */
+    .dropdown-content div {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    /* Cambia el color del fondo al pasar el ratón sobre un elemento del menú */
+    .dropdown-content div:hover {
+      background-color: #f1f1f1;
+    }
+
     .context_menu {
       background-color: #ffffff;
       border: 1px solid;
@@ -53,10 +137,18 @@
       <button class="w3-button" id="assignment_btn">Encontrar Asignacion</button>
       <button class="w3-button" id="kruskal_btn">arvol</button>
       <button class="w3-button" id="dijkstra_btn">Camino más Corto (Dijkstra)</button>
-      <button class="w3-button" id="adjMatrix_btn">Matriz de Adyacencia</button>
       <input type="file" id="fileInput" style="display: none;">
       <button class="w3-button" id="load_btn">Recuperar</button>
       <button class="w3-button" id="save_btn">Guardar</button>
+      <div class="dropdown">
+        <!-- Botón del menú -->
+        <button class="dropdown-button" id = "adj_Button">Matriz de Adyacencia</button>
+        
+        <!-- Contenido del menú desplegable -->
+        <div class="dropdown-content" id="myDropdown">
+        <button class = "new_button" id = "new_button">Agregar Nodo</button>
+        </div>
+      </div>
       <a class="w3-button" href="ayuda_jhonson.html" id="ayuda-boton">?</a>
     </div>
 

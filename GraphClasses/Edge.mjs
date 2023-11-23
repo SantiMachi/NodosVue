@@ -138,19 +138,19 @@ export class UndirectedEdge {
         this.strokeColor = 'orange';
       }
       else {
-        this.strokeColor = this.defaultStrokeColor;
+        this.strokeColor = this.defaultStrokeColor; 
       }
     }
 
-    undatedDraw(ctx){
-      update();
-      draw(ctx);
+    updatedDraw(ctx){
+      this.update();
+      this.draw(ctx);
     }
   }
 
 export class DirectedEdge extends UndirectedEdge {
-    constructor(n0, n1, weight) {
-      super(n0, n1, weight);
+    constructor(n0, n1, weight, id) {
+      super(n0, n1, weight, id);
       this.isAssigned = false;
       this.arrowDirection = this.direction;
       this.arrowLength = 20;

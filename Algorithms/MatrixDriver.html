@@ -5,66 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizador de Matriz de Adyacencia</title>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 10px;
-            font-family: Arial, sans-serif;
-        }
 
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        table {
-            border-collapse: collapse;
-            margin-top: 20px;
-            width: 80%;
-            max-width: 600px;
-        }
-
-        th, td {
-            border: 1px solid black;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .delete-button-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .delete-button {
-            background-color: #f44336;
-            margin-left: 10px; /* Ajusta el margen izquierdo del botón */
-        }
-
-        .delete-button:hover {
-            background-color: #d32f2f;
-        }
     </style>
 </head>
 <body>
@@ -72,7 +13,6 @@
     
     <div id="matrixContainer"></div>
     
-    <button onclick="agregarNodo()">Agregar Nodo</button>
     <button onclick="obtenerMatriz()">Obtener Matriz</button>
 
     <script>
