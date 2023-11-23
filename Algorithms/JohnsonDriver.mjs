@@ -1,6 +1,6 @@
 import {Node, DirectedEdge, UndirectedEdge, Graph} from "../GraphClasses/Graph.mjs"
 
-console.log("Chambea Kruskal")
+console.log("chambeaDijstrack")
 
 var canvas = document.querySelector("canvas");
 var ctx = canvas.getContext("2d");
@@ -20,6 +20,7 @@ let isDrawingEdge = false;
 let isEditing = false;
 
 var graph = new Graph(ctx);
+graph.isDirected = true;
 
 var mouse = {
     x: undefined,
@@ -88,13 +89,13 @@ canvas.addEventListener("mousedown", (e) => {
         if (node.isInside(mouse.x, mouse.y)) {
         selectedNode = node;
         isDrawingEdge = true;
-        selectedEdge = new UndirectedEdge(selectedNode, new Node(mouse.x, mouse.y), 0);
+        selectedEdge = new DirectedEdge(selectedNode, new Node(mouse.x, mouse.y), 0);
         break;
         }
     }
 
     if (!isDragging && !isDrawingEdge && !isEditing) {
-        graph.addNode(mouse.x, mouse.y, 0);
+        graph.addNode(mouse.x, mouse.y, "");
         console.log("Nodo creado ejex", mouse.x, "ejeY", mouse.y);
     }
     }
@@ -179,6 +180,7 @@ window.addEventListener("contextmenu", (e) => {
 //escuchar cambio nombre
 nodeNamePicker.addEventListener("input", e => {
     selectedNode.label = e.target.value;
+    graph.updateData();
 });
 
 isSourcePicker.addEventListener("change", e => {
@@ -264,8 +266,7 @@ export function uploadFile(){
         reader.onload = function(event) {
             try {
                 var data = JSON.parse(event.target.result);
-                graph = new Graph(ctx);
-
+                graph = new Graph(ctx, data.isDirected);
                 for(const node_data of data.nodes){
                     var nnode = new Node(node_data.x, node_data.y, node_data.val, node_data.id);
 
@@ -298,7 +299,10 @@ export function uploadFile(){
 
                         if(nn0 && nn1) break;
                     }
-                    var nedge = new DirectedEdge(nn0, nn1, edge_data.weight);
+                    var nedge;
+                    if(graph.isDirected) nedge = new DirectedEdge(nn0, nn1, edge_data.weight, graph.conections+1);
+                    else nedge = new UndirectedEdge(nn0, nn1, edge_data.weight, graph.conections+1);
+
                     if(nn0 == nn1) nedge.isSelfDirected =  true;
 
                     nedge.id = edge_data.id;
@@ -337,6 +341,7 @@ export function downloadFile() {
         edges.push(edge);
     }
     const jsonString = JSON.stringify({
+        isDirected : graph.isDirected,
         nodes : nodes,
         edges : edges
     });
@@ -370,112 +375,74 @@ function draw() {
     //console.log(graph);
 }
 
-export function Treekruskal() {
-    const kruskal = new Kruskal(graph.getAdjMatrix());
 
-    // Restablecer los colores a su estado por defecto (negro)
-    graph.edges.forEach(edge => {
-        edge.defaultStrokeColor='black';
-    });
 
-    const result = kruskal.kruskal();
+export function findShortestPath(){
+    const calc = new Dijkstra(graph.getAdjMatrix());
 
-    result.forEach(([node1, node2]) => {
-        const edge = findEdgeBetweenNodes(graph.edges, graph.nodes[node1], graph.nodes[node2]);
-        if (edge) {
-            edge.defaultStrokeColor = 'green'; // Colorear los bordes que están en el árbol de expansión mínima
-        }
-    });
+    if(!selectedNode) return;
+    
+    //console.log();
+    selectedNode.isCritical = true;
+    let o = graph.nodes.indexOf(selectedNode); 
+    const res = calc.dijkstra(o);
+    const dist = res.distancias;
 
-    result.forEach(([node1, node2]) => {
-        graph.nodes[node1].label = `Distancia[${kruskal.matrizAdyacencia[node1][node2]}]`;
-        graph.nodes[node2].label = `Distancia[${kruskal.matrizAdyacencia[node1][node2]}]`;
-    });
-}
-
-function findEdgeBetweenNodes(edges, node1, node2) {
-    return edges.find(edge =>
-        (edge.n0 === node1 && edge.n1 === node2) ||
-        (edge.n0 === node2 && edge.n1 === node1)
-    );
-}
-
-function findEdgeByNodes(node1, node2) {
-    for (let i = 0; i < Edge.length; i++) {
-        const edge = Edge[i];
-        if (
-            (edge.n0.id === node1 && edge.n1.id === node2) ||
-            (edge.n0.id === node2 && edge.n1.id === node1)
-        ) {
-            return edge; 
-        }
+    for(let i = 0; i < dist.length; i++){
+        if(i == o) graph.nodes[i].label = "Origen";
+        else graph.nodes[i].label = "Distancia[" + dist[i] + "]";
     }
-    return null; 
-}
-//propiedad 
 
-class Kruskal {
+}
+
+class Dijkstra{
     constructor(matrizAdyacencia) {
         this.matrizAdyacencia = matrizAdyacencia;
         this.n = matrizAdyacencia.length;
-        this.conjuntos = new Array(this.n).fill().map((_, index) => [index]);
-        this.aristas = this.generarAristas();
-        this.aristasOrdenadas = this.ordenarAristas();
-        this.arbolAbarcadorMinimo = [];
+        this.distancias = new Array(this.n).fill(Infinity);
+        this.visitados = new Array(this.n).fill(false);
+        this.rutas = new Array(this.n).fill([]);
     }
 
-    generarAristas() {
-        const aristas = [];
+    dijkstra(nodoInicial) {
+        this.distancias[nodoInicial] = 0;
+        this.rutas[nodoInicial] = [nodoInicial];
+
         for (let i = 0; i < this.n; i++) {
-            for (let j = i + 1; j < this.n; j++) {
-                if (this.matrizAdyacencia[i][j] !== -1) {
-                    aristas.push([i, j, this.matrizAdyacencia[i][j]]);
-                }
+        let nodo = this.nodoConDistanciaMinimaNoVisitado();
+        this.visitados[nodo] = true;
+
+        for (let j = 0; j < this.n; j++) {
+            if (!this.visitados[j] && this.matrizAdyacencia[nodo][j] !== Infinity) {
+            const costoAlternativo = this.distancias[nodo] + this.matrizAdyacencia[nodo][j];
+            if (costoAlternativo < this.distancias[j]) {
+                this.distancias[j] = costoAlternativo;
+                this.rutas[j] = this.rutas[nodo].concat(j);
+            }
             }
         }
-        return aristas;
-    }
-
-    ordenarAristas() {
-        return this.aristas.sort((a, b) => a[2] - b[2]);
-    }
-
-    encontrar(conjunto, nodo) {
-        for (let i = 0; i < conjunto.length; i++) {
-            if (conjunto[i].includes(nodo)) {
-                return i;
-            }
         }
-        return -1;
+
+        return {
+        distancias: this.distancias,
+        rutas: this.rutas,
+        };
     }
 
-    unirConjuntos(conjunto1, conjunto2) {
-        return conjunto1.concat(conjunto2);
-    }
+    nodoConDistanciaMinimaNoVisitado() {
+        let distanciaMinima = Infinity;
+        let nodoMin = -1;
 
-    kruskal() {
-        let aristasAgregadas = 0;
-
-        for (let arista of this.aristasOrdenadas) {
-            const [nodo1, nodo2, peso] = arista;
-            const conjuntoNodo1 = this.encontrar(this.conjuntos, nodo1);
-            const conjuntoNodo2 = this.encontrar(this.conjuntos, nodo2);
-
-            if (conjuntoNodo1 !== conjuntoNodo2) {
-                this.arbolAbarcadorMinimo.push([nodo1, nodo2, peso]);
-                this.conjuntos[conjuntoNodo1] = this.unirConjuntos(this.conjuntos[conjuntoNodo1], this.conjuntos[conjuntoNodo2]);
-                this.conjuntos.splice(conjuntoNodo2, 1);
-                aristasAgregadas++;
-            }
-
-            if (aristasAgregadas === this.n - 1) {
-                break;
-            }
+        for (let i = 0; i < this.n; i++) {
+        if (!this.visitados[i] && this.distancias[i] < distanciaMinima) {
+            distanciaMinima = this.distancias[i];
+            nodoMin = i;
         }
-        return this.arbolAbarcadorMinimo;
+        }
+
+        return nodoMin;
     }
 }
-
 
 
 draw();

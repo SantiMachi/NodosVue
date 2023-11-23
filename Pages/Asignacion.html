@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.0.2/dist/sweetalert2.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <style>
+
+        .matrix_table{
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .new_button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            margin-left: 10px; /* Ajusta el margen izquierdo del botón */
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        } 
+    /* Estilos para el contenedor principal del menú */
+    .dropdown {
+
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    /* Estilos para el botón del menú */
+    .dropdown-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Estilos para el contenedor desplegable */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      z-index: 1001;
+    }
+
+    /* Estilos para los elementos dentro del contenedor desplegable */
+    .dropdown-content div {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    /* Cambia el color del fondo al pasar el ratón sobre un elemento del menú */
+    .dropdown-content div:hover {
+      background-color: #f1f1f1;
+    }
+
+    .context_menu {
+      background-color: #ffffff;
+      border: 1px solid;
+      box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+      padding: 10px 0;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 200px;
+      display: none;
+    }
+
+    .context_menu_item {
+      cursor: pointer;
+      padding: 5px 15px;
+    }
+
+    .context_menu_item:hover {
+      background-color: #f1f1f1;
+    }
+
+    #app {
+      background-color: #ffffff;
+    }
+  </style>
+</head>
+
+<body class="w3-content">
+
+  <div>
+
+    <h1>Nodos generatrol</h1>
+    <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
+
+      <button class="w3-button" id="criticalPath_btn">Encontrar Camino Critico</button>
+      <button class="w3-button" id="assignment_btn">Encontrar Asignacion</button>
+      <button class="w3-button" id="kruskal_btn">arvol</button>
+      <button class="w3-button" id="dijkstra_btn">Camino más Corto (Dijkstra)</button>
+      <input type="file" id="fileInput" style="display: none;">
+      <button class="w3-button" id="load_btn">Recuperar</button>
+      <button class="w3-button" id="save_btn">Guardar</button>
+      <div class="dropdown">
+        <!-- Botón del menú -->
+        <button class="dropdown-button" id = "adj_Button">Matriz de Adyacencia</button>
+        
+        <!-- Contenido del menú desplegable -->
+        <div class="dropdown-content" id="myDropdown">
+        <button class = "new_button" id = "new_button">Agregar Nodo</button>
+        </div>
+      </div>
+      <a class="w3-button" href="ayuda_jhonson.html" id="ayuda-boton">?</a>
+    </div>
+
+    <div class="context_menu" id="node_cm">
+      <div class="context_menu_item" id="node_name_b">
+        <label for="node_name_p">Nombre</label>
+        <input type="text" id="node_name_p">
+      </div>
+      <div class="context_menu_item" id="is_source_b">
+        <label for="is_source_p">Nodo fuente:</label>`
+        <input type="checkbox" id="is_source_p">
+      </div>
+      <div class="context_menu_item" id="node_val_b">
+        <label for="node_val_p">Valor</label>
+        <input type="number" step="0.1" id="node_val_p">
+      </div>
+      <div class="context_menu_item">
+        <label for="node_cp">Color</label>
+        <input type="color" id="node_cp" name="colorPicker">
+      </div>
+
+      <div class="context_menu_item" id="node_delete_b">
+        <label for="node_delete_b">Eliminar</label>
+      </div>
+    </div>
+
+    <div class="context_menu" id="edge_cm">
+      <div class="context_menu_item" id="edge_weight_b">
+        <label for="colorPicker">Peso</label>
+        <input type="number" step="0.1" id="edge_weight_p" name="colorPicker">
+      </div>
+      <div class="context_menu_item">
+        <label for="colorPicker">Color</label>
+        <input type="color" id="edge_cp" name="colorPicker">
+      </div>
+
+      <div class="context_menu_item" id="edge_delete_b">
+        <label for="edge_delete_b">Eliminar</label>
+      </div>
+    </div>
+
+    <canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
+  </div>
+
+  <script type="module" src="./Controllers/Asignacion.mjs"></script>
+ 
+</body>
+
+</html>

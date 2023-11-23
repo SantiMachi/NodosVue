@@ -88,7 +88,7 @@ canvas.addEventListener("mousedown", (e) => {
         if (node.isInside(mouse.x, mouse.y)) {
         selectedNode = node;
         isDrawingEdge = true;
-        selectedEdge = new DirectedEdge(selectedNode, new Node(mouse.x, mouse.y), 0);
+        selectedEdge = new UndirectedEdge(selectedNode, new Node(mouse.x, mouse.y), 0);
         break;
         }
     }
