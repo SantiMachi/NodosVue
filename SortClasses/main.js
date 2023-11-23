@@ -23,6 +23,12 @@ function printArray(arr){
     console.log(s);
 }
 
+
+window.addEventListener("resize", e=>{
+    console.log("que pasa");
+    array.maxWidth = window.innerWidth*3/4;
+})
+
 movelo.addEventListener("click", e =>{
     //array.move(1, 6);
     //console.log("llamado");
@@ -32,11 +38,11 @@ movelo.addEventListener("click", e =>{
     carray = array.elements.slice()
     printArray(carray);
     steps = [];
-    insertionSort();
+    //insertionSort();
     //selectionSort();
     //bubbleSort();
-    //mergeSort(0, array.n - 1);
-    printArray(carray);
+    mergeSort(0, array.n - 1);
+    //printArray(carray);
 
     for(let step of steps){
         console.log(step[0].value, step[1]);
@@ -141,11 +147,12 @@ function selectionSort(){
 }
 
 function insertionSort(){
-    for(let i = 0; i < array.n-1; i++){
+    for(let i = 0; i < array.n; i++){
         let b = 0;
-        let e = i-1;
+        let e = i;
+        let h = Math.floor((b+e)/2);
         while(b < e){
-            let h = Math.floor((b+e)/2);
+            h = Math.floor((b+e)/2);
             if(carray[h].value < carray[i].value){
                 b = h+1;
             }

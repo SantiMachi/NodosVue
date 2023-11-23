@@ -19,8 +19,8 @@ export class Element{
         ctx.closePath();
         //console.log(this.x , this.y, this.width, this.height);
         ctx.font = '24px Montserrat, sans-serif';
-        ctx.fillText(this.index.toString(), ((2*this.x + this.width) / 2), 
-        this.y + 24);
+        //ctx.fillText(this.index.toString(), ((2*this.x + this.width) / 2), 
+        //this.y + 24);
     }
 
     update(){
