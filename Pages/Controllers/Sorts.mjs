@@ -1,4 +1,4 @@
-import {Array, Element} from "../../SortClasses";
+import {Array, Element} from "../../SortClasses/Array.mjs"
 
 console.log("chambeaSort")
 
