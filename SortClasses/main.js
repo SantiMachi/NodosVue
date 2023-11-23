@@ -13,26 +13,42 @@ const movelo = document.getElementById("movelo");
 var array = new Array(ctx, 500, 700, 200);
 var carray = array.elements.slice();
 var steps = [];
+
+
+function printArray(arr){
+    var s = "";
+    for(let o of arr){
+        s += o.value.toString()+ "\n"
+    }
+    console.log(s);
+}
+
 movelo.addEventListener("click", e =>{
     //array.move(1, 6);
     //console.log("llamado");
     //bubbleSort();
-    array.dx = 5;
+    array.dx = 30;
     
     carray = array.elements.slice()
-    console.log(carray);
+    printArray(carray);
     steps = [];
-    bubbleSort(0, array.n-1);
+    insertionSort();
+    //selectionSort();
+    //bubbleSort();
+    //mergeSort(0, array.n - 1);
+    printArray(carray);
 
+    for(let step of steps){
+        console.log(step[0].value, step[1]);
+    }
     console.log("steps", steps)
     array.playAnimation(steps);
-    //array.move(1, 0);
     
 })
 
 
 
-var n  = 10;
+var n  = 100;
 
 for(let i  = 0; i < n; i++){
     array.push(Math.random());
@@ -106,5 +122,41 @@ function mergeSort(b, e){
     for(let k = 0; k < c.length; k++){
         steps.push([c[k], b+k]);
         carray[b+k] = c[k];
+    }
+}
+
+
+function selectionSort(){
+    for(let i = 0; i < array.n; i++){
+        let mini = i;
+
+        for(let j = i; j < array.n; j++){
+            if(carray[j].value < carray[mini].value) mini = j; 
+        }
+        steps.push([carray[mini], i]);
+        let temp = carray[i];
+        carray[i] = carray[mini];
+        carray[mini] = temp;
+    }
+}
+
+function insertionSort(){
+    for(let i = 0; i < array.n-1; i++){
+        let b = 0;
+        let e = i-1;
+        while(b < e){
+            let h = Math.floor((b+e)/2);
+            if(carray[h].value < carray[i].value){
+                b = h+1;
+            }
+            else{
+                e = h;
+            }
+        }
+
+        steps.push([carray[i], b]);
+        let temp = carray[i];
+        carray.splice(i, 1);
+        carray.splice(b, 0, temp);
     }
 }

@@ -128,6 +128,7 @@ export  class Array{
                     }
                 }
                 this.swap(this.u, this.v);
+                this.updateElementAtributes();
                 this.ou.isSelected = false;
                 if(this.step <= this.animation.length-2){
                     this.step++;
