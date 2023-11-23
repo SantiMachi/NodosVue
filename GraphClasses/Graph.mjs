@@ -175,7 +175,7 @@ class AdjacencyMatrix{
 
 
 export class Graph {
-    constructor(ctx) {
+    constructor(ctx, isDirected = false) {
       this.ctx = ctx;
       this.n = 0;
       this.conections = 0;
@@ -183,7 +183,7 @@ export class Graph {
       this.edges = [];
       this.sources = [];
       this.destinations = [];
-      this.isDirected = false;
+      this.isDirected = isDirected;
       this.adj = new AdjacencyMatrix(this);
       
     }
@@ -291,9 +291,9 @@ export class Graph {
         return;
       }
 
-      this.edges.push(newEdge);
-      n0.edges.push(newEdge);
-      n1.edges.push(newEdge);
+      this.edges.push(edge);
+      n0.edges.push(edge);
+      n1.edges.push(edge);
       if(n0 == n1){
         edge.isSelfDirected = true;
       }

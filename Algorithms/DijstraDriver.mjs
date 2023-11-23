@@ -265,8 +265,7 @@ export function uploadFile(){
         reader.onload = function(event) {
             try {
                 var data = JSON.parse(event.target.result);
-                graph = new Graph(ctx);
-
+                graph = new Graph(ctx, data.isDirected);
                 for(const node_data of data.nodes){
                     var nnode = new Node(node_data.x, node_data.y, node_data.val, node_data.id);
 
@@ -299,7 +298,10 @@ export function uploadFile(){
 
                         if(nn0 && nn1) break;
                     }
-                    var nedge = new DirectedEdge(nn0, nn1, edge_data.weight);
+                    var nedge;
+                    if(graph.isDirected) nedge = new DirectedEdge(nn0, nn1, edge_data.weight, graph.conections+1);
+                    else nedge = new UndirectedEdge(nn0, nn1, edge_data.weight, graph.conections+1);
+
                     if(nn0 == nn1) nedge.isSelfDirected =  true;
 
                     nedge.id = edge_data.id;
@@ -338,6 +340,7 @@ export function downloadFile() {
         edges.push(edge);
     }
     const jsonString = JSON.stringify({
+        isDirected : graph.isDirected,
         nodes : nodes,
         edges : edges
     });
