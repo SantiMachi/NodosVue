@@ -244,6 +244,10 @@ export class Graph {
       let u = this.nodes.indexOf(n0);
       let v = this.nodes.indexOf(n1);
       
+      if(this.adj.get(u, v) != Infinity || this.adj.get(v, u) != Infinity){
+        return;
+      }
+
       var newEdge;
       if(this.adj.get(u, v) == Infinity){
         
@@ -299,7 +303,6 @@ export class Graph {
       }
       this.updateData();
     }
-    
 
     deleteNode(n0) {
       if (this.nodes.includes(n0)) {

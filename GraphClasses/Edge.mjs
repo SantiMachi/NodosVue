@@ -21,8 +21,10 @@ export class UndirectedEdge {
       this.font = '24px Montserrat, sans-serif';
       //para la bd , n0.id,n1.id, weight,strokecolor, weightcolor,font
 
-      this.relativeX = 0;
-      this.relativeY = 0;
+      this.relativeX = -1;
+      this.relativeY = -1;
+      this.originX = 0;
+      this.originY = 0;
       this.arcr = 2*Math.sqrt(Math.pow(this.startX - this.endX, 2) + Math.pow(this.startY - this.endY, 2));
       this.arcr = Math.min(this.arcr, this.n0.r/3);
       this.centerDist = this.n0.r + this.arcr/2;
@@ -40,7 +42,11 @@ export class UndirectedEdge {
         const centerX = this.startX + this.centerDist*Math.cos(this.direction);
         const centerY = this.startY + this.centerDist*Math.sin(this.direction);
         const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
-        if(Math.abs(dist - this.arcr) < 30) return true;
+        
+        const angle = Math.atan2(y-centerY, x-centerX);
+        
+        if(Math.abs(dist - this.arcr) < 10 &&
+        (angle < this.teta1 || angle > this.teta2))return true;
         else return false;
       }
       else{
@@ -50,8 +56,10 @@ export class UndirectedEdge {
         const a = slope * (this.n1.x - this.n0.x);
         const b = -(this.n1.x - this.n0.x);
         const c = intercept * (this.n1.x - this.n0.x);
-        if (Math.abs(a * x + b * y + c) / Math.sqrt(a ** 2 + b ** 2) < 30) return true;
-        else return false;
+        if (Math.abs(a * x + b * y + c) / Math.sqrt(a ** 2 + b ** 2) < 10
+        && ((Math.abs(x-this.originX) +  Math.abs(x-this.targetX)) <= Math.abs(this.originX-this.targetX))
+        && ((Math.abs(y-this.originY) +  Math.abs(y-this.targetY)) <= Math.abs(this.originY-this.targetY))) return true;
+        else return false;  
       }
     }
 
@@ -96,14 +104,14 @@ export class UndirectedEdge {
         const px = 20*Math.cos(normal_direction);
         const py = 20*Math.sin(normal_direction);
         
-        ctx.fillText(this.weight.toString(), ((this.startX + this.targetX) / 2) + px, 
-                                             ((this.startY + this.targetY) / 2) + py);
+        ctx.fillText(this.weight.toString(), ((this.originX + this.targetX) / 2) + px, 
+                                             ((this.originY + this.targetY) / 2) + py);
         ctx.closePath();
 
         ctx.beginPath();
         ctx.strokeStyle = this.strokeColor;
         ctx.lineWidth = 4;
-        ctx.moveTo(this.startX, this.startY);
+        ctx.moveTo(this.originX, this.originY);
         ctx.lineTo(this.targetX, this.targetY);
         ctx.stroke();
         ctx.closePath();
@@ -126,6 +134,9 @@ export class UndirectedEdge {
       this.direction = Math.atan2(this.endY - this.startY, this.endX - this.startX);
       this.targetX = this.endX - this.n1.r * Math.cos(this.direction);
       this.targetY = this.endY - this.n1.r * Math.sin(this.direction);
+      
+      this.originX = this.startX + this.n0.r*Math.cos(this.direction);
+      this.originY = this.startY +this.n0.r*Math.sin(this.direction);
 
       this.arcr = 1.5*Math.sqrt(Math.pow(this.startX - this.endX, 2) + Math.pow(this.startY - this.endY, 2));
       this.arcr = Math.max(this.arcr,0.5* this.n0.r);

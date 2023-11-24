@@ -159,8 +159,8 @@ canvas.addEventListener("mouseup", (e) => {
 });
 
 
-const nodeMenu = document.getElementById("node_cm");
-const edgeMenu = document.getElementById("edge_cm");
+var nodeMenu = document.getElementById("node_cm");
+var edgeMenu = document.getElementById("edge_cm");
 
 const nodeNamePicker = document.getElementById("node_name_p");
 const isSourcePicker = document.getElementById("is_source_p");
@@ -236,7 +236,10 @@ function showNodeMenu(x, y) {
     nodeMenu.style.top = y;
     nodeMenu.style.display = 'block';
 
-    console.log("joderrr");
+    console.log("ptm");
+    console.log(nodeMenu)
+    console.log(x, y)
+    console.log(nodeMenu.style.left, nodeMenu.style.top);
 }
 
 function showEdgeMenu(x, y) {
