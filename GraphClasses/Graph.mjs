@@ -351,7 +351,7 @@ export class Graph {
   
   getAdjMatrix(){
     var matrix = [];
-    for(let row of this.adj.data){
+    for(let row of this.adj.matrix){
       var nrow = []
       for(let cel of row){
         if(cel == Infinity) nrow.push(Infinity);

@@ -1,336 +1,194 @@
-import "../../Algorithms/kruskalDriver.mjs";
-
-import {downloadFile, uploadFile, graph, findShortestPath} from "../../Algorithms/kruskalDriver.mjs";
-
-const criticalPathButton = document.getElementById("criticalPath_btn");
-const adjMatrixButton = document.getElementById("adjMatrix_btn");
-const dijkstraButton = document.getElementById("dijkstra_btn");
-const assignmentButton = document.getElementById("assignment_btn");
+import {Node, UndirectedEdge, DirectedEdge, Graph, GraphController} from "../../GraphClasses/GraphController.mjs";
+import { convertToPixels, extractFontSize } from "../../Utilities/TextUtils.mjs";
+const shortestPathButton = document.getElementById("shortestPath_btn");
 const matrixButton = document.getElementById("adj_Button");
-const newNodeButton = document.getElementById("new_button");
+const newNodeButton = document.getElementById("new_node_button");
 const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
 var matrixContainer = document.getElementById("myDropdown");
 
-dijkstraButton.addEventListener("click", e =>{   
+class DijkstraNode extends Node{
+  constructor(x, y, val, id, label = ""){
+    super(x, y, val, label);
+    this.isOrigin = false;
+    this.isTarget = false;
+  }
+
+  draw(ctx){
+    super.draw(ctx);
+
+    const x = this.x;
+    const y = this.y - this.r - 40;
+
+    if(this.isOrigin){
+      this.label = "Inicio";
+      this.fillColor = "#00e660";
+    }
+  }
+}
+
+class DijkstraGraphController extends GraphController{
+  constructor(){
+    super();
+    var o_button = document.createElement("div");
+    o_button.innerHTML = `
+    <div class="context_menu_item" id="node_origin_b">
+      <label for="node_origin_b">Origen</label> 
+    </div>
+    `;
+
+    o_button.addEventListener("click", e => {
+      if(origin){
+      origin.isOrigin = false;
+      }
+      origin = this.selectedNode;
+      origin.isOrigin = true;
+    });
+
+    this.nodeMenu.visualElement.appendChild(o_button);
+
+  }
+
+  generateNode(x, y, val = 0, id = null){
+    return new DijkstraNode(x, y, 0, null);
+  }
+}
+
+
+var controller = new DijkstraGraphController();
+var graph = controller.createGraph(false);
+var origin = null;
+var canvas = controller.getVisualFrame();
+controller.resizeVisualFrame(window.innerWidth, window.innerHeight);
+
+document.body.appendChild(canvas);
+matrixContainer.appendChild(controller.getVisualMatrix());
+
+controller.draw();
+
+shortestPathButton.addEventListener("click", e =>{   
+  graph = controller.graph;
+  for(let node of graph.nodes){
+    node.fillColor = "black";
+    node.isOrigin = false;
+    node.isTarget = false;
+  }
+  for(let edge of graph.edges){
+    edge.strokeColor = "black";
+  }
+
   findShortestPath();
 });
 
-criticalPathButton.addEventListener("click", e =>{   
-graph.findCriticalPath();
-});
-
-assignmentButton.addEventListener("click", e =>{   
-graph.findAssingment();
-});
-
 matrixButton.addEventListener("click", e => {
-  toggleDropdown();
+  matrixContainer.style.display = (matrixContainer.style.display === "block") ? "none" : "block";
+  matrixContainer.removeChild(matrixContainer.lastChild);
+  matrixContainer.appendChild(controller.getVisualMatrix());
 })
 
 newNodeButton.addEventListener("click", e => {
+  graph = controller.graph;
   graph.adj.agregarNodo();
 });
 
 saveButton.addEventListener("click", e =>{
-  downloadFile();
+  controller.downloadFile();
 })
 
-loadButton.addEventListener('click', function() {
-  uploadFile();
+loadButton.addEventListener('click', e => { 
+  controller.loadFile();
 });
 
+function findShortestPath(){
 
-    // Función para alternar la visibilidad del menú desplegable
-function toggleDropdown() {
-  matrixContainer.style.display = (matrixContainer.style.display === "block") ? "none" : "block";
+  if(!origin) {
+    alert("Seleccione Origen");
+    return;
+  }
+  const kruskal = new Kruskal(graph.getAdjMatrix());
+
+  const result = kruskal.kruskal();
+
+  result.forEach(([node1, node2]) => {
+      const edge = findEdgeBetweenNodes(graph.edges, graph.nodes[node1], graph.nodes[node2]);
+      if (edge) {
+          graph.nodes[node1].isCritical = true;
+          graph.nodes[node2].isCritical = true;
+          edge.isAssigned = true;; // Colorear los bordes que están en el árbol de expansión mínima
+      }
+  });
+
+  result.forEach(([node1, node2]) => {
+      graph.nodes[node1].label = `Distancia[${kruskal.matrizAdyacencia[node1][node2]}]`;
+      graph.nodes[node2].label = `Distancia[${kruskal.matrizAdyacencia[node1][node2]}]`;
+  });
 }
 
+function findEdgeBetweenNodes(edges, node1, node2) {
+  return edges.find(edge =>
+      (edge.n0 === node1 && edge.n1 === node2) ||
+      (edge.n0 === node2 && edge.n1 === node1)
+  );
+}
 
+class Kruskal {
+  constructor(matrizAdyacencia) {
+      this.matrizAdyacencia = matrizAdyacencia;
+      this.n = matrizAdyacencia.length;
+      this.conjuntos = new Array(this.n).fill().map((_, index) => [index]);
+      this.aristas = this.generarAristas();
+      this.aristasOrdenadas = this.ordenarAristas();
+      this.arbolAbarcadorMinimo = [];
+  }
 
+  generarAristas() {
+      const aristas = [];
+      for (let i = 0; i < this.n; i++) {
+          for (let j = i + 1; j < this.n; j++) {
+              if (this.matrizAdyacencia[i][j] !== -1) {
+                  aristas.push([i, j, this.matrizAdyacencia[i][j]]);
+              }
+          }
+      }
+      return aristas;
+  }
 
-matrixContainer.appendChild(graph.adj.container);
+  ordenarAristas() {
+      return this.aristas.sort((a, b) => a[2] - b[2]);
+  }
 
+  encontrar(conjunto, nodo) {
+      for (let i = 0; i < conjunto.length; i++) {
+          if (conjunto[i].includes(nodo)) {
+              return i;
+          }
+      }
+      return -1;
+  }
 
+  unirConjuntos(conjunto1, conjunto2) {
+      return conjunto1.concat(conjunto2);
+  }
 
-/*
-let url = 'http://localhost:4000/users';
-   let url2 = 'http://localhost:4000/enlaces';
-   let esawea = [];
-   let esawea2 = [];
-   let nodoSel = null;
-   let edgeSel = null;
-   new Vue({
-     el: '#app',
-     vuetify: new Vuetify(),
-     data() {
-       return {
-         userss: [],
-         dialog: false,
-         operacion: '',
-         users: {
-           id: null,
-           nombre: '',
-           posicion_x: 0,
-           posicion_y: 0
-         },
-         enlaces: [],
-         dialog1: false,
-         operacion1: '',
-         enlace: {
-           id: null,
-           nodo_inicio_id: '',
-           nodo_fin_id: '',
-           valor_numerico: 0
-         }
-       }
-     },
-     created() {
-       this.mostrar();
-       setTimeout(() => {
-         this.mostrar2();
-       }, 200);
-     },
-     methods: {
-       //MÉTODOS PARA EL CRUD
-       mostrar: function () {
-         axios.get(url)
-           .then(response => {
-             
-             
-             esawea = [];
-             this.userss = response.data;
+  kruskal() {
+      let aristasAgregadas = 0;
 
-             esawea = [...this.userss];
-             console.log('nodos: '+this.userss);
-             nodoInicial();
-           })
+      for (let arista of this.aristasOrdenadas) {
+          const [nodo1, nodo2, peso] = arista;
+          const conjuntoNodo1 = this.encontrar(this.conjuntos, nodo1);
+          const conjuntoNodo2 = this.encontrar(this.conjuntos, nodo2);
 
+          if (conjuntoNodo1 !== conjuntoNodo2) {
+              this.arbolAbarcadorMinimo.push([nodo1, nodo2, peso]);
+              this.conjuntos[conjuntoNodo1] = this.unirConjuntos(this.conjuntos[conjuntoNodo1], this.conjuntos[conjuntoNodo2]);
+              this.conjuntos.splice(conjuntoNodo2, 1);
+              aristasAgregadas++;
+          }
 
-       },
-       mostrar2: function () {
-         axios.get(url2)
-           .then(response => {
-             esawea2 = [];
-             this.enlaces = response.data;
-             esawea2 = [...this.enlaces];
-             console.log('enlace: '+this.enlaces);
-             edgeInicial();
-           })
-
-
-       },
-       crear: function () {
-         let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y };
-         axios.post(url, parametros)
-           .then(response => {
-             console.log(parametros);
-           });
-         this.users.nombre = "";
-         this.users.posicion_x = "";
-         this.users.posicion_y = "";
-       },
-       editar: function () {
-         let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y };
-         //console.log(parametros);                   
-         axios.put(url + "/" + this.users.id, parametros)
-           .then(response => {
-             //this.mostrar();
-           })
-           .catch(error => {
-             console.log(error);
-           });
-       },
-       borrar: function (id) {
-         nodoSel = selectedNode.id;
-         id = nodoSel;
-            console.log(id);
-         esawea.forEach(elm => {
-           if (elm.id == id) {
-             axios.delete(url + "/" + id)
-               .then(response => {
-                 console.log('funciona');
-               });
-           }
-         });
-
-       },
-       crear2: function () {
-         let parametros1 = { nodo_inicio_id: this.enlace.nodo_inicio_id, nodo_fin_id: this.enlace.nodo_fin_id, valor_numerico: this.enlace.valor_numerico };
-         axios.post(url2, parametros1)
-           .then(response => {
-             console.log(parametros1);
-           });
-         this.enlace.nodo_inicio_id = "";
-         this.enlace.nodo_fin_id = "";
-         this.enlace.valor_numerico = "";
-       },
-       editar2: function () {
-         let parametros1 = { nodo_inicio_id: this.enlace.nodo_inicio_id, nodo_fin_id: this.enlace.nodo_fin_id, valor_numerico: this.enlace.valor_numerico };
-         //console.log(parametros);                   
-         axios.put(url2 + "/" + this.enlace.id, parametros1)
-           .then(response => {
-             //this.mostrar2();
-           })
-           .catch(error => {
-             console.log(error);
-           });
-       },
-       borrare: function (id) {
-         edgeSel = selectedEdge.id;
-         id = edgeSel;
-         console.log(id);
-         esawea2.forEach(elm => {
-           if (elm.id == id) {
-             axios.delete(url2 + "/" + id)
-               .then(response => {
-                 console.log('funciona 2');
-               });
-           }
-         });
-
-       },
-       borrar2: function () {
-
-         graph.nodes.forEach(nod => {
-           console.log('nodo: ' + this.userss);
-           this.users.nombre = nod.label;
-           this.users.posicion_x = nod.x;
-           this.users.posicion_y = nod.y;
-           this.operacion = 'crear';
-           this.userss.forEach(element => {
-             if (nod.id == element.id) {
-               this.operacion = 'editar';
-               this.users.id = nod.id;
-             }
-           });
-           if (this.operacion == 'crear') {
-             this.crear();
-           }
-           if (this.operacion == 'editar') {
-             this.editar();
-           }
-           this.dialog = false;
-
-         });
-         setTimeout(() => {
-           //this.mostrar();
-           setTimeout(() => {
-             //this.mostrar2();
-           }, 200);
-         }, 200);
-
-
-       },
-       borrar22: function () {
-         graph.edges.forEach(edg => {
-           console.log('unenlace: ' + this.enlaces);
-           console.log('datoenlace: '+this.enlace);
-           
-           console.log(edg.n0.id);
-           this.enlace.nodo_inicio_id = edg.n0.id;
-           this.enlace.nodo_fin_id = edg.n1.id;
-           this.enlace.valor_numerico = edg.weight;
-           this.operacion1 = 'crear';
-           this.enlaces.forEach(element => {
-             if (edg.id == element.id) {
-               this.operacion1 = 'editar';
-               this.enlace.id = edg.id;
-             }
-           });
-           if (this.operacion1 == 'crear') {
-             this.crear2();
-           }
-           if (this.operacion1 == 'editar') {
-             this.editar2();
-           }
-           this.dialog1 = false;
-         });
-         setTimeout(() => {
-           //this.mostrar();
-           setTimeout(() => {
-             //this.mostrar2();
-           }, 200);
-         }, 200);
-
-
-       },
-       buerra: function () {
-
-         this.borrar();
-
-
-         /* graph.nodes.forEach(nod => {
-           
-           this.users.nombre = nod.label;
-           this.users.posicion_x = nod.x;
-           this.users.posicion_y = nod.y;
-           this.operacion='crear';
-           if (this.operacion == 'crear') {
-             this.crear();
-           }
-           if (this.operacion == 'editar') {
-             this.editar();
-           }
-           this.dialog = false;
-         }); 
-
-       },
-
-       //Botones y formularios
-       guardar: function () {
-         console.log('enlaces'+this.userss);
-         console.log('enlaces'+this.enlaces);
-         this.borrar2();
-         
-         setTimeout(() => {
-           this.borrar22(this.enlaces);
-         }, 200);
-
-
-
-
-         /* graph.nodes.forEach(nod => {
-           
-           this.users.nombre = nod.label;
-           this.users.posicion_x = nod.x;
-           this.users.posicion_y = nod.y;
-           this.operacion='crear';
-           if (this.operacion == 'crear') {
-             this.crear();
-           }
-           if (this.operacion == 'editar') {
-             this.editar();
-           }
-           this.dialog = false;
-         }); 
-
-       },
-       formNuevo: function () {
-         this.dialog = true;
-         this.operacion = 'crear';
-         this.users.nombre = '';
-         this.users.posicion_x = 0;
-         this.users.posicion_y = 0;
-       },
-       formEditar: function (id, nombre, posicion_x, posicion_y) {
-
-         this.users.id = id;
-         this.users.nombre = '';
-         this.users.posicion_x = 0;
-         this.users.posicion_y = 0;
-         this.dialog = true;
-         this.operacion = 'editar';
-       }
-     }
-   });
-
-
-   console.log("!chambea");
-
-  */
-
-
-
-
-
+          if (aristasAgregadas === this.n - 1) {
+              break;
+          }
+      }
+      return this.arbolAbarcadorMinimo;
+  }
+}

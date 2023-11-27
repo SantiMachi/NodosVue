@@ -1,5 +1,5 @@
 import { Node } from "./Node.mjs";
-
+import { extractFontSize } from "../Utilities/TextUtils.mjs";
 export class UndirectedEdge {
     constructor(n0, n1, weight, id) {
       /* if (!n0 || !n1 ){
@@ -107,8 +107,8 @@ export class UndirectedEdge {
         else{
           normal_direction  = this.direction + (Math.PI/2);
         }
-        const px = 20*Math.cos(normal_direction);
-        const py = 20*Math.sin(normal_direction);
+        const px = (extractFontSize(this.font)+10)*Math.cos(normal_direction);
+        const py = (extractFontSize(this.font)+10)*Math.sin(normal_direction);
         
         ctx.fillText(this.weight.toString(), ((this.originX + this.targetX) / 2) + px, 
                                              ((this.originY + this.targetY) / 2) + py);
@@ -151,11 +151,17 @@ export class UndirectedEdge {
       this.teta1 = Math.PI + this.direction - alfa;
       this.teta2 = Math.PI + this.direction + alfa;
 
+
       if (this.isSelected) {
         this.strokeColor = 'orange';
       }
-      else {
-        this.strokeColor = this.defaultStrokeColor; 
+      else{
+        if(this.isAssigned) {
+          this.strokeColor = 'blue';
+        }
+        else{
+          this.strokeColor = this.defaultStrokeColor; 
+        }
       }
     }
 
@@ -213,18 +219,6 @@ export class DirectedEdge extends UndirectedEdge {
         this.targetX = this.endX - (this.n1.r + this.arrowLength*(Math.sqrt(3)/2) ) * Math.cos(this.direction);
         this.targetY = this.endY - (this.n1.r + this.arrowLength*(Math.sqrt(3)/2) ) * Math.sin(this.direction);
       } 
-
-      if (this.isSelected) {
-        this.strokeColor = 'orange';
-      }
-      else{
-        if(this.isAssigned) {
-          this.strokeColor = 'blue';
-        }
-        else{
-          this.strokeColor = this.defaultStrokeColor; 
-        }
-    }
       //console.log("Estoy en el update");
     }
     updatedDraw(ctx){

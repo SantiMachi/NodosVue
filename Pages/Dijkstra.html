@@ -14,9 +14,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
   <style>
-
-
-    /* Estilos para el contenedor principal del menú */
     .dropdown {
 
       top: 0;
@@ -53,36 +50,26 @@
     .dropdown-content div:hover {
       background-color: #f1f1f1;
     }
+
   </style>
 </head>
 
 <body>
-
-  <div>
-
     <h1>Nodos generatrol</h1>
-    <div style="background-color: #867878;display: block; margin: 10px 0px;">
+    <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
-      <button class="w3-button" id="criticalPath_btn">Encontrar Camino Critico</button>
-      <button class="w3-button" id="assignment_btn">Encontrar Asignacion</button>
-      <button class="w3-button" id="kruskal_btn">arvol</button>
-      <button class="w3-button" id="dijkstra_btn">Camino más Corto (Dijkstra)</button>
-      <input type="file" id="fileInput" style="display: none;">
-      <button class="w3-button" id="load_btn">Recuperar</button>
-      <button class="w3-button" id="save_btn">Guardar</button>
+      <button class="w3-button" id="shortestPath_btn">Encontrar Camino más Corto</button>
+      <button class="w3-button" id="load_btn">Abrir Proyecto</button>
+      <button class="w3-button" id="save_btn">Guardar Proyecto</button>
       <div class="dropdown">
-        <!-- Botón del menú -->
         <button class="dropdown-button" id = "adj_Button">Matriz de Adyacencia</button>
         
-        <!-- Contenido del menú desplegable -->
         <div class="dropdown-content" id="myDropdown">
-        <button class = "new_button" id = "new_button">Agregar Nodo</button>
+          <button class = "new_button" id = "new_node_button">Agregar Nodo</button>
         </div>
       </div>
       <a class="w3-button" href="ayuda_jhonson.html" id="ayuda-boton">?</a>
     </div>
-
-  </div>
 
   <script type="module" src="./Controllers/Dijkstra.mjs"></script>
  

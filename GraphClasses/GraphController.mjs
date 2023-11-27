@@ -142,13 +142,14 @@ export class GraphController{
 
                 if(e.button == 0){
                     if(!snode && !sedge){
-                        this.graph.addNode(this.mouse.x, this.mouse.y);
+                        let nnode = this.generateNode(this.mouse.x, this.mouse.y);
+                        this.graph.addNodeObject(nnode);
                         this.selectedNode = this.graph.nodes[this.graph.n-1];
                         this.pointerState = 1;
                     }
                     else if(snode){
                         this.selectedNode = snode;
-                        let dummyNode = new Node(this.mouse.x, this.mouse.y);
+                        let dummyNode = this.generateNode(this.mouse.x, this.mouse.y);
                         this.selectedEdge = this.generateEdge(this.selectedNode, dummyNode);
                         this.pointerState = 2;
                     }
@@ -417,7 +418,7 @@ export class GraphController{
         
         this.edgeMenu.edgeWeightPicker.addEventListener("input", e => {
             if(!this.graph) return;
-            this.selectedEdge.weight = e.target.value;
+            this.selectedEdge.weight = parseFloat(e.target.value);
             this.graph.updateData();
         });
         
@@ -488,7 +489,10 @@ export class GraphController{
         if(!this.graph) return;
 
         return new this.graph.edgeType(n0, n1, 0, null);
+    }
 
+    generateNode(x, y, val = 0, id = null){
+        return new Node(x, y, val, id);
     }
 
     getVisualFrame(){
@@ -550,7 +554,7 @@ export class GraphController{
                     var data = JSON.parse(event.target.result);
                     self.createGraph(data.isDirected);
                     for(const node_data of data.nodes){
-                        var nnode = new Node(node_data.x, node_data.y, node_data.val, node_data.id);
+                        var nnode = self.generateNode(node_data.x, node_data.y, node_data.val, node_data.id);
     
                         nnode.isSelected = node_data.isSelected;
                         nnode.t = node_data.t;
@@ -572,7 +576,7 @@ export class GraphController{
                         var nn1 = self.graph.nodes[edge_data.n1.id-1];
 
                         var nedge;
-                        nedge = new this.graph.edgeType(nn0, nn1, edge_data.weight, self.graph.conections+1);
+                        nedge = new self.graph.edgeType(nn0, nn1, parseFloat(edge_data.weight), self.graph.conections+1);
                         
     
                         if(nn0 == nn1) nedge.isSelfDirected =  true;
