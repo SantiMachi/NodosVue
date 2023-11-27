@@ -108,20 +108,19 @@ function findShortestPath(){
   const kruskal = new Kruskal(graph.getAdjMatrix());
 
   const result = kruskal.kruskal();
-
+  var sum = 0;
   result.forEach(([node1, node2]) => {
       const edge = findEdgeBetweenNodes(graph.edges, graph.nodes[node1], graph.nodes[node2]);
       if (edge) {
           graph.nodes[node1].isCritical = true;
           graph.nodes[node2].isCritical = true;
-          edge.isAssigned = true;; // Colorear los bordes que están en el árbol de expansión mínima
+          edge.isAssigned = true;
+          sum += parseFloat(edge.weight) // Colorear los bordes que están en el árbol de expansión mínima
       }
   });
 
-  result.forEach(([node1, node2]) => {
-      graph.nodes[node1].label = `Distancia[${kruskal.matrizAdyacencia[node1][node2]}]`;
-      graph.nodes[node2].label = `Distancia[${kruskal.matrizAdyacencia[node1][node2]}]`;
-  });
+  alert("Peso Total: " + sum);
+
 }
 
 function findEdgeBetweenNodes(edges, node1, node2) {
