@@ -10,6 +10,12 @@ class AdjacencyMatrix{
         this.n = 0;
         this.container = document.createElement('div');
         this.container.innerHTML = '';
+        
+        let link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "/GraphClasses/AdjMatrixStyles.css";
+        document.head.appendChild(link);
+
         if(graph != null) this.update(graph);
         
       }
@@ -39,7 +45,6 @@ class AdjacencyMatrix{
         }
 
         table.appendChild(headerRow);
-        console.log(this.matrix);
         // Cuerpo de la matriz
         for (let i = 0; i < this.n; i++) {
             const row = document.createElement('tr');
@@ -120,8 +125,6 @@ class AdjacencyMatrix{
           } 
           else this.nodeNames.push(node.label);
         }
-
-        console.log("nnemes", this.nodeNames);
         this.n = agraph.n;
         for(let i = 0; i < this.n; i++){
           this.matrix.push([]);
@@ -175,7 +178,7 @@ class AdjacencyMatrix{
 
 
 export class Graph {
-    constructor(ctx, isDirected = false) {
+    constructor(ctx, isDirected = false, isBidirectional = false, edgeType = UndirectedEdge) {
       this.ctx = ctx;
       this.n = 0;
       this.conections = 0;
@@ -184,34 +187,14 @@ export class Graph {
       this.sources = [];
       this.destinations = [];
       this.isDirected = isDirected;
+      this.isBidirectional = isBidirectional;
+      this.edgeType = edgeType;
       this.adj = new AdjacencyMatrix(this);
       
     }
 
-    getStringGraph() {
-      var ans = [];
-      for (const edge of this.edges) {
-        ans.push(edge.n0.val.toString());
-        ans.push(edge.weight.toString());
-        ans.push(edge.n1.val.toString());
-      }
-      localStorage.setItem('dataed', JSON.stringify(ans));
-      return ans;
-    }
-
-    getStringNodes() {
-      var values = [];
-      for (const node of this.nodes) {
-        values.push(node.val.toString());
-      }
-      localStorage.setItem('array1', JSON.stringify(values));
-      return values;
-    }
-
     updateData() {
       this.updateIndexation();
-      this.getStringNodes();
-      this.getStringGraph();
       this.adj.update();
     }
 
@@ -244,19 +227,22 @@ export class Graph {
       let u = this.nodes.indexOf(n0);
       let v = this.nodes.indexOf(n1);
       
-      if(this.adj.get(u, v) != Infinity || this.adj.get(v, u) != Infinity){
-        return;
+      if(this.isBidirectional){
+        if(this.adj.get(u, v) != Infinity){
+          return;
+        }
       }
+      else{
+        if(this.adj.get(u, v) != Infinity || this.adj.get(v, u) != Infinity){
+          return;
+        }
+      }
+      
 
       var newEdge;
       if(this.adj.get(u, v) == Infinity){
         
-        if(this.isDirected){
-          newEdge = new DirectedEdge(n0, n1, val,  this.conections+1);
-        }
-        else{
-          newEdge = new UndirectedEdge(n0, n1, val, this.conections+1);
-        }
+        newEdge = new this.edgeType(n0, n1, val,  this.conections+1);
         
         this.edges.push(newEdge);
         n0.edges.push(newEdge);
@@ -272,12 +258,7 @@ export class Graph {
     }
 
     joinNodesWithEdge(n0, n1, edge) {
-      if(this.isDirected){
-        if(edge.constructor != DirectedEdge) return;
-      }
-      else{
-        if(edge.constructor != UndirectedEdge) return;
-      }
+      if(edge.constructor != this.edgeType) return;
       
       if (!this.nodes.includes(n0)) {
         this.addNodeObject(n0);
@@ -291,8 +272,15 @@ export class Graph {
       let u = this.nodes.indexOf(n0);
       let v = this.nodes.indexOf(n1);
 
-      if(this.adj.get(u, v) != Infinity || this.adj.get(v, u) != Infinity){
-        return;
+      if(this.isBidirectional){
+        if(this.adj.get(u, v) != Infinity){
+          return;
+        }
+      }
+      else{
+        if(this.adj.get(u, v) != Infinity || this.adj.get(v, u) != Infinity){
+          return;
+        }
       }
 
       this.edges.push(edge);
@@ -363,23 +351,14 @@ export class Graph {
   
   getAdjMatrix(){
     var matrix = [];
-    const n = this.nodes.length;
-    for (let i = 0; i < n; i++) {
-      const row = [];
-      for (let j = 0; j < n; j++) {
-        row.push(Infinity);
+    for(let row of this.adj.data){
+      var nrow = []
+      for(let cel of row){
+        if(cel == Infinity) nrow.push(Infinity);
+        else nrow.push(cel.weight);
       }
-      matrix.push(row);
+      matrix.push(nrow);
     }
-
-    for(const edge of this.edges){
-      let oi = this.nodes.indexOf(edge.n0); 
-      let di = this.nodes.indexOf(edge.n1); 
-      matrix[oi][di] = parseFloat(edge.weight);
-    }
-
-    const jsonString = JSON.stringify(matrix);
-    localStorage.setItem("adjMatrix", jsonString);
     return matrix;
   }
 
@@ -419,166 +398,4 @@ export class Graph {
     }
     return matrix;
   }
-
-  getEdgeWeight(nodeA, nodeB) {
-    for (const edge of this.edges) {
-      if (
-        (edge.n0 === nodeA && edge.n1 === nodeB) ||
-        (edge.n0 === nodeB && edge.n1 === nodeA)
-      ) {
-        return edge.weight;
-      }
-    }
-    return 0;
-  }
-
-  getNodeByLabel(label) {
-    return this.nodes.find(node => node.label === label);
-  }
-
-
-  hasDisconnectedNodes(matrix) {
-      for (let i = 0; i < matrix.length; i++) {
-          if (matrix[i].every(value => value === -1) && matrix.every(row => row[i] === -1)) {
-              return true;
-          }
-      }
-      return false;
-  }
-
-  johnsonCriticalPath(matrix) {
-    console.log(matrix);
-      const n = matrix.length;
-      const dist = new Array(n).fill(0);
-
-      for (let i = 0; i < n; i++) {
-          for (let j = 0; j < n; j++) {
-              if (matrix[i][j] !== Infinity) {
-                  dist[j] = Math.max(dist[j], dist[i] + matrix[i][j]);
-              }
-          }
-      }
-
-      const criticalPath = [];
-      let current = dist.indexOf(Math.max(...dist));
-
-      while (current !== -1) {
-          criticalPath.unshift(current);
-          let prev = -1;
-          for (let i = 0; i < n; i++) {
-              if (matrix[i][current] !== Infinity && dist[current] === dist[i] + matrix[i][current]) {
-                  prev = i;
-                  break;
-              }
-          }
-          current = prev;
-      }
-
-      return criticalPath;
-  }
-
-  findCriticalPath(){
-    const criticalPath = this.johnsonCriticalPath(this.getAdjMatrix());
-    console.log(this.getAdjMatrix());
-    console.log(criticalPath);
-    for(const node of this.nodes){
-      node.isCritical = false;
-    }
-
-    for(const i of criticalPath){
-      this.nodes[i].isCritical = true;
-    }
-  }
-
-  
-  //Algorimto de Asignacion
-  
-  minCostAssignment(costMatrix) {
-    return this.costAssignment(costMatrix, false);
-  }
-
-  maxCostAssignment(Matrix) {
-    console.log(Matrix)
-    return this.costAssignment(Matrix, true);
-  }
-
-  costAssignment(costMatrix, isMax) {
-    console.log(costMatrix);
-    const n = costMatrix.length;
-    const assigned = new Array(n).fill(false);
-    const assignment = [];
-
-    for (let i = 0; i < n; i++) {
-      const row = costMatrix[i].slice();
-      const extremaVal = isMax ? Math.max(...row) : Math.min(...row);
-
-      if (extremaVal === (isMax ? -Infinity : Infinity)) {
-        continue;
-      }
-
-      if (row.every((val) => val === extremaVal)) {
-        for (let j = 0; j < n; j++) {
-          assignment.push(isMax ? [j, i] : [i, j]);
-        }
-      } else {
-        const extremaIndex = row.indexOf(extremaVal);
-        assigned[i] = true;
-        assignment.push(isMax ? [i, extremaIndex] : [extremaIndex, i]);
-      }
-    }
-
-    while (assignment.length < n) {
-      let extremaVal = isMax ? -Infinity : Infinity;
-      let extremaI = -1;
-      let extremaJ = -1;
-
-      for (let i = 0; i < n; i++) {
-        if (!assigned[i]) {
-          for (let j = 0; j < costMatrix[i].length; j++) {
-            if (
-              !assigned[j] &&
-              ((isMax && costMatrix[i][j] > extremaVal) || (!isMax && costMatrix[i][j] < extremaVal))
-            ) {
-              extremaVal = costMatrix[i][j];
-              extremaI = i;
-              extremaJ = j;
-            }
-          }
-        }
-      }
-
-      assigned[extremaI] = true;
-      assigned[extremaJ] = true;
-      assignment.push(isMax ? [extremaI, extremaJ] : [extremaJ, extremaI]);
-    }
-
-    return assignment;
-  }
-
-  findAssingment(maximize = true) {
-    for (var edge of this.edges) {
-      edge.isAssigned = false;
-    }
-
-    const assignment = maximize ? this.maxCostAssignment(this.getCostMatrix()) : this.minCostAssignment(this.getCostMatrix());
-
-  
-    console.log("Assignment:");
-    console.table(assignment); 
-
-    for (const pair of assignment) {
-      for (var edge of this.sources[pair[0]].edges) {
-        if (edge.n1 == this.destinations[pair[1]]) {
-          edge.isAssigned = true;
-          break;
-        }
-      }
-    }
-    for(const edge of this.edges){
-      console.log(edge.isAssigned);
-    }
-    // Perform additional actions with the assignment if needed.
-  }
-
-  // ... (otros métodos)
 }

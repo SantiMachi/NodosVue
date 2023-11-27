@@ -1,0 +1,20 @@
+.context_menu {
+    background-color: #ffffff;
+    border: 1px solid;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 200px;
+    display: none;
+  }
+
+  .context_menu_item {
+    cursor: pointer;
+    padding: 5px 15px;
+  }
+
+  .context_menu_item:hover {
+    background-color: #f1f1f1;
+  }

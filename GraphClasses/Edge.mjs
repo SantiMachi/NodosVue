@@ -50,6 +50,12 @@ export class UndirectedEdge {
         else return false;
       }
       else{
+
+        if((this.n1.x - this.n0.x) == 0){
+          if (Math.abs(x - this.n0.x) < 10
+          && ((Math.abs(y-this.originY) +  Math.abs(y-this.targetY)) <= Math.abs(this.originY-this.targetY))) return true;
+          else return false;
+        }
         const slope = (this.n1.y - this.n0.y) / (this.n1.x - this.n0.x);
         const intercept = this.n0.y - slope * this.n0.x;
 

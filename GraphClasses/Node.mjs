@@ -13,9 +13,14 @@ export class Ball {
       this.r = this.R;
     }
 
+    impulse(dx, dy){
+      this.dx = dx;
+      this.dy = dy;
+    }
+
     inertialMove(x1, y1) {
-      this.dx = x1 - this.x;
-      this.dy = y1 - this.y;
+      this.dx = (x1 - this.x)/100;
+      this.dy = (y1 - this.y)/100;
 
       this.x = x1;
       this.y = y1;
@@ -112,27 +117,6 @@ export class Node extends Ball {
       this.edges = [];
       this.isCritical = false;
       this.isSource = false;
-
-      //Guardar label, val, value color, labelcolor, font,id
-
-      /*this.label = document.createElement("input");
-      this.label.setAttribute("type", "text");
-      this.label.setAttribute("id", "label");
-      this.label.setAttribute("name", "nestedInput");
-      this.label.placeholder = "Enter text here";
-      this.label.value = "This is the new text."
-      
-      this.labelContainer = document.createElement("div");
-      this.labelContainer.classList.add("context_menu");
-      this.labelContainer.appendChild(this.label);
-      
-      this.labelContainer.style.position = 'absolute';
-      this.labelContainer.style.left = this.x;
-      this.labelContainer.style.top = this.y + this.R;
-      this.labelContainer.style.display = 'block';
-
-      var body = document.body;
-      body.appendChild(this.labelContainer);*/
     }
 
     setCritical() {
