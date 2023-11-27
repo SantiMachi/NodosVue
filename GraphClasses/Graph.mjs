@@ -598,7 +598,6 @@ export class Graph {
   
       });
       if (suma>=mayor) {
-        console.log(edgepaint);
         mayor=suma;
         edgepaintfinal=[];
         edgepaintfinal=edgepaint;
@@ -608,8 +607,6 @@ export class Graph {
     edgepaintfinal.forEach(edge => {
       this.edges.forEach(paint => {
         if (parseInt(paint.id)==parseInt(edge.id)) {
-          console.log(paint.id);
-          console.log(edge.id);
           edge.isAssigned = true;
           
         }
