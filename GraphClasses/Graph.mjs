@@ -560,23 +560,103 @@ export class Graph {
       edge.isAssigned = false;
     }
 
-    const assignment = maximize ? this.maxCostAssignment(this.getCostMatrix()) : this.minCostAssignment(this.getCostMatrix());
+
+    var mayor = 0.0;
+    var edgepaintfinal=[];
+    this.edges.forEach(edgeini => {
+      var edgepaint=[];
+      var nodusoi = [];
+      var nodusof = [];
+      var suma = 0.0;
+      var flagA = true;
+      var flagB = true;
+      nodusoi.push(edgeini.n0);
+      nodusof.push(edgeini.n1);
+      suma=suma+parseFloat(edgeini.weight);
+      edgepaint.push(edgeini);
+      
+      this.edges.forEach(edg => {
+        flagB = true;
+        flagA = true;
+        nodusoi.forEach(nd => {
+          if (nd==edg.n0) {
+            flagA=false;
+          }
+        });
+        nodusof.forEach(nd => {
+          if (nd==edg.n1) {
+            flagB=false;
+          }
+        });
+        if (flagA && flagB) {
+          nodusoi.push(edg.n0);
+          nodusof.push(edg.n1);
+          suma=suma+parseFloat(edg.weight);
+          edgepaint.push(edg);
+        }
+        
+  
+      });
+      if (suma>=mayor) {
+        console.log(edgepaint);
+        mayor=suma;
+        edgepaintfinal=[];
+        edgepaintfinal=edgepaint;
+      }
+    });
+    console.log(edgepaintfinal);
+    edgepaintfinal.forEach(edge => {
+      this.edges.forEach(paint => {
+        if (parseInt(paint.id)==parseInt(edge.id)) {
+          console.log(paint.id);
+          console.log(edge.id);
+          edge.isAssigned = true;
+          
+        }
+      });
+    });
+
+    
+    
+
+    /* const assignment = maximize ? this.maxCostAssignment(this.getCostMatrix()) : this.minCostAssignment(this.getCostMatrix());
 
   
     console.log("Assignment:");
     console.table(assignment); 
-
+    var arrayini = [];
+    var arrayfin = [];
+    
     for (const pair of assignment) {
+      var flagletin=true;
+      var flagletin1=true;
+      console.log(this.sources[pair[0]].edges);
+      console.log(this.destinations[pair[1]]);
       for (var edge of this.sources[pair[0]].edges) {
         if (edge.n1 == this.destinations[pair[1]]) {
-          edge.isAssigned = true;
-          break;
+          arrayfin.forEach(edg => {
+            if (edge.n1==edg) {
+              flagletin=false;
+            }
+          });
+          arrayini.forEach(edg => {
+            if (edge.n0==edg) {
+              flagletin1=false;
+            }
+          });
+          if (flagletin && flagletin1) {
+            edge.isAssigned = true;
+            arrayfin.push(edge.n1);
+            arrayini.push(edge.n0);
+            break;
+          }
+          
         }
       }
     }
     for(const edge of this.edges){
       console.log(edge.isAssigned);
-    }
+    } */
     // Perform additional actions with the assignment if needed.
   }
 
