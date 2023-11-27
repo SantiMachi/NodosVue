@@ -134,12 +134,19 @@
     <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
       <button class="w3-button" id="criticalPath_btn">Encontrar Camino Critico</button>
-      <button class="w3-button" id="assignment_btn">Encontrar Asignacion</button>
+      <button class="w3-button" id="guardarDatos">North West</button>
       <button class="w3-button" id="kruskal_btn">arvol</button>
       <button class="w3-button" id="dijkstra_btn">Camino más Corto (Dijkstra)</button>
       <input type="file" id="fileInput" style="display: none;">
       <button class="w3-button" id="load_btn">Recuperar</button>
       <button class="w3-button" id="save_btn">Guardar</button>
+      <div class="w3-container w3-half w3-padding">
+        <p class="w3-quarter">Filas: </p>
+        <input type="number" id="filas" class="w3-input w3-quarter">
+        <p class="w3-quarter">Columnas: </p>
+        <input type="number" id="columnas" class="w3-input w3-quarter">
+      </div>
+      
       <div class="dropdown">
         <!-- Botón del menú -->
         <button class="dropdown-button" id = "adj_Button">Matriz de Adyacencia</button>
@@ -190,8 +197,214 @@
       </div>
     </div>
 
-    <canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
+    
   </div>
+  
+  <div id="matriz1"></div>
+  <div id="matriz2"></div>
+
+  <script>
+    function crearMatrices(filas, columnas, textosMatriz1, textosMatriz2, datosArray) {
+    // Crear la primera matriz con textos predeterminados en la primera fila y columna
+    const matriz1 = new Array(filas);
+    for (let i = 0; i < filas+2; i++) {
+      matriz1[i] = new Array(columnas);
+      for (let j = 0; j < columnas+2; j++) {
+        if (i === 0 && j === 0) {
+          matriz1[i][j] = '';
+        } else if (i === 0) {
+          matriz1[i][j] = textosMatriz1[j - 1];
+        } else if (j === 0) {
+          matriz1[i][j] = textosMatriz1[i - 1];
+        } else {
+          matriz1[i][j] = 'Dato';
+          if (i==filas+1 && j==columnas+1) {
+            matriz1[i][j] = '=';
+          }
+        }
+      }
+    }
+
+    // Crear la segunda matriz con textos predeterminados en la primera fila y columna
+    const matriz2 = new Array(filas);
+    for (let i = 0; i < filas+1; i++) {
+      matriz2[i] = new Array(columnas);
+      for (let j = 0; j < columnas+1; j++) {
+        if (i === 0 && j === 0) {
+          matriz2[i][j] = '';
+        } else if (i === 0) {
+          matriz2[i][j] = textosMatriz2[j - 1];
+        } else if (j === 0) {
+          matriz2[i][j] = textosMatriz2[i - 1];
+        } else {
+          // Asignar datos del array a las demás casillas
+          const index = (i - 1) * (columnas+1) + (j - 1);
+          if (index < datosArray.length) {
+            matriz2[i][j] = datosArray[index];
+          } else {
+            // Si el array no tiene suficientes elementos, se puede asignar algún valor por defecto o dejarlas vacías
+            matriz2[i][j] = ''; // Puedes modificar esto según lo que necesites
+          }
+        }
+      }
+    }
+
+    return { matriz1, matriz2 };
+  }
+
+  
+
+  
+  function matricesAHTML(matriz1, matriz2) {
+    const tablaMatriz1 = crearTablaHTML(matriz1);
+    const tablaMatriz2 = crearTablaHTML(matriz2);
+    return { tablaMatriz1, tablaMatriz2 };
+  }
+
+  function crearTablaHTML(matriz) {
+    const tabla = document.createElement('table');
+
+    matriz.forEach((fila, i) => {
+      const tr = document.createElement('tr');
+      fila.forEach((celda, j) => {
+        const td = document.createElement('td');
+        if (celda === 'Dato') {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.id = `input-${i}-${j}`;
+          td.appendChild(input);
+        } else {
+          td.textContent = celda;
+        }
+        tr.appendChild(td);
+      });
+      tabla.appendChild(tr);
+    });
+
+    return tabla;
+  }
+
+  function obtenerDatosDeInputs(matriz) {
+    const datos = [];
+    matriz.forEach((fila, i) => {
+      fila.forEach((celda, j) => {
+        if (celda === 'Dato') {
+          const input = document.getElementById(`input-${i}-${j}`);
+          datos.push(input.value);
+        }
+      });
+    });
+    return datos;
+  }
+
+  function northWest(matrixOfCosts, supply, demand) {
+    const rows = matrixOfCosts.length;
+    const cols = matrixOfCosts[0].length;
+
+    const allocations = new Array(rows).fill(null).map(() => new Array(cols).fill(0));
+
+    let row = 0;
+    let col = 0;
+
+    while (row < rows && col < cols) {
+      if (supply[row] > 0 && demand[col] > 0) {
+        const amount = Math.min(supply[row], demand[col]);
+        allocations[row][col] = amount;
+        supply[row] -= amount;
+        demand[col] -= amount;
+
+        if (supply[row] === 0) row++;
+        if (demand[col] === 0) col++;
+      } else {
+        if (supply[row] === 0) row++;
+        if (demand[col] === 0) col++;
+      }
+    }
+
+    return allocations;
+  }
+
+
+  document.getElementById('guardarDatos').addEventListener('click', function() {
+    const datosIngresados = obtenerDatosDeInputs(matriz1);
+    
+    var arraycol = [];
+    var arrayfil = [];
+
+    for (let i = 0; i < datosIngresados.length; i++) {
+      
+      if ((i+1)%(columnas+1)==0) {
+        
+        arraycol.push(parseFloat(datosIngresados[i]));
+      }else if ((i+1)>(columnas+1)*filas) {
+        arrayfil.push(parseFloat(datosIngresados[i]));
+      }else{
+        datosArray[i] = parseFloat(datosIngresados[i]);
+      }
+    }
+    console.log(datosArray);
+    console.log(arrayfil);
+    console.log(arraycol);
+    var costmatrix= [];
+    for (let i = 0; i < filas; i++) {
+      costmatrix[i]=[];
+      for (let j = 0; j < columnas; j++) {
+        costmatrix[i][j]=datosArray[i*(columnas+1)+j];
+      }
+    }
+    console.log(costmatrix);
+
+
+    const result = northWest(costmatrix, arraycol, arrayfil);
+    var sumaf = 0.0;
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        sumaf=sumaf+result[i][j]*costmatrix[i][j];
+      }
+    }
+
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        datosArray[i*(columnas+1)+j]=result[i][j];
+      }
+    }
+    console.log(datosArray);
+    // Ahora puedes crear nuevamente la segunda matriz con estos datos actualizados
+    const { matriz2 } = crearMatrices(filas, columnas, textosMatriz1, textosMatriz2, datosArray);
+    // Luego, actualiza la representación HTML de la segunda matriz
+    const { tablaMatriz1,tablaMatriz2 } = matricesAHTML(matriz1,matriz2);
+    document.getElementById('matriz2').innerHTML = '';
+    document.getElementById('matriz2').appendChild(tablaMatriz2);
+    alert("Costo final: "+sumaf)
+  });
+
+
+  // Ejemplo de uso:
+  const filas = 3;
+  const columnas = 3;
+  const textosMatriz1 = ['A', 'B', 'C', 'D'];
+  const textosMatriz2 = ['E', 'F', 'G', 'H'];
+  const datosArray = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+
+  const { matriz1, matriz2 } = crearMatrices(filas, columnas, textosMatriz1, textosMatriz2, datosArray);
+  const { tablaMatriz1, tablaMatriz2 } = matricesAHTML(matriz1, matriz2);
+  
+
+  console.log('Matriz 1:');
+  console.log(matriz1);
+  console.log('Matriz 2:');
+  console.log(matriz2);
+  // Mostrar las tablas en el HTML
+  document.getElementById('matriz1').appendChild(tablaMatriz1);
+  document.getElementById('matriz2').appendChild(tablaMatriz2);
+
+  
+
+
+
+
+  </script>
+
 
   <script type="module" src="main.js"></script>
  
