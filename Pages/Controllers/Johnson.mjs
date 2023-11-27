@@ -20,8 +20,7 @@ class JohnsonNode extends Node{
     const x = this.x;
     const y = this.y - this.r - 40;
 
-  if(this.ef != "" && this.lf != "" 
-  && this.ef && this.ef){
+  if(this.ef!=null && this.ef!=null){
 
     ctx.beginPath();
     ctx.save();
@@ -74,8 +73,7 @@ class JohnsonEdge extends DirectedEdge{
     const x = ((this.originX + this.targetX) / 2) + px;
     const y = ((this.originY + this.targetY) / 2) + py;
 
-    if(this.forwardLabel != "" && this.backwardLabel != "" 
-    && this.forwardLabel && this.backwardLabel){
+    if(this.forwardLabel!=null && this.backwardLabel!=null){
 
     ctx.beginPath();
     ctx.save();

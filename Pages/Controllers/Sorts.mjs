@@ -34,7 +34,7 @@ window.addEventListener("resize", e=>{
 
 movelo.addEventListener("click", e =>{
     copyArray();
-    array.dx = 10;
+    array.dx = 5;
     
     carray = array.elements.slice();    
     steps = [];
