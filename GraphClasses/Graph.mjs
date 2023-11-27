@@ -713,13 +713,13 @@ export class Graph {
     console.log("x: ", Math.round(points[0][0]));
     console.log("y: ", Math.round(points[0][1]));
 
+    var nnode = new Node(Math.round(points[0][0]), Math.round(points[0][1]), 0, this.n+1,"x: " + Math.round(points[0][0])+" y: " + Math.round(points[0][1]));
+    nnode.fillColor = "#00e660";
+    this.addNodeObject(nnode);
 
-    this.addNode(Math.round(points[0][0]), Math.round(points[0][1]),"x: " + Math.round(points[0][0])+" y: " + Math.round(points[0][1]));
-
-
+    for(let node of this.nodes){
+      if(node != nnode) this.joinNodes(node, nnode);
+    }
   }
 
-
-
-  // ... (otros métodos)
 }
