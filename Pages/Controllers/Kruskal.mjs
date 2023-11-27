@@ -7,11 +7,23 @@ const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
 var matrixContainer = document.getElementById("myDropdown");
 
-class DijkstraNode extends Node{
+class KruskalNode extends Node{
   constructor(x, y, val, id, label = ""){
     super(x, y, val, label);
     this.isOrigin = false;
     this.isTarget = false;
+  }
+
+  update(){
+    super.update()
+    if(this.isOrigin){
+      this.label = "Inicio";
+      this.fillColor = "#00e660";
+    }
+    else{
+      this.fillColor = "black";
+      this.label = "";
+    }
   }
 
   draw(ctx){
@@ -20,14 +32,17 @@ class DijkstraNode extends Node{
     const x = this.x;
     const y = this.y - this.r - 40;
 
-    if(this.isOrigin){
-      this.label = "Inicio";
-      this.fillColor = "#00e660";
+    if(this.distance != null){
+      ctx.font = this.font;
+      ctx.fillStyle = this.labelColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText("Costo Total: " + this.distance.toFixed(1), this.x, this.y - this.r - extractFontSize(this.font));
     }
   }
 }
 
-class DijkstraGraphController extends GraphController{
+class KruskalGraphController extends GraphController{
   constructor(){
     super();
     var o_button = document.createElement("div");
@@ -50,12 +65,12 @@ class DijkstraGraphController extends GraphController{
   }
 
   generateNode(x, y, val = 0, id = null){
-    return new DijkstraNode(x, y, 0, null);
+    return new KruskalNode(x, y, 0, null);
   }
 }
 
 
-var controller = new DijkstraGraphController();
+var controller = new KruskalGraphController();
 var graph = controller.createGraph(false);
 var origin = null;
 var canvas = controller.getVisualFrame();
@@ -69,12 +84,11 @@ controller.draw();
 shortestPathButton.addEventListener("click", e =>{   
   graph = controller.graph;
   for(let node of graph.nodes){
-    node.fillColor = "black";
-    node.isOrigin = false;
-    node.isTarget = false;
+    node.isCritical = false;
+    node.distance = null;
   }
   for(let edge of graph.edges){
-    edge.strokeColor = "black";
+    edge.isAssigned = false;
   }
 
   findShortestPath();
@@ -119,7 +133,7 @@ function findShortestPath(){
       }
   });
 
-  alert("Peso Total: " + sum);
+  origin.distance = sum;
 
 }
 

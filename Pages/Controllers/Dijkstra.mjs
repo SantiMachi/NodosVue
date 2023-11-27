@@ -12,6 +12,23 @@ class DijkstraNode extends Node{
     super(x, y, val, label);
     this.isOrigin = false;
     this.isTarget = false;
+    this.distance = null;
+  }
+
+  update(){
+    super.update()
+    if(this.isOrigin){
+      this.label = "Inicio";
+      this.fillColor = "#00e660";
+    }
+    else if(this.isTarget){
+      this.label = "Final";
+      this.fillColor = "#ff2a00";
+    }
+    else{
+      this.fillColor = "black";
+      this.label = "";
+    }
   }
 
   draw(ctx){
@@ -20,13 +37,12 @@ class DijkstraNode extends Node{
     const x = this.x;
     const y = this.y - this.r - 40;
 
-    if(this.isOrigin){
-      this.label = "Inicio";
-      this.fillColor = "#00e660";
-    }
-    else if(this.isTarget){
-      this.label = "Final";
-      this.fillColor = "#ff2a00";
+    if(this.distance != null){
+      ctx.font = this.font;
+      ctx.fillStyle = this.labelColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText("Distancia: " + this.distance.toFixed(1), this.x, this.y - this.r - extractFontSize(this.font));
     }
   }
 }
@@ -49,17 +65,18 @@ class DijkstraGraphController extends GraphController{
     `;
 
     o_button.addEventListener("click", e => {
-      if(origin){
+      if(origin != null){
       origin.isOrigin = false;
       origin.isTarget = false;
       }
+      console.log(origin);  
       origin = this.selectedNode;
       origin.isOrigin = true;
       origin.isTarget = false;
     });
 
     t_button.addEventListener("click", e => {
-      if(target){
+      if(target != null){
       target.isOrigin = false;
       target.isTarget = false;
       }
@@ -71,6 +88,12 @@ class DijkstraGraphController extends GraphController{
     this.nodeMenu.visualElement.appendChild(o_button);
     this.nodeMenu.visualElement.appendChild(t_button);
 
+  }
+
+  createGraph(){
+    this.graph = new Graph(this.ctx, true, true, DirectedEdge);
+    this.adj = this.graph.adj.container;    
+    return this.graph;
   }
 
   generateNode(x, y, val = 0, id = null){
@@ -94,12 +117,11 @@ controller.draw();
 shortestPathButton.addEventListener("click", e =>{   
   graph = controller.graph;
   for(let node of graph.nodes){
-    node.fillColor = "black";
-    node.isOrigin = false;
-    node.isTarget = false;
+    node.isCritical = false;
+    node.distance = null;
   }
   for(let edge of graph.edges){
-    edge.strokeColor = "black";
+    edge.isAssigned = false;
   }
 
   findShortestPath();
@@ -134,6 +156,11 @@ function findShortestPath(){
   }
   const res = calc.dijkstra(origin.id-1);
   const dis = res.distancias[target.id-1];
+
+  if(dis == Infinity) {
+    alert("No hay camino disponible");
+    return;
+  }
   const ruta = res.rutas[target.id-1];
   //console.log();
   console.log("y", ruta);
@@ -145,7 +172,8 @@ function findShortestPath(){
     }
   }
 
-  graph.nodes[target.id-1].label = "Final [Distancia:" + dis +  "]";
+  graph.nodes[target.id-1].distance = dis;
+  console.log(graph.nodes[target.id-1]);
 }
 
 
@@ -163,18 +191,19 @@ class Dijkstra{
       this.rutas[nodoInicial] = [nodoInicial];
 
       for (let i = 0; i < this.n; i++) {
-      let nodo = this.nodoConDistanciaMinimaNoVisitado();
-      this.visitados[nodo] = true;
+        let nodo = this.nodoConDistanciaMinimaNoVisitado();
+        if(nodo == -1) break;
+        this.visitados[nodo] = true;
 
-      for (let j = 0; j < this.n; j++) {
-          if (!this.visitados[j] && this.matrizAdyacencia[nodo][j] !== Infinity) {
-          const costoAlternativo = this.distancias[nodo] + this.matrizAdyacencia[nodo][j];
-          if (costoAlternativo < this.distancias[j]) {
-              this.distancias[j] = costoAlternativo;
-              this.rutas[j] = this.rutas[nodo].concat(j);
-          }
-          }
-      }
+        for (let j = 0; j < this.n; j++) {
+            if (!this.visitados[j] && this.matrizAdyacencia[nodo][j] !== Infinity) {
+            const costoAlternativo = this.distancias[nodo] + this.matrizAdyacencia[nodo][j];
+            if (costoAlternativo < this.distancias[j]) {
+                this.distancias[j] = costoAlternativo;
+                this.rutas[j] = this.rutas[nodo].concat(j);
+            }
+            }
+        }
       }
 
       return {
