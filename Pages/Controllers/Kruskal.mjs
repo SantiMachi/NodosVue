@@ -1,6 +1,7 @@
 import {Node, UndirectedEdge, DirectedEdge, Graph, GraphController} from "../../GraphClasses/GraphController.mjs";
 import { convertToPixels, extractFontSize } from "../../Utilities/TextUtils.mjs";
 const shortestPathButton = document.getElementById("shortestPath_btn");
+const longestPathButton = document.getElementById("longestPath_btn");
 const matrixButton = document.getElementById("adj_Button");
 const newNodeButton = document.getElementById("new_node_button");
 const saveButton = document.getElementById("save_btn");
@@ -94,6 +95,19 @@ shortestPathButton.addEventListener("click", e =>{
   findShortestPath();
 });
 
+longestPathButton.addEventListener("click", e =>{   
+  graph = controller.graph;
+  for(let node of graph.nodes){
+    node.isCritical = false;
+    node.distance = null;
+  }
+  for(let edge of graph.edges){
+    edge.isAssigned = false;
+  }
+
+  findLongestPath();
+});
+
 matrixButton.addEventListener("click", e => {
   matrixContainer.style.display = (matrixContainer.style.display === "block") ? "none" : "block";
   matrixContainer.removeChild(matrixContainer.lastChild);
@@ -119,7 +133,35 @@ function findShortestPath(){
     alert("Seleccione Origen");
     return;
   }
-  const kruskal = new Kruskal(graph.getAdjMatrix());
+  let kruskal = new Kruskal(graph.getAdjMatrix(), true);
+
+  //console.log(origin)
+  //console.log(graph.getAdjMatrix());
+  const result = kruskal.kruskal();
+  console.log(result)
+  var sum = 0;
+  result.forEach(([node1, node2]) => {
+      const edge = findEdgeBetweenNodes(graph.edges, graph.nodes[node1], graph.nodes[node2]);
+      if (edge) {
+          graph.nodes[node1].isCritical = true;
+          graph.nodes[node2].isCritical = true;
+          edge.isAssigned = true;
+          sum += parseFloat(edge.weight) // Colorear los bordes que están en el árbol de expansión mínima
+      }
+  });
+
+  origin.distance = sum;
+
+}
+
+
+function findLongestPath(){
+
+  if(!origin) {
+    alert("Seleccione Origen");
+    return;
+  }
+  let kruskal = new Kruskal(graph.getAdjMatrix(), false);
 
   const result = kruskal.kruskal();
   var sum = 0;
@@ -145,10 +187,11 @@ function findEdgeBetweenNodes(edges, node1, node2) {
 }
 
 class Kruskal {
-  constructor(matrizAdyacencia) {
+  constructor(matrizAdyacencia, minimize = true) {
       this.matrizAdyacencia = matrizAdyacencia;
       this.n = matrizAdyacencia.length;
       this.conjuntos = new Array(this.n).fill().map((_, index) => [index]);
+      this.minimize = minimize;
       this.aristas = this.generarAristas();
       this.aristasOrdenadas = this.ordenarAristas();
       this.arbolAbarcadorMinimo = [];
@@ -158,7 +201,7 @@ class Kruskal {
       const aristas = [];
       for (let i = 0; i < this.n; i++) {
           for (let j = i + 1; j < this.n; j++) {
-              if (this.matrizAdyacencia[i][j] !== -1) {
+              if (this.matrizAdyacencia[i][j] !== Infinity) {
                   aristas.push([i, j, this.matrizAdyacencia[i][j]]);
               }
           }
@@ -167,7 +210,15 @@ class Kruskal {
   }
 
   ordenarAristas() {
-      return this.aristas.sort((a, b) => a[2] - b[2]);
+      if(this.minimize){
+        console.log("Minimize");
+        return this.aristas.sort((a, b) => a[2] - b[2]);
+      }
+      else{
+        console.log("Maximize");
+        return this.aristas.sort((a, b) => b[2] - a[2]);
+      }
+      
   }
 
   encontrar(conjunto, nodo) {

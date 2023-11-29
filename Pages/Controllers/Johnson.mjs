@@ -12,6 +12,7 @@ class JohnsonNode extends Node{
     super(x, y, val, label);
     this.ef = null;
     this.lf = null;
+    
   }
 
   draw(ctx){
@@ -20,21 +21,22 @@ class JohnsonNode extends Node{
     const x = this.x;
     const y = this.y - this.r - 40;
 
-  if(this.ef!=null && this.ef!=null){
+  if(this.ef != null && this.lf != null){
 
     ctx.beginPath();
     ctx.save();
     ctx.translate(x, y);
-    let elabelWidth = ctx.measureText(this.ef.toFixed(1)).width;
-    let llabelWidth = ctx.measureText(this.lf.toFixed(1)).width;
-    let width = Math.max(elabelWidth, llabelWidth);
+
+    let flabelWidth = ctx.measureText(this.ef.toFixed(1)).width;
+    let blabelWidth = ctx.measureText(this.lf.toFixed(1)).width;
+    let width = Math.max(flabelWidth, blabelWidth);
     let height = extractFontSize(this.font);
 
     ctx.font = this.font;
     ctx.strokeStyle = "black";
     ctx.lineWidth = "2";
     ctx.strokeRect(0, 0, (5/4)*width, (5/4)*height);
-    
+
     ctx.fillStyle = "black";
     ctx.fillText(this.lf.toFixed(1), (5/8)*width, (5/8)*height);
     
@@ -56,6 +58,7 @@ class JohnsonEdge extends DirectedEdge{
     super(n0, n1, weight, id);
     this.forwardLabel = null;
     this.backwardLabel = null;
+    this.h = null;
   }
   draw(ctx){
     super.draw(ctx);
@@ -73,32 +76,24 @@ class JohnsonEdge extends DirectedEdge{
     const x = ((this.originX + this.targetX) / 2) + px;
     const y = ((this.originY + this.targetY) / 2) + py;
 
-    if(this.forwardLabel!=null && this.backwardLabel!=null){
+    if(this.h!=null){
 
     ctx.beginPath();
     ctx.save();
     ctx.translate(x, y); 
     ctx.rotate(this.direction);
 
-    let flabelWidth = ctx.measureText(this.forwardLabel.toFixed(1)).width;
-    let blabelWidth = ctx.measureText(this.backwardLabel.toFixed(1)).width;
-    let width = Math.max(flabelWidth, blabelWidth);
+    let width = ctx.measureText("h = " + this.h.toFixed(1)).width;
     let height = extractFontSize(this.font);
 
     ctx.font = this.font;
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = "2";
-    ctx.strokeRect(0, 0, (5/4)*width, (5/4)*height);
 
     ctx.fillStyle = "black";
-    ctx.fillText(this.backwardLabel.toFixed(1), (5/8)*width, (5/8)*height);
-    
-    ctx.fillStyle = "black";
-    ctx.fillRect(-(5/4)*width, 0, (5/4)*width, (5/4)*height);
-    ctx.strokeRect(-(5/4)*width, 0, (5/4)*width, (5/4)*height);
+    ctx.fillRect(-(5/8)*width, 0, (5/4)*width, (5/4)*height);
+    ctx.strokeRect(-(5/8)*width, 0, (5/4)*width, (5/4)*height);
     
     ctx.fillStyle = "white";
-    ctx.fillText(this.forwardLabel.toFixed(1), -(5/8)*width, (5/8)*height);
+    ctx.fillText("h = " + this.h.toFixed(1), 0, (5/8)*height);
     
     ctx.restore();
     ctx.closePath();
@@ -112,7 +107,7 @@ class JohnsonGraphController extends GraphController{
     super();
   }
 
-  createGraph(){
+  createGraph(isDirected = true){
     this.graph = new Graph(this.ctx, true, false, JohnsonEdge);
     this.adj = this.graph.adj.container;    
     return this.graph;
@@ -125,7 +120,7 @@ class JohnsonGraphController extends GraphController{
 
 
 var controller = new JohnsonGraphController();
-var graph = controller.createGraph(false);
+var graph = controller.createGraph();
 var begin = null;
 var end = null;
 var canvas = controller.getVisualFrame();
@@ -139,12 +134,12 @@ controller.draw();
 criticalPathButton.addEventListener("click", e =>{   
   graph = controller.graph;
   for(let node of graph.nodes){
-    node.fillColor = "black";
+    node.isCritical = false;
     node.ef = null;
     node.lf = null;
   }
   for(let edge of graph.edges){
-    edge.strokeColor = "black";
+    edge.isAssigned = false;
     edge.forwardLabel = null;
     edge.backwardLabel = null;
   }
@@ -245,10 +240,10 @@ function fdfs(node, rec){
     if(edge.n1 == node) continue;
     edge.forwardLabel = parseFloat(edge.n0.ef) + parseFloat(edge.weight);
     if(edge.n1.ef == null){
-      edge.n1.ef = edge.forwardLabel;
+      edge.n1.ef =  Math.round(edge.forwardLabel*10)/10;
     }
     else{
-      edge.n1.ef = Math.max(edge.n1.ef, edge.forwardLabel);
+      edge.n1.ef = Math.max(edge.n1.ef,  Math.round(edge.forwardLabel*10)/10);
     }
 
     rec[edge.n1.id-1]--;
@@ -263,12 +258,13 @@ function bdfs(node, sen){
     if(edge.n0 == node) continue;
     edge.backwardLabel = parseFloat(edge.n1.lf) - parseFloat(edge.weight);
     if(edge.n0.lf == null){
-      edge.n0.lf = edge.backwardLabel;
+      edge.n0.lf = Math.round(edge.backwardLabel*10)/10;
     }
     else{
-      edge.n0.lf = Math.min(edge.n0.lf, edge.backwardLabel);
+      edge.n0.lf = Math.min(edge.n0.lf,  Math.round(edge.backwardLabel*10)/10);
+      
     }
-
+    edge.h = Math.round((edge.n1.lf - edge.n1.ef)*10)/10;
     sen[edge.n0.id-1]--;
     bdfs(edge.n0, sen);
   }
@@ -279,11 +275,12 @@ function dfs(node, vis){
   
   vis[node.id-1] = 1;
   for(let edge of node.edges){
-    if(edge.n1.ef == edge.n1.lf
+    if(Math.abs(edge.n1.ef - edge.n1.lf) < 1e-6
       && edge.n1 != node){
 
       edge.n1.isCritical = true;
       edge.isAssigned = true;
+
       dfs(edge.n1, vis);
       break;
     }

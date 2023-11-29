@@ -90,7 +90,7 @@ class DijkstraGraphController extends GraphController{
 
   }
 
-  createGraph(){
+  createGraph(isDirected = true){
     this.graph = new Graph(this.ctx, true, true, DirectedEdge);
     this.adj = this.graph.adj.container;    
     return this.graph;
@@ -103,7 +103,7 @@ class DijkstraGraphController extends GraphController{
 
 
 var controller = new DijkstraGraphController();
-var graph = controller.createGraph(false);
+var graph = controller.createGraph();
 var origin = null;
 var target = null;
 var canvas = controller.getVisualFrame();
