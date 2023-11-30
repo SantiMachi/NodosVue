@@ -25,6 +25,7 @@ export  class Array{
         this.u = null;
         this.v = null;
         this.title = null;
+        this.performance = null;
 
         this.maxValue = null;
     }
@@ -46,8 +47,15 @@ export  class Array{
     }
 
     clear(){
-        this.elements.splice(0);
+        this.animation = null;
+        this.step = 0;
+        this.ou = null;
+        this.u = null;
+        this.v = null;
+        
+        this.elements.splice(0, this.n);
         this.n = 0;
+
     }
 
     updateDraw(){
@@ -62,10 +70,20 @@ export  class Array{
         
         if(this.title != null && this.title != ""){
             this.ctx.font =  '30px Montserrat, sans-serif';
-            this.fillStyle = "#006aff";
+            this.ctx.fillStyle = "#006aff";
             this.ctx.textAlign = "left";
             this.ctx.textBaseline = "base";
             this.ctx.fillText(this.title, this.x + this.margin, this.y - this.maxHeight - 50);
+        }
+
+        if(this.performance != null){
+            //if() this.performance = 0;
+            this.ctx.font =  '20px Montserrat, sans-serif';
+            this.ctx.fillStyle = "black";
+            this.ctx.textAlign = "right";
+            this.ctx.textBaseline = "base";
+            console.log((this.performance*1000).toFixed(2));
+            this.ctx.fillText("Tiempo: " + (this.performance*1000).toFixed(2) + '\u00B5' + "s", this.x + this.maxWidth - this.margin, this.y - this.maxHeight - 50);
         }
         
         var selectedItem = null;
@@ -146,7 +164,7 @@ export  class Array{
         this.updateElementAtributes();
         this.spacing = Math.max(this.elementWidth/30, 2);
         if(this.animation){
-            console.log(this.step, this.u, this.v);
+            //console.log(this.step, this.u, this.v);
 
             this.ou.isSelected = true;
             

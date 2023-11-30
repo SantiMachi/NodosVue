@@ -11,8 +11,12 @@ const movelo = document.getElementById("movelo");
 const randomButton =  document.getElementById("random_button");
 const elementButton =  document.getElementById("element_button");
 const comboBox = document.getElementById('myComboBox');
+const saveButton = document.getElementById("save_btn");
+const loadButton = document.getElementById("load_btn");
 
-var array = new Array(ctx, 500, 500, 700, 200);
+var oarray = new Array(ctx, 500, 400, 700, 200);
+oarray.title = "Arreglo Original"
+var array = new Array(ctx, 500, 800, 700, 200);
 var time = null;
 
 function printArray(arr){
@@ -29,7 +33,7 @@ canvas.addEventListener("resize", e=>{
 })
 
 movelo.addEventListener("click", e =>{
-
+    //resetArray();
     let res;
     if(comboBox.value == "1"){
         res = selectionSort(array.elements);
@@ -52,66 +56,114 @@ movelo.addEventListener("click", e =>{
         array.title = "Shell Sort";
     }
     let steps = res[1];
-
-    console.log(steps)
+    array.performance = parseInt(res[2]);
+    console.log(res[2]);
+    //console.log(steps)
     array.playAnimation(steps);
 })
 
+
+
 randomButton.addEventListener("click", e=>{
-    try{
-        var n  = parseInt(prompt("Ingrese la cantidad de elementos"));
-        array.clear();
-        for(let i  = 0; i < n; i++){
-            array.push((Math.random()+0.1)/1.1);
-        }
-    }
-    catch{
+    
+    var n  = parseInt(prompt("Ingrese la cantidad de elementos"));
+    if(isNaN(n)){
         alert("Formato Incorrecto");
-    }      
+        return;
+    }
+
+    
+    oarray.clear();
+    for(let i  = 0; i < n; i++){
+        oarray.push((Math.random()+0.1)/1.1);
+    }   
+
+    resetArray();
 })
 
 elementButton.addEventListener("click", e => {
-    try{
-        var n  = parseInt(prompt("Ingrese el valor a añadir"));
-        array.push(n/100);
-    }
-    catch{
+    
+    var n  = parseInt(prompt("Ingrese el valor a añadir")); 
+    if(isNaN(n)){
         alert("Formato Incorrecto");
-    }     
+        return;
+    }
+
+    oarray.push(n/100);   
+
+    resetArray();
 }
 
 )
 
 comboBox.addEventListener('change', function() {
+    
     if(comboBox.value == "1"){
         array.title = "Selection Sort";
+        array.performance = null;
     }
     else if(comboBox.value == "2"){
         array.title = "Bubble Sort";
+        array.performance = null;
     }
     else if(comboBox.value == "3"){
         array.title = "Insertion Sort";
+        array.performance = null;
     }
     else if(comboBox.value == "4"){
         array.title = "Merge Sort";
+        array.performance = null;
     }
     else if(comboBox.value == "5"){
         array.title = "Shell Sort";
+        array.performance = null;
     }
+
+    resetArray();
 });
+
+comboBox.selectedIndex = 0;
+array.title = "Selection Sort";
+
+const fileInput = document.createElement('input');
+fileInput.type = "file";
+fileInput.id = "fileInput";
+fileInput.style.display = "none";
+document.body.appendChild(fileInput);
+
+saveButton.addEventListener("click", e =>{
+    downloadFile();
+  })
+  
+  loadButton.addEventListener('click', e => { 
+    loadFile();
+  });
+
+  
 
 function animation(){
     requestAnimationFrame(animation);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     array.updateDraw();
+    oarray.updateDraw()
 }
 
 animation();
 
 
+function resetArray(){
+    array.clear();
+    array.performance = null;
+    for(let element of oarray.elements){
+        array.push(element.value);
+    }
+}
+
+
 function bubbleSort(array){
     let steps = [];
     let carray = array.slice(0);
+    let start = performance.now();
     for(let i = 0; i < array.length-1; i ++){
         for(let j = 0; j < array.length-i-1; j++){
             if(carray[j].value > carray[j+1].value){
@@ -122,15 +174,17 @@ function bubbleSort(array){
             }
         }
     }
-    return [carray, steps];
+    let end = performance.now();
+    return [carray, steps, end - start];
 }
 
 function mergeSort(array){
     let steps = [];
     let carray = array.slice(0);
+    let start = performance.now();
     mergeSortIt(0, array.length-1, carray, steps);
-
-    return [carray, steps];
+    let end = performance.now();
+    return [carray, steps, end - start];
 }
 function mergeSortIt(b, e, carray, steps){
     if(b >= e) return;
@@ -176,6 +230,7 @@ function mergeSortIt(b, e, carray, steps){
 function selectionSort(array){
     var steps = [];
     var carray = array.slice(0);
+    let start = performance.now();
     for(let i = 0; i < array.length; i++){
         let mini = i;
         for(let j = i; j < array.length; j++){
@@ -188,12 +243,14 @@ function selectionSort(array){
         carray[i] = carray[mini];
         carray[mini] = temp;
     }
-    return [carray, steps];
+    let end = performance.now();
+    return [carray, steps, end - start];
 }
 
 function insertionSort(array){
     let steps = [];
     let carray = array.slice(0);
+    let start = performance.now();
     for(let i = 0; i < array.length; i++){
         let b = 0;
         let e = i;
@@ -213,12 +270,15 @@ function insertionSort(array){
         carray.splice(i, 1);
         carray.splice(b, 0, temp);
     }
-    return [carray, steps];
+    let end = performance.now();
+    return [carray, steps, end - start];
 }
 
 function shellSort(array) {
     let steps = []
     let arr = array.slice(0);
+
+    let start = performance.now();
     let len = arr.length;
     let gap = Math.floor(len / 2);
 
@@ -238,6 +298,61 @@ function shellSort(array) {
 
         gap = Math.floor(gap / 2);
     }
-
-  return [arr, steps];
+    let end = performance.now();
+  return [arr, steps, end-start];
 }
+
+
+
+
+function downloadFile(){
+      
+    const jsonString = JSON.stringify(oarray);
+
+    const filename = 'Project1.json';
+  
+    // Create a blob with the data
+    const blob = new Blob([jsonString], { type: 'application/json' });
+  
+    // Create a temporary URL for the file
+    const url = window.URL.createObjectURL(blob);
+  
+    // Create a link and trigger a click to download the file
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+  
+    // Clean up
+    window.URL.revokeObjectURL(url);
+}
+
+
+
+
+function loadFile(){
+    fileInput.click();
+    let self = this;
+    fileInput.addEventListener('change', function(event) {
+        const selectedFile = event.target.files[0];
+        const reader = new FileReader();
+  
+        reader.onload = function(event) {
+            try {
+                var data = JSON.parse(event.target.result);
+                oarray = new Array(ctx, data.x, data.y, data.maxWidth, data.maxHeight);
+                for(const element of data.elements){
+                    oarray.push(element.value);
+                }
+                resetArray();
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        };
+  
+        reader.readAsText(selectedFile);
+    });
+    return self.graph;
+}  
+
+            
