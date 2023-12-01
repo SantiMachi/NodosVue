@@ -120,6 +120,9 @@
       background-color: #f1f1f1;
     }
 
+    .res {
+      font-size: 30px;
+    }
     #app {
       background-color: #ffffff;
     }
@@ -130,13 +133,11 @@
 
   <div>
 
-    <h1>Nodos generatrol</h1>
+    <h1>Nodos generator</h1>
     <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
-      <button class="w3-button" id="criticalPath_btn">Encontrar Camino Critico</button>
-      <button class="w3-button" id="assignment_btn">Encontrar Asignacion</button>
-      <button class="w3-button" id="kruskal_btn">arvol</button>
-      <button class="w3-button" id="dijkstra_btn">Camino más Corto (Dijkstra)</button>
+      <button class="w3-button" id="assignment_btn2">Encontrar Asignacion menor Valor</button>
+      <button class="w3-button" id="assignment_btn">Encontrar Asignacion mayor Valor</button>
       <input type="file" id="fileInput" style="display: none;">
       <button class="w3-button" id="load_btn">Recuperar</button>
       <button class="w3-button" id="save_btn">Guardar</button>
@@ -149,48 +150,13 @@
         <button class = "new_button" id = "new_button">Agregar Nodo</button>
         </div>
       </div>
+
+      <label id = "res" class = "res">Resultado: </label>
       <a class="w3-button" href="https://drive.google.com/file/d/1EmCZJRcgmEJOwym1XskCne1tiGCRHU0r/view?usp=sharing" id="ayuda-boton">?</a>
+
     </div>
 
-    <div class="context_menu" id="node_cm">
-      <div class="context_menu_item" id="node_name_b">
-        <label for="node_name_p">Nombre</label>
-        <input type="text" id="node_name_p">
-      </div>
-      <div class="context_menu_item" id="is_source_b">
-        <label for="is_source_p">Nodo fuente:</label>`
-        <input type="checkbox" id="is_source_p">
-      </div>
-      <div class="context_menu_item" id="node_val_b">
-        <label for="node_val_p">Valor</label>
-        <input type="number" step="0.1" id="node_val_p">
-      </div>
-      <div class="context_menu_item">
-        <label for="node_cp">Color</label>
-        <input type="color" id="node_cp" name="colorPicker">
-      </div>
 
-      <div class="context_menu_item" id="node_delete_b">
-        <label for="node_delete_b">Eliminar</label>
-      </div>
-    </div>
-
-    <div class="context_menu" id="edge_cm">
-      <div class="context_menu_item" id="edge_weight_b">
-        <label for="colorPicker">Peso</label>
-        <input type="number" step="0.1" id="edge_weight_p" name="colorPicker">
-      </div>
-      <div class="context_menu_item">
-        <label for="colorPicker">Color</label>
-        <input type="color" id="edge_cp" name="colorPicker">
-      </div>
-
-      <div class="context_menu_item" id="edge_delete_b">
-        <label for="edge_delete_b">Eliminar</label>
-      </div>
-    </div>
-
-    <canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
   </div>
 
   <script type="module" src="./Controllers/Asignacion.mjs"></script>

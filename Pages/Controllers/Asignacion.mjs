@@ -1,336 +1,279 @@
-import "../../Algorithms/JohnsonDriver.mjs";
+import {Node, UndirectedEdge, DirectedEdge, Graph, GraphController} from "../../GraphClasses/GraphController.mjs";
+import { convertToPixels, extractFontSize } from "../../Utilities/TextUtils.mjs";
 
-import {downloadFile, uploadFile, graph, findShortestPath} from "../../Algorithms/JohnsonDriver.mjs";
-
-const criticalPathButton = document.getElementById("criticalPath_btn");
-const adjMatrixButton = document.getElementById("adjMatrix_btn");
-const dijkstraButton = document.getElementById("dijkstra_btn");
 const assignmentButton = document.getElementById("assignment_btn");
+const assignmentButton2 = document.getElementById("assignment_btn2");
 const matrixButton = document.getElementById("adj_Button");
 const newNodeButton = document.getElementById("new_button");
 const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
 var matrixContainer = document.getElementById("myDropdown");
+const resButton = document.getElementById("res");
 
-dijkstraButton.addEventListener("click", e =>{   
-  findShortestPath();
-});
+class JohnsonNode extends Node {
+  constructor(x, y, val, id, label = "") {
+    super(x, y, val, label);
+    this.ef = null;
+    this.lf = null;
 
-criticalPathButton.addEventListener("click", e =>{   
-graph.findCriticalPath();
-});
+  }
 
-assignmentButton.addEventListener("click", e =>{   
-graph.findAssingment();
-});
+  draw(ctx) {
+    super.draw(ctx);
 
-matrixButton.addEventListener("click", e => {
-  toggleDropdown();
-})
+    const x = this.x;
+    const y = this.y - this.r - 40;
 
-newNodeButton.addEventListener("click", e => {
-  graph.adj.agregarNodo();
-});
+    if (this.ef != null && this.lf != null) {
 
-saveButton.addEventListener("click", e =>{
-  downloadFile();
-})
+      ctx.beginPath();
+      ctx.save();
+      ctx.translate(x, y);
 
-loadButton.addEventListener('click', function() {
-  uploadFile();
-});
+      let flabelWidth = ctx.measureText(this.ef.toFixed(1)).width;
+      let blabelWidth = ctx.measureText(this.lf.toFixed(1)).width;
+      let width = Math.max(flabelWidth, blabelWidth);
+      let height = extractFontSize(this.font);
 
+      ctx.font = this.font;
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = "2";
+      ctx.strokeRect(0, 0, (5 / 4) * width, (5 / 4) * height);
 
-    // Función para alternar la visibilidad del menú desplegable
-function toggleDropdown() {
-  matrixContainer.style.display = (matrixContainer.style.display === "block") ? "none" : "block";
+      ctx.fillStyle = "black";
+      ctx.fillText(this.lf.toFixed(1), (5 / 8) * width, (5 / 8) * height);
+
+      ctx.fillStyle = "black";
+      ctx.fillRect(-(5 / 4) * width, 0, (5 / 4) * width, (5 / 4) * height);
+      ctx.strokeRect(-(5 / 4) * width, 0, (5 / 4) * width, (5 / 4) * height);
+
+      ctx.fillStyle = "white";
+      ctx.fillText(this.ef.toFixed(1), -(5 / 8) * width, (5 / 8) * height);
+
+      ctx.restore();
+      ctx.closePath();
+    }
+  }
+}
+
+class JohnsonEdge extends DirectedEdge {
+  constructor(n0, n1, weight, id) {
+    super(n0, n1, weight, id);
+    this.forwardLabel = null;
+    this.backwardLabel = null;
+    this.h = null;
+  }
+  draw(ctx) {
+    super.draw(ctx);
+
+    let normal_direction = this.direction;
+    if (this.direction < Math.PI) {
+      normal_direction = this.direction + (Math.PI / 2);
+    }
+    else {
+      normal_direction = this.direction - (Math.PI / 2);
+    }
+    const px = 20 * Math.cos(normal_direction);
+    const py = 20 * Math.sin(normal_direction);
+
+    const x = ((this.originX + this.targetX) / 2) + px;
+    const y = ((this.originY + this.targetY) / 2) + py;
+
+    if (this.h != null) {
+
+      ctx.beginPath();
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(this.direction);
+
+      let width = ctx.measureText("h = " + this.h.toFixed(1)).width;
+      let height = extractFontSize(this.font);
+
+      ctx.font = this.font;
+
+      ctx.fillStyle = "black";
+      ctx.fillRect(-(5 / 8) * width, 0, (5 / 4) * width, (5 / 4) * height);
+      ctx.strokeRect(-(5 / 8) * width, 0, (5 / 4) * width, (5 / 4) * height);
+
+      ctx.fillStyle = "white";
+      ctx.fillText("h = " + this.h.toFixed(1), 0, (5 / 8) * height);
+
+      ctx.restore();
+      ctx.closePath();
+    }
+  }
+
+}
+
+class JohnsonGraphController extends GraphController {
+  constructor() {
+    super();
+  }
+
+  createGraph(isDirected = true) {
+    this.graph = new Graph(this.ctx, true, false, JohnsonEdge);
+    this.adj = this.graph.adj.container;
+    return this.graph;
+  }
+
+  generateNode(x, y, val = 0, id = null) {
+    return new JohnsonNode(x, y, 0, null);
+  }
 }
 
 
+var controller = new JohnsonGraphController();
+var graph = controller.createGraph();
+var begin = null;
+var end = null;
+var canvas = controller.getVisualFrame();
+controller.resizeVisualFrame(window.innerWidth, window.innerHeight);
+
+document.body.appendChild(canvas);
+matrixContainer.appendChild(controller.getVisualMatrix());
+
+controller.draw();
 
 
-matrixContainer.appendChild(graph.adj.container);
+assignmentButton.addEventListener("click", e => {
+  resButton.innerHTML = "Resultado: " +  findAssingment(true);
+});
+
+assignmentButton2.addEventListener("click", e => {
+  resButton.innerHTML = "Resultado: " + (-1)*findAssingment(false);
+
+});
+
+matrixButton.addEventListener("click", e => {
+  matrixContainer.style.display = (matrixContainer.style.display === "block") ? "none" : "block";
+  matrixContainer.removeChild(matrixContainer.lastChild);
+  matrixContainer.appendChild(controller.getVisualMatrix());
+});
+
+newNodeButton.addEventListener("click", e => {
+  graph = controller.graph;
+  graph.adj.agregarNodo();
+});
+
+saveButton.addEventListener("click", e => {
+  controller.downloadFile();
+});
+
+loadButton.addEventListener('click', e => {
+  controller.loadFile();
+});
 
 
+function findAssingment(maximize) {
+  for (var edge of graph.edges) {
+    edge.isAssigned = false;
+  }
+  console.log("entra");
+  if (maximize) {
+    var mayor = 0.0;
+    var edgepaintfinal = [];
+    graph.edges.forEach(edgeini => {
+      var edgepaint = [];
+      var nodusoi = [];
+      var nodusof = [];
+      var suma = 0.0;
+      var flagA = true;
+      var flagB = true;
+      nodusoi.push(edgeini.n0);
+      nodusof.push(edgeini.n1);
+      suma = suma + parseFloat(edgeini.weight);
+      edgepaint.push(edgeini);
 
-/*
-let url = 'http://localhost:4000/users';
-   let url2 = 'http://localhost:4000/enlaces';
-   let esawea = [];
-   let esawea2 = [];
-   let nodoSel = null;
-   let edgeSel = null;
-   new Vue({
-     el: '#app',
-     vuetify: new Vuetify(),
-     data() {
-       return {
-         userss: [],
-         dialog: false,
-         operacion: '',
-         users: {
-           id: null,
-           nombre: '',
-           posicion_x: 0,
-           posicion_y: 0
-         },
-         enlaces: [],
-         dialog1: false,
-         operacion1: '',
-         enlace: {
-           id: null,
-           nodo_inicio_id: '',
-           nodo_fin_id: '',
-           valor_numerico: 0
-         }
-       }
-     },
-     created() {
-       this.mostrar();
-       setTimeout(() => {
-         this.mostrar2();
-       }, 200);
-     },
-     methods: {
-       //MÉTODOS PARA EL CRUD
-       mostrar: function () {
-         axios.get(url)
-           .then(response => {
-             
-             
-             esawea = [];
-             this.userss = response.data;
+      graph.edges.forEach(edg => {
+        flagB = true;
+        flagA = true;
+        nodusoi.forEach(nd => {
+          if (nd == edg.n0) {
+            flagA = false;
+          }
+        });
+        nodusof.forEach(nd => {
+          if (nd == edg.n1) {
+            flagB = false;
+          }
+        });
+        if (flagA && flagB) {
+          nodusoi.push(edg.n0);
+          nodusof.push(edg.n1);
+          suma = suma + parseFloat(edg.weight);
+          edgepaint.push(edg);
+        }
 
-             esawea = [...this.userss];
-             console.log('nodos: '+this.userss);
-             nodoInicial();
-           })
+      });
+      if (suma >= mayor) {
+        mayor = suma;
+        edgepaintfinal = [];
+        edgepaintfinal = edgepaint;
+      }
+    });
 
+  } else {
+    var mayor = 0.0;
+    var edgepaintfinal = [];
+    var firstin = true;
+    graph.edges.forEach(edgeini => {
+      var edgepaint = [];
+      var nodusoi = [];
+      var nodusof = [];
+      var suma = 0.0;
+      var flagA = true;
+      var flagB = true;
 
-       },
-       mostrar2: function () {
-         axios.get(url2)
-           .then(response => {
-             esawea2 = [];
-             this.enlaces = response.data;
-             esawea2 = [...this.enlaces];
-             console.log('enlace: '+this.enlaces);
-             edgeInicial();
-           })
+      nodusoi.push(edgeini.n0);
+      nodusof.push(edgeini.n1);
+      suma = suma - parseFloat(edgeini.weight);
+      edgepaint.push(edgeini);
 
+      graph.edges.forEach(edg => {
+        flagB = true;
+        flagA = true;
+        nodusoi.forEach(nd => {
+          if (nd == edg.n0) {
+            flagA = false;
+          }
+        });
+        nodusof.forEach(nd => {
+          if (nd == edg.n1) {
+            flagB = false;
+          }
+        });
+        if (flagA && flagB) {
+          nodusoi.push(edg.n0);
+          nodusof.push(edg.n1);
+          suma = suma - parseFloat(edg.weight);
+          edgepaint.push(edg);
+        }
 
-       },
-       crear: function () {
-         let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y };
-         axios.post(url, parametros)
-           .then(response => {
-             console.log(parametros);
-           });
-         this.users.nombre = "";
-         this.users.posicion_x = "";
-         this.users.posicion_y = "";
-       },
-       editar: function () {
-         let parametros = { nombre: this.users.nombre, posicion_x: this.users.posicion_x, posicion_y: this.users.posicion_y };
-         //console.log(parametros);                   
-         axios.put(url + "/" + this.users.id, parametros)
-           .then(response => {
-             //this.mostrar();
-           })
-           .catch(error => {
-             console.log(error);
-           });
-       },
-       borrar: function (id) {
-         nodoSel = selectedNode.id;
-         id = nodoSel;
-            console.log(id);
-         esawea.forEach(elm => {
-           if (elm.id == id) {
-             axios.delete(url + "/" + id)
-               .then(response => {
-                 console.log('funciona');
-               });
-           }
-         });
+      });
+      if (firstin) {
+        mayor = suma;
+        firstin = false;
+        edgepaintfinal = [];
+        edgepaintfinal = edgepaint;
+      }
+      console.log(suma);
+      if (suma >= mayor) {
+        mayor = suma;
+        edgepaintfinal = [];
+        edgepaintfinal = edgepaint;
+      }
+    });
+  }
+  console.log(edgepaintfinal);
+  edgepaintfinal.forEach(edge => {
+    graph.edges.forEach(paint => {
+      if (parseInt(paint.id) == parseInt(edge.id)) {
+        edge.isAssigned = true;
 
-       },
-       crear2: function () {
-         let parametros1 = { nodo_inicio_id: this.enlace.nodo_inicio_id, nodo_fin_id: this.enlace.nodo_fin_id, valor_numerico: this.enlace.valor_numerico };
-         axios.post(url2, parametros1)
-           .then(response => {
-             console.log(parametros1);
-           });
-         this.enlace.nodo_inicio_id = "";
-         this.enlace.nodo_fin_id = "";
-         this.enlace.valor_numerico = "";
-       },
-       editar2: function () {
-         let parametros1 = { nodo_inicio_id: this.enlace.nodo_inicio_id, nodo_fin_id: this.enlace.nodo_fin_id, valor_numerico: this.enlace.valor_numerico };
-         //console.log(parametros);                   
-         axios.put(url2 + "/" + this.enlace.id, parametros1)
-           .then(response => {
-             //this.mostrar2();
-           })
-           .catch(error => {
-             console.log(error);
-           });
-       },
-       borrare: function (id) {
-         edgeSel = selectedEdge.id;
-         id = edgeSel;
-         console.log(id);
-         esawea2.forEach(elm => {
-           if (elm.id == id) {
-             axios.delete(url2 + "/" + id)
-               .then(response => {
-                 console.log('funciona 2');
-               });
-           }
-         });
+      }
+    });
 
-       },
-       borrar2: function () {
+  });
 
-         graph.nodes.forEach(nod => {
-           console.log('nodo: ' + this.userss);
-           this.users.nombre = nod.label;
-           this.users.posicion_x = nod.x;
-           this.users.posicion_y = nod.y;
-           this.operacion = 'crear';
-           this.userss.forEach(element => {
-             if (nod.id == element.id) {
-               this.operacion = 'editar';
-               this.users.id = nod.id;
-             }
-           });
-           if (this.operacion == 'crear') {
-             this.crear();
-           }
-           if (this.operacion == 'editar') {
-             this.editar();
-           }
-           this.dialog = false;
-
-         });
-         setTimeout(() => {
-           //this.mostrar();
-           setTimeout(() => {
-             //this.mostrar2();
-           }, 200);
-         }, 200);
-
-
-       },
-       borrar22: function () {
-         graph.edges.forEach(edg => {
-           console.log('unenlace: ' + this.enlaces);
-           console.log('datoenlace: '+this.enlace);
-           
-           console.log(edg.n0.id);
-           this.enlace.nodo_inicio_id = edg.n0.id;
-           this.enlace.nodo_fin_id = edg.n1.id;
-           this.enlace.valor_numerico = edg.weight;
-           this.operacion1 = 'crear';
-           this.enlaces.forEach(element => {
-             if (edg.id == element.id) {
-               this.operacion1 = 'editar';
-               this.enlace.id = edg.id;
-             }
-           });
-           if (this.operacion1 == 'crear') {
-             this.crear2();
-           }
-           if (this.operacion1 == 'editar') {
-             this.editar2();
-           }
-           this.dialog1 = false;
-         });
-         setTimeout(() => {
-           //this.mostrar();
-           setTimeout(() => {
-             //this.mostrar2();
-           }, 200);
-         }, 200);
-
-
-       },
-       buerra: function () {
-
-         this.borrar();
-
-
-         /* graph.nodes.forEach(nod => {
-           
-           this.users.nombre = nod.label;
-           this.users.posicion_x = nod.x;
-           this.users.posicion_y = nod.y;
-           this.operacion='crear';
-           if (this.operacion == 'crear') {
-             this.crear();
-           }
-           if (this.operacion == 'editar') {
-             this.editar();
-           }
-           this.dialog = false;
-         }); 
-
-       },
-
-       //Botones y formularios
-       guardar: function () {
-         console.log('enlaces'+this.userss);
-         console.log('enlaces'+this.enlaces);
-         this.borrar2();
-         
-         setTimeout(() => {
-           this.borrar22(this.enlaces);
-         }, 200);
-
-
-
-
-         /* graph.nodes.forEach(nod => {
-           
-           this.users.nombre = nod.label;
-           this.users.posicion_x = nod.x;
-           this.users.posicion_y = nod.y;
-           this.operacion='crear';
-           if (this.operacion == 'crear') {
-             this.crear();
-           }
-           if (this.operacion == 'editar') {
-             this.editar();
-           }
-           this.dialog = false;
-         }); 
-
-       },
-       formNuevo: function () {
-         this.dialog = true;
-         this.operacion = 'crear';
-         this.users.nombre = '';
-         this.users.posicion_x = 0;
-         this.users.posicion_y = 0;
-       },
-       formEditar: function (id, nombre, posicion_x, posicion_y) {
-
-         this.users.id = id;
-         this.users.nombre = '';
-         this.users.posicion_x = 0;
-         this.users.posicion_y = 0;
-         this.dialog = true;
-         this.operacion = 'editar';
-       }
-     }
-   });
-
-
-   console.log("!chambea");
-
-  */
-
-
-
-
-
+  return mayor;
+}

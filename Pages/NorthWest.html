@@ -130,16 +130,23 @@
 
   <div>
 
-    <h1>Nodos generatrol</h1>
+    <h1>Nodos generator</h1>
     <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
-      <button class="w3-button" id="criticalPath_btn">Encontrar Camino Critico</button>
-      <button class="w3-button" id="assignment_btn">Encontrar Asignacion</button>
-      <button class="w3-button" id="kruskal_btn">arvol</button>
-      <button class="w3-button" id="dijkstra_btn">Camino más Corto (Dijkstra)</button>
+      <button class="w3-button" id="guardarDatos">North West</button>
+      <button class="w3-button" id="maximizador">Maximizar</button>
+      <button class="w3-button" id="minimizador">Minimizar</button>
       <input type="file" id="fileInput" style="display: none;">
       <button class="w3-button" id="load_btn">Recuperar</button>
       <button class="w3-button" id="save_btn">Guardar</button>
+      <div class="w3-container w3-half w3-padding">
+        <p class="w3-quarter">Filas: </p>
+        <input type="number" id="filas" class="w3-input w3-quarter">
+        <p class="w3-quarter">Columnas: </p>
+        <input type="number" id="columnas" class="w3-input w3-quarter">
+        <button class="w3-button w3-blue" id="crearMatriz">Crear matriz</button>
+      </div>
+      
       <div class="dropdown">
         <!-- Botón del menú -->
         <button class="dropdown-button" id = "adj_Button">Matriz de Adyacencia</button>
@@ -149,51 +156,550 @@
         <button class = "new_button" id = "new_button">Agregar Nodo</button>
         </div>
       </div>
-      <a class="w3-button" href="ayuda_jhonson.html" id="ayuda-boton">?</a>
+      <a class="w3-button" href="https://drive.google.com/file/d/1bq_JbzUr4zh7ZEyRmKTjkLKZhZ6u8AjA/view?usp=sharing" id="ayuda-boton">?</a>
     </div>
 
-    <div class="context_menu" id="node_cm">
-      <div class="context_menu_item" id="node_name_b">
-        <label for="node_name_p">Nombre</label>
-        <input type="text" id="node_name_p">
-      </div>
-      <div class="context_menu_item" id="is_source_b">
-        <label for="is_source_p">Nodo fuente:</label>`
-        <input type="checkbox" id="is_source_p">
-      </div>
-      <div class="context_menu_item" id="node_val_b">
-        <label for="node_val_p">Valor</label>
-        <input type="number" step="0.1" id="node_val_p">
-      </div>
-      <div class="context_menu_item">
-        <label for="node_cp">Color</label>
-        <input type="color" id="node_cp" name="colorPicker">
-      </div>
-
-      <div class="context_menu_item" id="node_delete_b">
-        <label for="node_delete_b">Eliminar</label>
-      </div>
-    </div>
-
-    <div class="context_menu" id="edge_cm">
-      <div class="context_menu_item" id="edge_weight_b">
-        <label for="colorPicker">Peso</label>
-        <input type="number" step="0.1" id="edge_weight_p" name="colorPicker">
-      </div>
-      <div class="context_menu_item">
-        <label for="colorPicker">Color</label>
-        <input type="color" id="edge_cp" name="colorPicker">
-      </div>
-
-      <div class="context_menu_item" id="edge_delete_b">
-        <label for="edge_delete_b">Eliminar</label>
-      </div>
-    </div>
-
-    <canvas style="border-color: rgb(2, 0, 0); border-width: 3px; border-style: solid;"></canvas>
+    
   </div>
+  <div id="alm">
+    
+  </div>
+  
 
-  <script type="module" src="main.js"></script>
+  <script>
+
+    var matcost = [];
+    var matnw = [];
+    function crearMatriz1(filas, columnas, textosMatriz1, textosMatriz2, datosArray) {
+    // Crear la primera matriz con textos predeterminados en la primera fila y columna
+    const matriz1 = new Array(filas);
+    for (let i = 0; i < filas+2; i++) {
+      matriz1[i] = new Array(columnas);
+      for (let j = 0; j < columnas+2; j++) {
+        if (i === 0 && j === 0) {
+          matriz1[i][j] = '';
+        } else if (i === 0) {
+          matriz1[i][j] = "A"+j;
+          if (j==columnas+1) {
+            matriz1[i][j] = "Oferta";
+          }
+        } else if (j === 0) {
+          matriz1[i][j] = "B"+i;
+          if (i==filas+1) {
+            matriz1[i][j] = "Demanda";
+          }
+        } else {
+          matriz1[i][j] = 'Dato';
+          if (i==filas+1 && j==columnas+1) {
+            matriz1[i][j] = '=';
+          }
+        }
+      }
+    }
+
+
+    return matriz1;
+  }
+
+  function crearMatriz2(filas, columnas, textosMatriz1, textosMatriz2, datosArray) {
+
+    const matriz2 = new Array(filas);
+    for (let i = 0; i < filas+1; i++) {
+      matriz2[i] = new Array(columnas);
+      for (let j = 0; j < columnas+1; j++) {
+        if (i === 0 && j === 0) {
+          matriz2[i][j] = '';
+        } else if (i === 0) {
+          matriz2[i][j] = "A"+j;
+        } else if (j === 0) {
+          matriz2[i][j] = "B"+i;
+        } else {
+          const index = (i - 1) * (columnas+1) + (j - 1);
+          if (index < datosArray.length) {
+            matriz2[i][j] = datosArray[index];
+          } else {
+            matriz2[i][j] = '';
+          }
+        }
+      }
+    }
+
+    return matriz2;
+  }
+
+  
+
+
+  function crearTablaHTML(matriz) {
+    const tabla = document.createElement('table');
+
+    matriz.forEach((fila, i) => {
+      const tr = document.createElement('tr');
+      fila.forEach((celda, j) => {
+        const td = document.createElement('td');
+        if (celda === 'Dato') {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.id = `input-${i}-${j}`;
+          td.appendChild(input);
+        } else {
+          td.textContent = celda;
+        }
+        tr.appendChild(td);
+      });
+      tabla.appendChild(tr);
+    });
+
+    return tabla;
+  }
+
+  function obtenerDatosDeInputs(matriz) {
+    const datos = [];
+    matriz.forEach((fila, i) => {
+      fila.forEach((celda, j) => {
+        if (celda === 'Dato') {
+          const input = document.getElementById(`input-${i}-${j}`);
+          datos.push(input.value);
+        }
+      });
+    });
+    return datos;
+  }
+
+  function northWest(matrixOfCosts, supply, demand) {
+    const rows = matrixOfCosts.length;
+    const cols = matrixOfCosts[0].length;
+
+    const allocations = new Array(rows).fill(null).map(() => new Array(cols).fill(0));
+
+    let row = 0;
+    let col = 0;
+
+    while (row < rows && col < cols) {
+      if (supply[row] > 0 && demand[col] > 0) {
+        const amount = Math.min(supply[row], demand[col]);
+        allocations[row][col] = amount;
+        supply[row] -= amount;
+        demand[col] -= amount;
+
+        if (supply[row] === 0) row++;
+        if (demand[col] === 0) col++;
+      } else {
+        if (supply[row] === 0) row++;
+        if (demand[col] === 0) col++;
+      }
+    }
+
+    return allocations;
+  }
+
+
+  document.getElementById('guardarDatos').addEventListener('click', function() {
+    const datosIngresados = obtenerDatosDeInputs(matriz1);
+    
+    var arraycol = [];
+    var arrayfil = [];
+
+    for (let i = 0; i < datosIngresados.length; i++) {
+      
+      if ((i+1)%(columnas+1)==0) {
+        
+        arraycol.push(parseFloat(datosIngresados[i]));
+      }else if ((i+1)>(columnas+1)*filas) {
+        arrayfil.push(parseFloat(datosIngresados[i]));
+      }else{
+        datosArray[i] = parseFloat(datosIngresados[i]);
+      }
+    }
+    console.log(datosArray);
+    console.log(arrayfil);
+    console.log(arraycol);
+    var costmatrix= [];
+    for (let i = 0; i < filas; i++) {
+      costmatrix[i]=[];
+      for (let j = 0; j < columnas; j++) {
+        costmatrix[i][j]=datosArray[i*(columnas+1)+j];
+      }
+    }
+    console.log(costmatrix);
+    matcost=costmatrix;
+
+    const result = northWest(costmatrix, arraycol, arrayfil);
+    var sumaf = 0.0;
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        sumaf=sumaf+result[i][j]*costmatrix[i][j];
+      }
+    }
+
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        datosArray[i*(columnas+1)+j]=result[i][j];
+      }
+    }
+    
+    matnw=result;
+    
+
+    matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz2, datosArray);
+    
+    tablaMatriz2= crearTablaHTML(matriz2);
+    document.getElementById('matriz2').innerHTML = '';
+    document.getElementById('matriz2').appendChild(tablaMatriz2);
+    alert("Costo final: "+sumaf);
+  });
+
+
+  var filas = 3;
+  var columnas = 3;
+  var textosMatriz1 = ['A', 'B', 'C', 'D'];
+  var textosMatriz2 = ['E', 'F', 'G', 'H'];
+  var datosArray = [];
+
+  var matriz1 = crearMatriz1(filas, columnas, textosMatriz1, textosMatriz1, datosArray);
+  var matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz1, datosArray);
+  var tablaMatriz1 = crearTablaHTML(matriz1);
+  var tablaMatriz2 = crearTablaHTML(matriz2);
+  
+
+  console.log('Matriz 1:');
+  console.log(matriz1);
+  console.log('Matriz 2:');
+  console.log(matriz2);
+
+
+  
+
+  document.getElementById('crearMatriz').addEventListener('click', function() {
+    var borrar1 = document.getElementById("matriz1");
+    var borrar2 = document.getElementById("matriz2");
+    if (borrar1 != null) {
+      borrar1.remove();
+      borrar2.remove();
+    } else {
+      
+    };
+
+    var contenedor = document.getElementById("alm");
+
+    var primerDiv = document.createElement("div");
+    primerDiv.id = "matriz1"; 
+
+    var segundoDiv = document.createElement("div");
+    segundoDiv.id = "matriz2";
+
+    contenedor.appendChild(primerDiv);
+    contenedor.appendChild(segundoDiv);
+
+    filas =parseInt(document.getElementById('filas').value);
+    columnas =parseInt(document.getElementById('columnas').value);
+    console.log(filas);
+    console.log(columnas);
+
+    matriz1 = crearMatriz1(filas, columnas, textosMatriz1, textosMatriz1, datosArray);
+    matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz1, datosArray);
+    tablaMatriz1 = crearTablaHTML(matriz1);
+    tablaMatriz2 = crearTablaHTML(matriz2);
+
+    document.getElementById('matriz1').appendChild(tablaMatriz1);
+    document.getElementById('matriz2').appendChild(tablaMatriz2);
+  });
+
+  
+
+  document.getElementById('maximizador').addEventListener('click', function() {
+    console.log(matcost);
+    console.log(matnw);
+
+
+
+    const result = optim(true);
+
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        datosArray[i*(columnas+1)+j]=result[i][j];
+      }
+    }
+    matnw=result;
+
+    matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz2, datosArray);
+    
+    tablaMatriz2= crearTablaHTML(matriz2);
+    document.getElementById('matriz2').innerHTML = '';
+    document.getElementById('matriz2').appendChild(tablaMatriz2);
+
+    
+  });
+
+  document.getElementById('minimizador').addEventListener('click', function() {
+    console.log(matcost);
+    console.log(matnw);
+
+
+
+    const result = optim(false);
+
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        datosArray[i*(columnas+1)+j]=result[i][j];
+      }
+    }
+    matnw=result;
+
+    matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz2, datosArray);
+    
+    tablaMatriz2= crearTablaHTML(matriz2);
+    document.getElementById('matriz2').innerHTML = '';
+    document.getElementById('matriz2').appendChild(tablaMatriz2);
+
+    
+  });
+
+
+  function optim(flagMaxim){
+    var matrizCostos = matcost;
+
+    var matrizTransporte = matnw;
+
+    var R = [0]; 
+    var K = [];
+
+    var h=0;
+    for (let i = 0; i < matrizTransporte.length; i++) {
+        
+        if (matrizTransporte[h][i] > 0) {
+            var valorC = matrizCostos[h][i]; 
+            var valorR = R[h]; 
+            var valorK = valorC - valorR;
+            K.push(valorK);
+        } else {
+            h=h+1;
+            i=i-1;
+            if (matrizTransporte[h][i] > 0) {
+                var valorC = matrizCostos[h][i];
+                var valorK = K[i];
+                var valorR = valorC - valorK;
+                R.push(valorR);
+            }else{
+                i=i+1;
+                R.push(0);
+                var valorC = matrizCostos[h][i]; 
+                var valorR = R[h];
+                var valorK = valorC - valorR;
+                K.push(valorK); 
+            }
+        }
+        if (i==matrizTransporte.length-1 && h<matrizTransporte[0].length-1) {
+            h=h+1;
+            for (let j = h; j < matrizTransporte[0].length; j++) {
+                if (matrizTransporte[j][i] > 0) {
+                    var valorC = matrizCostos[j][i]; 
+                    var valorK = K[i];
+                    var valorR = valorC - valorK;
+                    R.push(valorR);
+                }
+            }
+            
+        }
+    }
+
+    // Resultados
+    console.log("R:", R); // Resultado de los valores R
+    console.log("K:", K); // Resultado de los valores K
+
+    var matIndicador = [];
+    var menor=0,x,y;
+
+    if (flagMaxim) {
+      for (let i = 0; i < matrizCostos.length; i++) {
+        matIndicador[i] = [];
+        for (let j = 0; j < matrizCostos[0].length; j++) {
+            matIndicador[i][j] = -(matrizCostos[i][j]-R[i]-K[j]);
+            if (matIndicador[i][j]<menor) {
+                menor=matIndicador[i][j];
+                x=i;
+                y=j;
+            }
+        }
+        
+    }
+    }else{
+      for (let i = 0; i < matrizCostos.length; i++) {
+        matIndicador[i] = [];
+        for (let j = 0; j < matrizCostos[0].length; j++) {
+            matIndicador[i][j] = matrizCostos[i][j]-R[i]-K[j];
+            if (matIndicador[i][j]<menor) {
+                menor=matIndicador[i][j];
+                x=i;
+                y=j;
+            }
+        }
+        
+    }
+    }
+
+    
+    console.log(matIndicador);
+
+    var tipoRot=0;
+    var flagFinal=true;
+    
+    var listaCam=[];
+    var objLista=[],objListaPast=[menor,x,y];
+    if (menor==0) {
+      flagFinal=false;
+    }
+    while (flagFinal) {
+        console.log(matIndicador[x][y]);
+        var flagCom=false;
+        if (tipoRot==0) {
+            for (let i = matIndicador[0].length-1; i > y; i--) {
+                objLista= [matIndicador[x][i],x,i];
+                if (matIndicador[x][i]==0 || (objLista[0] == objListaPast[0] && objLista[1] == objListaPast[1] && objLista[2] == objListaPast[2])) {
+                    for (let j = 0; j < x; j++) {
+                        if (matIndicador[j][i]==0 || (objListaPast[0]==matIndicador[j][i] && objListaPast[1]==j && objListaPast[2]==i)) {
+                            flagCom=true;
+                            i=y;
+                            break;
+                        }
+                        
+                    }
+                }
+            }
+            
+            if (flagCom) {
+                flagCom=compruebaRep(objLista,listaCam);
+                if (flagCom) {
+                    listaCam.push(objLista);
+                    y=objLista[2];
+                }
+            }
+        }
+        if (tipoRot==1) {
+            for (let i = 0; i < x; i++) {
+                objLista= [matIndicador[i][y],i,y];
+                if (matIndicador[i][y]==0 || (objLista[0] == objListaPast[0] && objLista[1] == objListaPast[1] && objLista[2] == objListaPast[2])) {
+                    for (let j = 0; j < y; j++) {
+                        if (matIndicador[i][j]==0 || (objListaPast[0]==matIndicador[i][j] && objListaPast[1]==i && objListaPast[2]==j)) {
+                            flagCom=true;
+                            i=x;
+                            break;
+                        }
+                        
+                    }
+                }
+            }
+            
+            if (flagCom) {
+                flagCom=compruebaRep(objLista,listaCam);
+                if (flagCom) {
+                    listaCam.push(objLista);
+                    x=objLista[1];
+                }
+            }
+        }
+        if (tipoRot==2) {
+            for (let i = 0; i < y; i++) {
+                objLista= [matIndicador[x][i],x,i];
+                if (matIndicador[x][i]==0 || (objLista[0] == objListaPast[0] && objLista[1] == objListaPast[1] && objLista[2] == objListaPast[2])) {
+                    for (let j = matIndicador.length-1; j >x ; j--) {
+                        if (matIndicador[j][i]==0 || (objListaPast[0]==matIndicador[j][i] && objListaPast[1]==j && objListaPast[2]==i)) {
+                            flagCom=true;
+                            i=y;
+                            break;
+                        }
+                        
+                    }
+                }
+            }
+            
+            if (flagCom) {
+                flagCom=compruebaRep(objLista,listaCam);
+                if (flagCom) {
+                    listaCam.push(objLista);
+                    y=objLista[2];
+                }
+            }
+        }
+        if (tipoRot==3) {
+            for (let i = matIndicador.length-1; i > x; i--) {
+                objLista= [matIndicador[i][y],i,y];
+                if (matIndicador[i][y]==0 || (objLista[0] == objListaPast[0] && objLista[1] == objListaPast[1] && objLista[2] == objListaPast[2])) {
+                    for (let j = matIndicador[0].length-1; j > y; j--) {
+                        if (matIndicador[i][j]==0 || (objListaPast[0]==matIndicador[i][j] && objListaPast[1]==i && objListaPast[2]==j)) {
+                            flagCom=true;
+                            i=x;
+                            break;
+                        }
+                        
+                    }
+                }
+            }
+            
+            if (flagCom) {
+                flagCom=compruebaRep(objLista,listaCam);
+                if (flagCom) {
+                    listaCam.push(objLista);
+                    x=objLista[1];
+                }
+            }
+        }
+        
+        if (objLista[0] == objListaPast[0] && objLista[1] == objListaPast[1] && objLista[2] == objListaPast[2]) {
+            console.log("asdasdas");
+            flagFinal=false;
+        }
+        console.log(listaCam);
+        tipoRot=(tipoRot+1)%4;
+        
+    }
+
+    var menorVal=matrizTransporte[listaCam[0][1]][listaCam[0][2]];
+    for (let i = 0; i < listaCam.length-1; i++) {
+        if (matrizTransporte[listaCam[i][1]][listaCam[i][2]]<menorVal) {
+            menorVal=matrizTransporte[listaCam[i][1]][listaCam[i][2]];
+        }
+        
+    }
+
+    var xref=listaCam[listaCam.length-1][1];
+    var yref=listaCam[listaCam.length-1][2];
+    for (let i = 0; i < listaCam.length; i++) {
+        
+        if ((xref-listaCam[i][1])!=0) {
+            xref=listaCam[i][1];
+            matrizTransporte[xref][yref]=matrizTransporte[xref][yref]+menorVal;
+        }else{
+            yref=listaCam[i][2];
+            matrizTransporte[xref][yref]=matrizTransporte[xref][yref]-menorVal;
+        }
+        
+    }
+
+    console.log(matrizTransporte);
+
+    function compruebaRep() {
+        if (listaCam != null) {
+            for (let i = 0; i < listaCam.length; i++) {
+                console.log(listaCam[i]);
+                console.log(objLista);
+                if (listaCam[i] == objLista) {
+                    console.log("NO LLEGA");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    return matrizTransporte;
+  }
+
+
+
+
+  </script>
+
  
 </body>
 
