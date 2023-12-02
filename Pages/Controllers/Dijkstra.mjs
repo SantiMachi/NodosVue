@@ -1,6 +1,7 @@
 import {Node, UndirectedEdge, DirectedEdge, Graph, GraphController} from "../../GraphClasses/GraphController.mjs";
 import { convertToPixels, extractFontSize } from "../../Utilities/TextUtils.mjs";
 const shortestPathButton = document.getElementById("shortestPath_btn");
+const longestPathButton = document.getElementById("longestPath_btn");
 const matrixButton = document.getElementById("adj_Button");
 const newNodeButton = document.getElementById("new_node_button");
 const saveButton = document.getElementById("save_btn");
@@ -69,7 +70,7 @@ class DijkstraGraphController extends GraphController{
       origin.isOrigin = false;
       origin.isTarget = false;
       }
-      console.log(origin);  
+
       origin = this.selectedNode;
       origin.isOrigin = true;
       origin.isTarget = false;
@@ -127,6 +128,19 @@ shortestPathButton.addEventListener("click", e =>{
   findShortestPath();
 });
 
+longestPathButton.addEventListener("click", e =>{   
+  graph = controller.graph;
+  for(let node of graph.nodes){
+    node.isCritical = false;
+    node.distance = null;
+  }
+  for(let edge of graph.edges){
+    edge.isAssigned = false;
+  }
+
+  findLongestPath();
+});
+
 matrixButton.addEventListener("click", e => {
   matrixContainer.style.display = (matrixContainer.style.display === "block") ? "none" : "block";
   matrixContainer.removeChild(matrixContainer.lastChild);
@@ -154,14 +168,15 @@ function findShortestPath(){
     alert("Seleccione Origen y Destino");
     return;
   }
-  const res = calc.dijkstra(origin.id-1);
-  const dis = res.distancias[target.id-1];
+  const res = calc.dijkstra(origin.id-1, target.id-1);
+  const dis = res[0];
 
+  console.log(dis);
   if(dis == Infinity) {
     alert("No hay camino disponible");
     return;
   }
-  const ruta = res.rutas[target.id-1];
+  const ruta = res[1];
   //console.log();
   console.log("y", ruta);
   for(let j = 0; j < ruta.length; j++){
@@ -169,6 +184,38 @@ function findShortestPath(){
     graph.nodes[i].isCritical = true;
     if(j < ruta.length-1){
       graph.adj.matrix[i][ruta[j+1]].isAssigned = true;
+      if(graph.adj.matrix[ruta[j+1]][i] != Infinity) graph.adj.matrix[ruta[j+1]][i].isAssigned = true;
+    }
+  }
+
+  graph.nodes[target.id-1].distance = dis;
+  console.log(graph.nodes[target.id-1]);
+}
+
+
+function findLongestPath(){
+  const calc = new NotDijkstra(graph.getAdjMatrix());
+
+  if(!origin || !target) {
+    alert("Seleccione Origen y Destino");
+    return;
+  }
+  const res = calc.notDijkstra(origin.id-1, target.id-1);
+  const dis = res[0];
+
+  if(dis == Infinity) {
+    alert("No hay camino disponible");
+    return;
+  }
+  const ruta = res[1];
+  //console.log();
+  console.log("y", ruta);
+  for(let j = 0; j < ruta.length; j++){
+    let i = ruta[j];
+    graph.nodes[i].isCritical = true;
+    if(j < ruta.length-1){
+      graph.adj.matrix[i][ruta[j+1]].isAssigned = true;
+      if(graph.adj.matrix[ruta[j+1]][i] != Infinity) graph.adj.matrix[ruta[j+1]][i].isAssigned = true;
     }
   }
 
@@ -186,7 +233,7 @@ class Dijkstra{
       this.rutas = new Array(this.n).fill([]);
   }
 
-  dijkstra(nodoInicial) {
+  dijkstra(nodoInicial, nodoFinal) {
       this.distancias[nodoInicial] = 0;
       this.rutas[nodoInicial] = [nodoInicial];
 
@@ -206,10 +253,7 @@ class Dijkstra{
         }
       }
 
-      return {
-      distancias: this.distancias,
-      rutas: this.rutas,
-      };
+      return [this.distancias[nodoFinal], this.rutas[nodoFinal]];
   }
 
   nodoConDistanciaMinimaNoVisitado() {
@@ -224,5 +268,41 @@ class Dijkstra{
       }
 
       return nodoMin;
+  }
+}
+
+
+class NotDijkstra{
+  constructor(matrix){
+    this.matrix =  matrix;
+  }
+
+  notDijkstra(start, end) {
+      
+    let maxPath = {
+      path : [],
+      weight : 0
+    };
+
+    let self = this;
+  
+    function dfs(current, path, weight) {
+      if (current === end) {
+        if (weight > maxPath.weight || maxPath.length === 0) {
+          maxPath = { path: path.slice(), weight };
+        }
+        return;
+      }
+  
+      for (let neighbor = 0; neighbor < self.matrix[current].length; neighbor++) {
+        const edgeWeight = self.matrix[current][neighbor];
+        if (edgeWeight !== Infinity && !path.includes(neighbor)) {
+          dfs(neighbor, path.concat([neighbor]), weight + edgeWeight);
+        }
+      }
+    }
+    
+    dfs(start, [start], 0);
+    return [maxPath.weight, maxPath.path];
   }
 }

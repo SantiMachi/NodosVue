@@ -7,66 +7,16 @@ const newNodeButton = document.getElementById("new_node_button");
 const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
 var matrixContainer = document.getElementById("myDropdown");
+const resButton = document.getElementById("res");
 
-class KruskalNode extends Node{
-  constructor(x, y, val, id, label = ""){
-    super(x, y, val, label);
-    this.isOrigin = false;
-    this.isTarget = false;
-  }
-
-  update(){
-    super.update()
-    if(this.isOrigin){
-      this.label = "Inicio";
-      this.fillColor = "#00e660";
-    }
-    else{
-      this.fillColor = "black";
-      this.label = "";
-    }
-  }
-
-  draw(ctx){
-    super.draw(ctx);
-
-    const x = this.x;
-    const y = this.y - this.r - 40;
-
-    if(this.distance != null){
-      ctx.font = this.font;
-      ctx.fillStyle = this.labelColor;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText("Costo Total: " + this.distance.toFixed(1), this.x, this.y - this.r - extractFontSize(this.font));
-    }
-  }
-}
 
 class KruskalGraphController extends GraphController{
   constructor(){
     super();
-    var o_button = document.createElement("div");
-    o_button.innerHTML = `
-    <div class="context_menu_item" id="node_origin_b">
-      <label for="node_origin_b">Origen</label> 
-    </div>
-    `;
-
-    o_button.addEventListener("click", e => {
-      if(origin){
-      origin.isOrigin = false;
-      }
-      origin = this.selectedNode;
-      origin.isOrigin = true;
-    });
-
-    this.nodeMenu.visualElement.appendChild(o_button);
-
   }
 
   generateNode(x, y, val = 0, id = null){
-    return new KruskalNode(x, y, 0, null);
+    return new Node(x, y, 0, null);
   }
 }
 
@@ -92,7 +42,7 @@ shortestPathButton.addEventListener("click", e =>{
     edge.isAssigned = false;
   }
 
-  findShortestPath();
+  resButton.innerHTML = "Resultado: " + findShortestPath();
 });
 
 longestPathButton.addEventListener("click", e =>{   
@@ -105,7 +55,7 @@ longestPathButton.addEventListener("click", e =>{
     edge.isAssigned = false;
   }
 
-  findLongestPath();
+  resButton.innerHTML = "Resultado: " + findLongestPath();
 });
 
 matrixButton.addEventListener("click", e => {
@@ -129,14 +79,8 @@ loadButton.addEventListener('click', e => {
 
 function findShortestPath(){
 
-  if(!origin) {
-    alert("Seleccione Origen");
-    return;
-  }
   let kruskal = new Kruskal(graph.getAdjMatrix(), true);
 
-  //console.log(origin)
-  //console.log(graph.getAdjMatrix());
   const result = kruskal.kruskal();
   console.log(result)
   var sum = 0;
@@ -146,21 +90,17 @@ function findShortestPath(){
           graph.nodes[node1].isCritical = true;
           graph.nodes[node2].isCritical = true;
           edge.isAssigned = true;
-          sum += parseFloat(edge.weight) // Colorear los bordes que están en el árbol de expansión mínima
+          sum += parseFloat(edge.weight) 
       }
   });
 
-  origin.distance = sum;
+  return sum;
 
 }
 
 
 function findLongestPath(){
 
-  if(!origin) {
-    alert("Seleccione Origen");
-    return;
-  }
   let kruskal = new Kruskal(graph.getAdjMatrix(), false);
 
   const result = kruskal.kruskal();
@@ -171,11 +111,11 @@ function findLongestPath(){
           graph.nodes[node1].isCritical = true;
           graph.nodes[node2].isCritical = true;
           edge.isAssigned = true;
-          sum += parseFloat(edge.weight) // Colorear los bordes que están en el árbol de expansión mínima
+          sum += parseFloat(edge.weight)
       }
   });
 
-  origin.distance = sum;
+  return sum;
 
 }
 
