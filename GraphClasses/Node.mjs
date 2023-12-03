@@ -1,4 +1,5 @@
 import {getBrightness} from "../Utilities/RGBUtils.mjs"
+import { extractFontSize } from "../Utilities/TextUtils.mjs";
 
 export class Ball {
     constructor(x, y, dx, dy) {
@@ -111,8 +112,8 @@ export class Node extends Ball {
       this.t = 0;
       this.label = label;
       this.val = val;
-      this.valueColor = 'white';
-      this.labelColor = 'black';
+      this.valueColor = 'black';
+      this.labelColor = 'white';
       this.font = '24px Montserrat, sans-serif';
       this.edges = [];
       this.isCritical = false;
@@ -127,9 +128,10 @@ export class Node extends Ball {
       this.fillColor = color;
       const brightness = getBrightness(color) / 255;
       //console.log(brightness);
-      if (brightness >= 0.5) this.valueColor = 'black';
-      else this.valueColor = 'white';
+      if (brightness >= 0.5) this.labelColor = 'black';
+      else this.labelColor = 'white';
     }
+
 
     draw(ctx) {
 
@@ -141,14 +143,23 @@ export class Node extends Ball {
       ctx.fillStyle = this.valueColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(this.val.toString(), this.x, this.y);
+      ctx.fillText(this.val.toString(), this.x, this.y + this.r + 15);
+      
+      
+      let width = 20+ctx.measureText(this.label).width;
+      let height = (5/4)*extractFontSize(this.font);
+      ctx.fillStyle = this.fillColor;
+
+      ctx.globalAlpha = 0.75;
+      drawRoundedRect(ctx, this.x - width/2, this.y - height/2, width, height, 5);
+      ctx.globalAlpha = 1;
 
       ctx.beginPath();
       ctx.font = this.font;
       ctx.fillStyle = this.labelColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(this.label.toString(), this.x, this.y + this.r + 15);
+      ctx.fillText(this.label.toString(), this.x, this.y);
     }
 
     update() {
@@ -188,6 +199,18 @@ export class Node extends Ball {
       this.update();
       this.draw(ctx);
     }
+}
+
+
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+  ctx.fill();
 }
 
 

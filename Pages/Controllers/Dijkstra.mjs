@@ -28,7 +28,7 @@ class DijkstraNode extends Node{
     }
     else{
       this.fillColor = "black";
-      this.label = "";
+      //this.label = "";
     }
   }
 
