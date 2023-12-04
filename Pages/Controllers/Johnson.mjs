@@ -9,7 +9,7 @@ var matrixContainer = document.getElementById("myDropdown");
 
 class JohnsonNode extends Node{
   constructor(x, y, val, id, label = ""){
-    super(x, y, val, label);
+    super(x, y, val, id, label);
     this.ef = null;
     this.lf = null;
     
@@ -114,7 +114,8 @@ class JohnsonGraphController extends GraphController{
   }
 
   generateNode(x, y, val = 0, id = null){
-    return new JohnsonNode(x, y, 0, null);
+    let nnode = new JohnsonNode(x, y, val, null);
+    return nnode
   }
 }
 

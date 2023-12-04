@@ -1,5 +1,6 @@
 import {Node, UndirectedEdge, DirectedEdge, Graph, GraphController} from "../../GraphClasses/GraphController.mjs";
 import { convertToPixels, extractFontSize } from "../../Utilities/TextUtils.mjs";
+import {Ball, drawRoundedRect } from "../../GraphClasses/Node.mjs";
 
 const criticalPathButton = document.getElementById("criticalPath_btn");
 const competButton = document.getElementById("compet_btn")
@@ -12,6 +13,69 @@ const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
 var matrixContainer = document.getElementById("myDropdown");
 
+
+class Slider extends Ball{
+  constructor(x, y){
+    super(x, y);
+  }
+
+}
+
+class SlideBar{
+  constructor(ctx, x, y, length, width = 10, horizontal  =  true){
+    this.ctx = ctx;
+    this.x = x;
+    this.y = y;
+    this.length = length;
+    this.width = width;
+    this.horizontal = horizontal;
+
+    if(this.horizontal){
+      this.slider = new Slider(this.x, this.y + this.width/2);
+    }
+    else{
+      this.slider = new Slider(this.x  + this.width/2, this.y);
+    }
+
+    this.slider.R = this.width/2 + 2;
+    this.slider.r = this.width/2 + 2;
+    console.log(this.slider.R);
+  }
+
+  updateSliderPosition(x, y){
+    if(this.horizontal){
+      this.slider.x = Math.min(this.x + this.length, x);
+      this.slider.x = Math.max(this.x, this.slider.x);
+    }
+    else{
+      this.slider.y = Math.min(this.y + this.length, y);
+      this.slider.y = Math.max(this.y, this.slider.y);
+    }
+  }
+
+  getValue(){
+    if(this.horizontal) return (this.slider.x - this.x)/this.length;
+    else (this.slider.y - this.y)/this.length;
+  }
+
+  isInside(x, y){
+    return this.slider.isInside(x, y);
+  }
+
+  draw(ctx){
+    ctx.fillStyle = "black";
+    ctx.globalAlpha = 0.5;
+    if(this.horizontal){
+      drawRoundedRect(ctx, this.x, this.y, this.length, this.width, this.width/2);
+    }
+    else{
+      drawRoundedRect(ctx, this.x, this.y, this.width, this.length, this.width/2);
+    }
+    ctx.globalAlpha = 1;    
+
+    this.slider.draw(this.ctx);
+  }
+}
 
 class CompetNode extends Node{
   constructor(x, y, val, id, label = ""){
@@ -43,7 +107,7 @@ class CompetNode extends Node{
     ctx.translate(x, y);
 
     let pos = "x: " + this.x.toFixed(1) +"   y: " + this.y.toFixed(1);
-    let width = ctx.measureText(pos).width;
+    let width = ctx.measureText(pos).width + 30;
     let height = extractFontSize(this.font);
 
     ctx.font = this.font;
@@ -51,8 +115,7 @@ class CompetNode extends Node{
     ctx.lineWidth = "2";
     
     ctx.fillStyle = "black";
-    ctx.fillRect(-(5/8)*width, 0, (5/4)*width, (5/4)*height);
-    ctx.strokeRect(-(5/8)*width, 0, (5/4)*width, (5/4)*height);
+    ctx.fillRect(-width/2, 0, width, (5/4)*height);
     
     ctx.fillStyle = "white";
     ctx.fillText(pos, 0, (5/8)*height);
@@ -83,7 +146,10 @@ class CompetEdge extends UndirectedEdge {
 
 class CompetGraphController extends GraphController {
   constructor() {
-    super()
+    super();
+
+    this.hslider = new SlideBar(this.ctx, 30, 30, 800, 20, true);
+    this.vslider = new SlideBar(this.ctx, 900, 30, 800, 20, false);
 
     this.x_field = document.createElement("div");
     this.x_field.innerHTML = `
@@ -114,6 +180,25 @@ class CompetGraphController extends GraphController {
 
     this.y_data_field = document.getElementById("node_y_p");
     this.x_data_field = document.getElementById("node_x_p");
+
+    this.selectedSlider = null;
+
+    this.canvas.addEventListener("mousemove", e => {
+
+      if(this.selectedSlider != null){
+        this.selectedSlider.updateSliderPosition(this.mouse.x, this.mouse.y);
+      }
+    })
+
+    this.canvas.addEventListener("mousedown", e => {
+      if(this.hslider.isInside(this.mouse.x, this.mouse.y)) this.selectedSlider = this.hslider;
+      else if(this.vslider.isInside(this.mouse.x, this.mouse.y)) this.selectedSlider = this.vslider;
+      e.stopPropagation;
+    }, true)
+
+    this.canvas.addEventListener("mouseup", e => {
+      this.selectedSlider = null;
+    })
   }
 
   showNodeMenu(node){
@@ -150,6 +235,13 @@ class CompetGraphController extends GraphController {
 
   generateNode(x, y, val = 0, id = null){
     return new CompetNode(x, y, 0, null);
+  }
+
+  draw(){
+    super.draw();
+
+    this.vslider.draw(this.ctx);
+    this.hslider.draw(this.ctx);
   }
 }
 
@@ -237,7 +329,12 @@ function compet() {
     if(centroid != null) graph.deleteNode(centroid);
     centroid = new CompetNode(points[0][0], Math.round(points[0][1]),"x: " + Math.round(points[0][0])+" y: " + Math.round(points[0][1]))
     centroid.label = "centroide;"
-    graph.addNode(centroid);
+    graph.addNodeObject
+    
+    
+    
+    
+    (centroid);
 
     for(let node of graph.nodes){
       if(node != centroid){

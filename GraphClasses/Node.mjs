@@ -105,7 +105,7 @@ export class Ball {
 
 
 export class Node extends Ball {
-    constructor(x, y, val, id, label = "") {
+    constructor(x, y, val = 0, id, label = "") {
       super(x, y, 0, 0);
       this.id = id;
       this.isSelected = false;
@@ -145,12 +145,21 @@ export class Node extends Ball {
       ctx.textBaseline = 'middle';
       ctx.fillText(this.val.toString(), this.x, this.y + this.r + 15);
       
-      
-      let width = 20+ctx.measureText(this.label).width;
+      let text;
+      if(this.label == null ||
+        this.label == ""){
+          text = this.id;
+      }
+      else{
+        text = this.label;
+      }
+
+
+      let width = 20+ctx.measureText(text).width;
       let height = (5/4)*extractFontSize(this.font);
       ctx.fillStyle = this.fillColor;
 
-      ctx.globalAlpha = 0.75;
+      ctx.globalAlpha = 0.65;
       drawRoundedRect(ctx, this.x - width/2, this.y - height/2, width, height, 5);
       ctx.globalAlpha = 1;
 
@@ -159,7 +168,7 @@ export class Node extends Ball {
       ctx.fillStyle = this.labelColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(this.label.toString(), this.x, this.y);
+      ctx.fillText(text.toString(), this.x, this.y);
     }
 
     update() {
@@ -202,7 +211,7 @@ export class Node extends Ball {
 }
 
 
-function drawRoundedRect(ctx, x, y, width, height, radius) {
+export function drawRoundedRect(ctx, x, y, width, height, radius) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
   ctx.arcTo(x + width, y, x + width, y + height, radius);

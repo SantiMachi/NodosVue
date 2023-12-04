@@ -202,14 +202,12 @@ export class Graph {
     addNodeObject(node) {
       this.n++;
       this.nodes.push(node);
-      node.val = this.n;
-
+      node.id = this.n;
       this.updateData();
     }
     addNode(x, y, name = "") {
       this.n++;
-      const val = this.n;
-      this.nodes.push(new Node(x, y, val, val, name));
+      this.nodes.push(new Node(x, y, 0, this.n, name));
 
       this.updateData();
     }
@@ -295,8 +293,7 @@ export class Graph {
     deleteNode(n0) {
       if (this.nodes.includes(n0)) {
         for (const edge of n0.edges) {
-          const i = this.edges.indexOf(edge);
-          this.edges.splice(i, 1);
+          this.deleteEdge(edge);
         }
       }
 
@@ -326,7 +323,6 @@ export class Graph {
     for(var node of this.nodes){
       this.n++;
       //if(node.val == "" || node.val == null) 
-      node.val = this.n;
       node.id = this.n;
     }
 

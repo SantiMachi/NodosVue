@@ -68,20 +68,6 @@ export class GraphController{
                     this.selectedEdge = null;
                     this.pointerState = 0;
                 }
-                else if(this.pointerState == 3){
-                    if(this.selectedNode){
-                        this.selectedNode.isSelected = false;
-                        this.closeNodeMenu();
-                        this.selectedNode = null;
-                    }
-                    
-                    if(this.selectedEdge){
-                        this.selectedEdge.isSelected = false;
-                        this.closeEdgeMenu();
-                        this.selectedEdge = null;
-                    }
-                    this.pointerState = 0;
-                }
                 else if(this.pointerState == 4){
                     this.selectedNode = null;
                     this.selectedEdge = null;
@@ -151,7 +137,15 @@ export class GraphController{
                         this.selectedNode = snode;
                         let dummyNode = this.generateNode(this.mouse.x, this.mouse.y);
                         this.selectedEdge = this.generateEdge(this.selectedNode, dummyNode);
-                        this.pointerState = 2;
+
+                        if(this.selectedEdge != null){
+                            this.pointerState = 2;
+                        }
+                        else{
+                            this.selectedNode = null;
+                            this.selectedEdge = null;
+                            this.pointerState = 0;
+                        }
                     }
                 }
                 else if(e.button == 2){
@@ -492,7 +486,7 @@ export class GraphController{
     }
 
     generateNode(x, y, val = 0, id = null){
-        return new Node(x, y, val, id);
+        return new Node(x, y, val, id, "");
     }
 
     getVisualFrame(){
