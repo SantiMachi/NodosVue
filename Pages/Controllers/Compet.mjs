@@ -31,10 +31,10 @@ class SlideBar{
     this.horizontal = horizontal;
 
     if(this.horizontal){
-      this.slider = new Slider(this.x, this.y + this.width/2);
+      this.slider = new Slider(this.x + this.length/2, this.y + this.width/2);
     }
     else{
-      this.slider = new Slider(this.x  + this.width/2, this.y);
+      this.slider = new Slider(this.x  + this.width/2, this.y + this.length/2);
     }
 
     this.slider.R = this.width/2 + 2;
@@ -55,7 +55,7 @@ class SlideBar{
 
   getValue(){
     if(this.horizontal) return (this.slider.x - this.x)/this.length;
-    else (this.slider.y - this.y)/this.length;
+    else return (this.slider.y - this.y)/this.length;
   }
 
   isInside(x, y){
@@ -76,6 +76,7 @@ class SlideBar{
     this.slider.draw(this.ctx);
   }
 }
+
 
 class CompetNode extends Node{
   constructor(x, y, val, id, label = ""){
@@ -148,9 +149,6 @@ class CompetGraphController extends GraphController {
   constructor() {
     super();
 
-    this.hslider = new SlideBar(this.ctx, 30, 30, 800, 20, true);
-    this.vslider = new SlideBar(this.ctx, 900, 30, 800, 20, false);
-
     this.x_field = document.createElement("div");
     this.x_field.innerHTML = `
     <div class="context_menu_item" id="node_x_b">
@@ -183,6 +181,16 @@ class CompetGraphController extends GraphController {
 
     this.selectedSlider = null;
 
+    this.scopex = 0;
+    this.scopey = 0;
+    this.scale = 1;
+
+    this.ppu = 20;
+
+    this.hslider = new SlideBar(this.ctx, 30, 30, 800, 20, true);
+    this.vslider = new SlideBar(this.ctx, 900, 30, 800, 20, false);
+    this.zslider = new SlideBar(this.ctx, 800, 800, 100, 20, true);
+
     this.canvas.addEventListener("mousemove", e => {
 
       if(this.selectedSlider != null){
@@ -191,14 +199,92 @@ class CompetGraphController extends GraphController {
     })
 
     this.canvas.addEventListener("mousedown", e => {
-      if(this.hslider.isInside(this.mouse.x, this.mouse.y)) this.selectedSlider = this.hslider;
+      if(this.hslider.isInside(this.mouse.x, this.mouse.y))this.selectedSlider = this.hslider;
       else if(this.vslider.isInside(this.mouse.x, this.mouse.y)) this.selectedSlider = this.vslider;
-      e.stopPropagation;
-    }, true)
+      else if(this.zslider.isInside(this.mouse.x, this.mouse.y)) this.selectedSlider = this.zslider;
+      
+      if(this.selectedSlider != null) e.stopPropagation();
+    }, true);
 
     this.canvas.addEventListener("mouseup", e => {
       this.selectedSlider = null;
     })
+
+    this.getScope();
+  }
+
+  drawGrid(){
+    let x = this.scopex *50;
+    let y = this.scopey *50;
+    
+    let fl = Math.ceil(x);
+    let bl = Math.ceil(x);
+
+    let xo = 400;
+    let yo = 400;
+
+    this.ctx.strokeStyle = "black";
+    this.ctx.lineWidth = 1;
+    let pos = xo + (bl-x)*(this.ppu/this.scale);
+
+   // console.log((bl-x));
+
+    while(pos > 0){
+      this.ctx.beginPath();
+      this.ctx.moveTo(pos, 60 );
+      this.ctx.lineTo(pos, 800);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+      pos -= (this.ppu/this.scale);
+    }
+
+    pos = xo + (fl-x)*(this.ppu/this.scale);
+    
+    while(pos < 800){
+      this.ctx.beginPath();
+      this.ctx.moveTo(pos, 60);
+      this.ctx.lineTo(pos, 800);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+      pos += (this.ppu/this.scale);
+    }
+
+    fl = Math.ceil(y);
+    bl = Math.ceil(y);
+
+    pos = yo + (bl-y)*(this.ppu/this.scale);
+
+   console.log(this.vslider.getValue());
+
+    while(pos > 60){
+      this.ctx.beginPath();
+      this.ctx.moveTo(60, pos);
+      this.ctx.lineTo(800, pos);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+      pos -= (this.ppu/this.scale);
+    }
+
+    pos = yo + (fl-y)*(this.ppu/this.scale);
+    
+    while(pos < 800){
+      this.ctx.beginPath();
+      this.ctx.moveTo(60, pos);
+      this.ctx.lineTo(800, pos);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+      pos += (this.ppu/this.scale);
+    }
+  }
+
+  getScope(){
+    this.scopex = 2.0*this.hslider.getValue() - 1;
+    this.scopey = 2.0*this.vslider.getValue() - 1;
+    this.scale = 1*(this.zslider.getValue() + 1/10);
   }
 
   showNodeMenu(node){
@@ -240,8 +326,13 @@ class CompetGraphController extends GraphController {
   draw(){
     super.draw();
 
+    this.getScope();
+
     this.vslider.draw(this.ctx);
     this.hslider.draw(this.ctx);
+    this.zslider.draw(this.ctx);
+
+    this.drawGrid();
   }
 }
 
