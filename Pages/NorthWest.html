@@ -133,18 +133,19 @@
     <h1>Nodos generator</h1>
     <div class="w3-container " style="background-color: #867878;display: block; margin: 10px 0px;">
 
-      <button class="w3-button" id="guardarDatos">North West</button>
-      <button class="w3-button" id="maximizador">Maximizar</button>
-      <button class="w3-button" id="minimizador">Minimizar</button>
+      <button class="w3-button" id="north_btn">North West</button>
+      <button class="w3-button" id="max_btn">Maximizar</button>
+      <button class="w3-button" id="min_btn">Minimizar</button>
       <input type="file" id="fileInput" style="display: none;">
-      <button class="w3-button" id="load_btn">Recuperar</button>
+      <button class="w3-button" id="load_btn">Abrir</button>
       <button class="w3-button" id="save_btn">Guardar</button>
+      
       <div class="w3-container w3-half w3-padding">
         <p class="w3-quarter">Filas: </p>
-        <input type="number" id="filas" class="w3-input w3-quarter">
+        <input type="number" id="row_p" class="w3-input w3-quarter">
         <p class="w3-quarter">Columnas: </p>
-        <input type="number" id="columnas" class="w3-input w3-quarter">
-        <button class="w3-button w3-blue" id="crearMatriz">Crear matriz</button>
+        <input type="number" id="col_p" class="w3-input w3-quarter">
+        <button class="w3-button w3-blue" id="costMatrix_btn">Crear matriz</button>
       </div>
       
       <div class="dropdown">
@@ -165,11 +166,32 @@
     
   </div>
   
+  <script type = "module" src="./Controllers/NorthWest.mjs"></script>
 
-  <script>
+  <script type = "module">
+    import {NorthWest, TransportSolver} from "./Controllers/NorthWest.mjs"
 
     let load_btn = document.getElementById('load_btn');
     let save_btn = document.getElementById('save_btn');
+    let max_btn = document.getElementById('max_btn');
+    let min_btn = document.getElementById('min_btn');
+    let costMatrixBtn = document.getElementById('costMatrix_btn');
+    let north_btn = document.getElementById('north_btn');
+    let row_p = document.getElementById('row_p');
+    let col_p = document.getElementById('col_p');
+    let fileInput = document.getElementById('fileInput');
+    
+    var matcost = [];
+    var matnw = [];
+
+    var filas;
+    var columnas;
+    var datosArray = [];
+
+    var matriz1;
+    var matriz2;
+    var tablaMatriz1;
+    var tablaMatriz2;
 
     load_btn.addEventListener("click", e => {
       loadFile();
@@ -177,11 +199,201 @@
 
     save_btn.addEventListener("click", e=> {
       downloadFile();
-    })
+    }) 
+    
+    costMatrixBtn.addEventListener('click', function() {
+    var borrar1 = document.getElementById("matriz1");
+    var borrar2 = document.getElementById("matriz2");
+    if (borrar1 != null) {
+      borrar1.remove();
+      borrar2.remove();
+    }
 
-    var matcost = [];
-    var matnw = [];
-    function crearMatriz1(filas, columnas, textosMatriz1, textosMatriz2, datosArray) {
+    var contenedor = document.getElementById("alm");
+
+    var primerDiv = document.createElement("div");
+    primerDiv.id = "matriz1"; 
+
+    var segundoDiv = document.createElement("div");
+    segundoDiv.id = "matriz2";
+
+    contenedor.appendChild(primerDiv);
+    contenedor.appendChild(segundoDiv);
+
+    filas =parseInt(row_p.value);
+    columnas =parseInt(col_p.value);
+
+    matriz1 = crearMatriz1(filas, columnas, datosArray);
+    matriz2 = crearMatriz2(filas, columnas, datosArray);
+    tablaMatriz1 = crearTablaHTML(matriz1);
+    tablaMatriz2 = crearTablaHTML(matriz2);
+
+    document.getElementById('matriz1').appendChild(tablaMatriz1);
+    document.getElementById('matriz2').appendChild(tablaMatriz2);
+  });
+
+     north_btn.addEventListener('click', function() {
+      const datosIngresados = obtenerDatosDeInputs(matriz1);
+      
+      var arraycol = [];
+      var arrayfil = [];
+
+      for (let i = 0; i < datosIngresados.length; i++) {
+        
+        if ((i+1)%(columnas+1)==0) {
+          
+          arraycol.push(parseFloat(datosIngresados[i]));
+        }else if ((i+1)>(columnas+1)*filas) {
+          arrayfil.push(parseFloat(datosIngresados[i]));
+        }else{
+          datosArray[i] = parseFloat(datosIngresados[i]);
+        }
+      }
+
+      var costmatrix= [];
+      for (let i = 0; i < filas; i++) {
+        costmatrix[i]=[];
+        for (let j = 0; j < columnas; j++) {
+          costmatrix[i][j]=datosArray[i*(columnas+1)+j];
+        }
+      }
+
+      matcost=costmatrix;
+
+      const result = NorthWest(costmatrix, arraycol, arrayfil)[0];
+      var sumaf = 0.0;
+      for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+          sumaf=sumaf+result[i][j]*costmatrix[i][j];
+        }
+      }
+
+      for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+          datosArray[i*(columnas+1)+j]=result[i][j];
+        }
+      }
+      
+      matnw=result;
+      
+
+      matriz2 = crearMatriz2(filas, columnas, datosArray);
+      
+      tablaMatriz2= crearTablaHTML(matriz2);
+      document.getElementById('matriz2').innerHTML = '';
+      document.getElementById('matriz2').appendChild(tablaMatriz2);
+      alert("Costo final: "+sumaf);
+    });
+
+  max_btn.addEventListener('click', function() {
+
+    const datosIngresados = obtenerDatosDeInputs(matriz1);
+      
+      var arraycol = [];
+      var arrayfil = [];
+
+      for (let i = 0; i < datosIngresados.length; i++) {
+        
+        if ((i+1)%(columnas+1)==0) {
+          
+          arraycol.push(parseFloat(datosIngresados[i]));
+        }else if ((i+1)>(columnas+1)*filas) {
+          arrayfil.push(parseFloat(datosIngresados[i]));
+        }else{
+          datosArray[i] = parseFloat(datosIngresados[i]);
+        }
+      }
+
+      var costmatrix= [];
+      for (let i = 0; i < filas; i++) {
+        costmatrix[i]=[];
+        for (let j = 0; j < columnas; j++) {
+          costmatrix[i][j]= datosArray[i*(columnas+1)+j];
+        }
+      }
+
+      matcost=costmatrix;
+
+
+    var [sumaf, result] = TransportSolver(matcost, arraycol, arrayfil, false);
+
+
+
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        datosArray[i*(columnas+1)+j]=result[i][j];
+      }
+    }
+
+    alert("Costo total:" + (sumaf).toString());
+    matnw=sumaf;
+
+    matriz2 = crearMatriz2(filas, columnas, datosArray);
+    
+    tablaMatriz2= crearTablaHTML(matriz2);
+    document.getElementById('matriz2').innerHTML = '';
+    document.getElementById('matriz2').appendChild(tablaMatriz2);
+
+    
+  });
+
+  min_btn.addEventListener('click', function() {
+
+
+    const datosIngresados = obtenerDatosDeInputs(matriz1);
+      
+      var arraycol = [];
+      var arrayfil = [];
+
+      for (let i = 0; i < datosIngresados.length; i++) {
+        
+        if ((i+1)%(columnas+1)==0) {
+          
+          arraycol.push(parseFloat(datosIngresados[i]));
+        }else if ((i+1)>(columnas+1)*filas) {
+          arrayfil.push(parseFloat(datosIngresados[i]));
+        }else{
+          datosArray[i] = parseFloat(datosIngresados[i]);
+        }
+      }
+
+      var costmatrix= [];
+      for (let i = 0; i < filas; i++) {
+        costmatrix[i]=[];
+        for (let j = 0; j < columnas; j++) {
+          costmatrix[i][j]=datosArray[i*(columnas+1)+j];
+        }
+      }
+
+      matcost=costmatrix;
+
+
+    var [sumaf, result] = TransportSolver(matcost, arraycol, arrayfil);
+
+
+
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        datosArray[i*(columnas+1)+j]=result[i][j];
+      }
+    }
+
+    alert("Costo total:" + sumaf);
+    matnw=sumaf;
+
+    matriz2 = crearMatriz2(filas, columnas, datosArray);
+    
+    tablaMatriz2= crearTablaHTML(matriz2);
+    document.getElementById('matriz2').innerHTML = '';
+    document.getElementById('matriz2').appendChild(tablaMatriz2);
+
+    
+  });
+
+ 
+
+
+    function crearMatriz1(filas, columnas, datosArray) {
     // Crear la primera matriz con textos predeterminados en la primera fila y columna
     const matriz1 = new Array(filas);
     for (let i = 0; i < filas+2; i++) {
@@ -208,11 +420,10 @@
       }
     }
 
-
     return matriz1;
   }
 
-  function crearMatriz2(filas, columnas, textosMatriz1, textosMatriz2, datosArray) {
+  function crearMatriz2(filas, columnas, datosArray) {
 
     const matriz2 = new Array(filas);
     for (let i = 0; i < filas+1; i++) {
@@ -303,171 +514,6 @@
 
     return allocations;
   }
-
-
-  document.getElementById('guardarDatos').addEventListener('click', function() {
-    const datosIngresados = obtenerDatosDeInputs(matriz1);
-    
-    var arraycol = [];
-    var arrayfil = [];
-
-    for (let i = 0; i < datosIngresados.length; i++) {
-      
-      if ((i+1)%(columnas+1)==0) {
-        
-        arraycol.push(parseFloat(datosIngresados[i]));
-      }else if ((i+1)>(columnas+1)*filas) {
-        arrayfil.push(parseFloat(datosIngresados[i]));
-      }else{
-        datosArray[i] = parseFloat(datosIngresados[i]);
-      }
-    }
-    console.log(datosArray);
-    console.log(arrayfil);
-    console.log(arraycol);
-    var costmatrix= [];
-    for (let i = 0; i < filas; i++) {
-      costmatrix[i]=[];
-      for (let j = 0; j < columnas; j++) {
-        costmatrix[i][j]=datosArray[i*(columnas+1)+j];
-      }
-    }
-    console.log(costmatrix);
-    matcost=costmatrix;
-
-    const result = northWest(costmatrix, arraycol, arrayfil);
-    var sumaf = 0.0;
-    for (let i = 0; i < filas; i++) {
-      for (let j = 0; j < columnas; j++) {
-        sumaf=sumaf+result[i][j]*costmatrix[i][j];
-      }
-    }
-
-    for (let i = 0; i < filas; i++) {
-      for (let j = 0; j < columnas; j++) {
-        datosArray[i*(columnas+1)+j]=result[i][j];
-      }
-    }
-    
-    matnw=result;
-    
-
-    matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz2, datosArray);
-    
-    tablaMatriz2= crearTablaHTML(matriz2);
-    document.getElementById('matriz2').innerHTML = '';
-    document.getElementById('matriz2').appendChild(tablaMatriz2);
-    alert("Costo final: "+sumaf);
-  });
-
-
-  var filas = 3;
-  var columnas = 3;
-  var textosMatriz1 = ['A', 'B', 'C', 'D'];
-  var textosMatriz2 = ['E', 'F', 'G', 'H'];
-  var datosArray = [];
-
-  var matriz1 = crearMatriz1(filas, columnas, textosMatriz1, textosMatriz1, datosArray);
-  var matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz1, datosArray);
-  var tablaMatriz1 = crearTablaHTML(matriz1);
-  var tablaMatriz2 = crearTablaHTML(matriz2);
-  
-
-  console.log('Matriz 1:');
-  console.log(matriz1);
-  console.log('Matriz 2:');
-  console.log(matriz2);
-
-
-  
-
-  document.getElementById('crearMatriz').addEventListener('click', function() {
-    var borrar1 = document.getElementById("matriz1");
-    var borrar2 = document.getElementById("matriz2");
-    if (borrar1 != null) {
-      borrar1.remove();
-      borrar2.remove();
-    } else {
-      
-    };
-
-    var contenedor = document.getElementById("alm");
-
-    var primerDiv = document.createElement("div");
-    primerDiv.id = "matriz1"; 
-
-    var segundoDiv = document.createElement("div");
-    segundoDiv.id = "matriz2";
-
-    contenedor.appendChild(primerDiv);
-    contenedor.appendChild(segundoDiv);
-
-    filas =parseInt(document.getElementById('filas').value);
-    columnas =parseInt(document.getElementById('columnas').value);
-    console.log(filas);
-    console.log(columnas);
-
-    matriz1 = crearMatriz1(filas, columnas, textosMatriz1, textosMatriz1, datosArray);
-    matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz1, datosArray);
-    tablaMatriz1 = crearTablaHTML(matriz1);
-    tablaMatriz2 = crearTablaHTML(matriz2);
-
-    document.getElementById('matriz1').appendChild(tablaMatriz1);
-    document.getElementById('matriz2').appendChild(tablaMatriz2);
-  });
-
-  
-
-  document.getElementById('maximizador').addEventListener('click', function() {
-    console.log(matcost);
-    console.log(matnw);
-
-  
-    const result = optim(true);
-    var sumaf = 0.0;
-    for (let i = 0; i < filas; i++) {
-      for (let j = 0; j < columnas; j++) {
-        datosArray[i*(columnas+1)+j]=result[i][j];
-        sumaf=sumaf+result[i][j]*matcost[i][j];
-      }
-    }
-    alert("Costo total:", sumaf);
-    matnw=result;
-
-    matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz2, datosArray);
-    
-    tablaMatriz2= crearTablaHTML(matriz2);
-    document.getElementById('matriz2').innerHTML = '';
-    document.getElementById('matriz2').appendChild(tablaMatriz2);
-
-    
-  });
-
-  document.getElementById('minimizador').addEventListener('click', function() {
-    console.log(matcost);
-    console.log(matnw);
-
-
-    const result = optim(false);
-    var sumaf = 0.0;
-    for (let i = 0; i < filas; i++) {
-      for (let j = 0; j < columnas; j++) {
-        datosArray[i*(columnas+1)+j]=result[i][j];
-        sumaf=sumaf+result[i][j]*matcost[i][j];
-      }
-    }
-    alert("Costo total:", sumaf);
-    matnw=result;
-
-    matriz2 = crearMatriz2(filas, columnas, textosMatriz1, textosMatriz2, datosArray);
-    
-    tablaMatriz2= crearTablaHTML(matriz2);
-    document.getElementById('matriz2').innerHTML = '';
-    document.getElementById('matriz2').appendChild(tablaMatriz2);
-
-    
-  });
-
 
   function optim(flagMaxim = false){
 
@@ -743,9 +789,8 @@
         datosArray[i] = parseFloat(datosIngresados[i]);
       }
     }
-    console.log(datosArray);
-    console.log(arrayfil);
-    console.log(arraycol);
+
+
     var costmatrix= [];
     for (let i = 0; i < filas; i++) {
       costmatrix[i]=[];
@@ -784,9 +829,9 @@
 
 
   function loadFile(){
-      this.fileInput.click();
-      let self = this;
-      this.fileInput.addEventListener('change', function(event) {
+      fileInput.click();
+      
+      fileInput.addEventListener('change', function(event) {
           const selectedFile = event.target.files[0];
           const reader = new FileReader();
     
@@ -799,8 +844,11 @@
                   let arrayfil = data.demand;
 
 
-                  matriz1 = crearMatriz1(costmatrix.length, costmatrix[0].length, textosMatriz1, textosMatriz1, datosArray);
-                  matriz2 = crearMatriz2(costmatrix.length, costmatrix[0].length, textosMatriz1, textosMatriz1, datosArray);
+                  filas = costmatrix.length;
+                  columnas = costmatrix[0].length;
+
+                  matriz1 = crearMatriz1(costmatrix.length, costmatrix[0].length, datosArray);
+                  matriz2 = crearMatriz2(costmatrix.length, costmatrix[0].length, datosArray);
                   tablaMatriz1 = crearTablaHTML(matriz1);
                   tablaMatriz2 = crearTablaHTML(matriz2);
 
@@ -829,7 +877,7 @@
                   });
 
                   arraycol.forEach((col, i) => {
-                    document.getElementById(`input-${i+1}-${costmatrix.length+1}`).value = arraycol[i];
+                    document.getElementById(`input-${i+1}-${costmatrix[0].length+1}`).value = arraycol[i];
                     //console.log("ELE", costmatrix[i][j]);
                   })
 

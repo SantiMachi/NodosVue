@@ -1,27 +1,14 @@
 
-var costMatrix = [[10, 2, 3, 15, 9],
-                  [5, 10, 15, 2, 4],
-                  [15, 5, 14, 7, 17],
-                  [20, 15, 13, 25, 8]]
 
-var supply = [35, 40, 20, 30]
-var demand = [20, 20, 40, 10, 35] 
-
-TransportSolver(costMatrix, supply, demand)
-
-export function TransportSolver(costMatrix, supply, demand){
+export function TransportSolver(costMatrix, supply, demand, minimize = true){
     
     let assigment, rows, columns, u, v, bi, bj, optim;
     let r = supply.length;
     let c = demand.length;
 
-
     [assigment, rows, columns] = NorthWest(costMatrix, supply, demand);
     [u, v] = uv_dfs(assigment, costMatrix, rows, columns);
-    optim = optimalityCheck(costMatrix, u, v);
-    
-    //console.log("u", u);
-    //console.log("v", v); 
+    optim = optimalityCheck(costMatrix, u, v, minimize);
 
     while(optim != null){
         printMatrix(assigment);
@@ -32,6 +19,8 @@ export function TransportSolver(costMatrix, supply, demand){
         let min = Infinity;
         let ei = null;
         let ej = null;
+
+        if(path == null) break; // REVISAR
         for(let [index, pivot] of path.entries()){
             if(index%2 == 1){
                 if(ei == null || assigment[ei][ej] < min){
@@ -69,10 +58,9 @@ export function TransportSolver(costMatrix, supply, demand){
 
         printMatrix(assigment);
         [u, v] = uv_dfs(assigment, costMatrix, rows, columns);
-        optim = optimalityCheck(costMatrix, u, v);
+        optim = optimalityCheck(costMatrix, u, v, minimize);
     }
     
-
     let sum = 0;
     for(let i = 0; i < r; i++){
         for(let j = 0; j < c; j++){
@@ -90,6 +78,8 @@ export function TransportSolver(costMatrix, supply, demand){
 
     printMatrix(assigment);
     console.log("total:", sum);
+
+    return [sum, assigment];
 }
 
 function loop_dfs(i, j, assigment, rows, columns){
@@ -148,7 +138,7 @@ function loop_dfs(i, j, assigment, rows, columns){
     }
 }
 
-function optimalityCheck(costMatrix, u, v){
+function optimalityCheck(costMatrix, u, v, minimize = true){
     let index = 0;
     let jindex = 0;
     let minp = 0;
@@ -159,17 +149,30 @@ function optimalityCheck(costMatrix, u, v){
     for(let i = 0; i < r; i++){
         for(let j = 0; j < c; j++){
             let ind = costMatrix[i][j] - u[i] - v[j];
-            if(ind < 0){
-                if(ind < minp){
-                    minp = ind;
-                    index = i;
-                    jindex = j;
-                }
+            if(minimize){
+                if(ind < 0){
+                    if(ind < minp){
+                        minp = ind;
+                        index = i;
+                        jindex = j;
+                    }
+                }    
+            }
+            else{
+                if(ind > 0){
+                    if(ind > minp){
+                        minp = ind;
+                        index = i;
+                        jindex = j;
+                    }
+                }  
             }
         }
     }
 
-    if(minp < 0) return [index, jindex];
+
+    if(minimize && minp < 0) return [index, jindex];
+    else if(!minimize && minp > 0) return [index, jindex];
     else return null;
 }
 
@@ -193,8 +196,7 @@ function uv_dfs(assigment, costMatrix, rows, columns){
 
     u[rindex] = 0;
     cindex = rows[rindex].values().next().value;
-    //console.log("u", rindex);
-    //console.log("v", cindex);
+
     dfs(rindex, cindex);
 
     function dfs(i, j){
@@ -203,7 +205,6 @@ function uv_dfs(assigment, costMatrix, rows, columns){
         vis[i][j] = true;
         if(v[j] != null) u[i] = costMatrix[i][j] - v[j];
         else if(u[i] != null) v[j] = costMatrix[i][j] - u[i];
-
 
         for(let new_j of rows[i]){
             dfs(i, new_j);
@@ -216,7 +217,7 @@ function uv_dfs(assigment, costMatrix, rows, columns){
     return [u, v];
 }
 
-function NorthWest(costMatrix, supply, demand){
+export function NorthWest(costMatrix, supply, demand){
     let csupply = [...supply];
     let cdemand = [...demand];
     
@@ -238,14 +239,11 @@ function NorthWest(costMatrix, supply, demand){
         asssigment.push(new Array(c).fill(0));
     }
 
-    //console.log(r, c, supply, demand)
     let i = 0;
     let j = 0;
 
     while(i <= r-1 && j <= c-1){
-        //console.log(i, j);
         let located = Math.min(csupply[i], cdemand[j]);
-        //console.log(located);
         csupply[i] -= located;
         cdemand[j] -= located;
 
@@ -256,7 +254,6 @@ function NorthWest(costMatrix, supply, demand){
         else j++;
     }
 
-    
     printMatrix(asssigment)
     console.log("rows", rows);
     console.log("columns", columns);
