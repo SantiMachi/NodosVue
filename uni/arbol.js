@@ -207,7 +207,7 @@ function reconstruir(){
         tree.resetRoot();
         let a = io.value.split(',').map(val => parseInt(val.trim()));
         let b = to.value.split(',').map(val => parseInt(val.trim()));
-            let valoresArray = postOrderFromInPre(io, to);
+            let valoresArray = buildPreorder(a, b);
             if (!firstArray) firstArray = valoresArray;
             console.log(firstArray);
             valoresArray.forEach(valor => {
@@ -255,30 +255,20 @@ function reconstruir(){
 
 }
 
-function postOrderFromInPre(inOrderList, preOrderList) {
-    if (inOrderList.length === 0 || preOrderList.length === 0) {
-        return [];
+function buildPreorder(inorder, postorder) {
+    if (inorder.length === 0 || postorder.length === 0) {
+      return [];
     }
-
-    const rootValue = preOrderList[0];
-    const rootIndexInOrder = inOrderList.indexOf(rootValue);
-
-    if (rootIndexInOrder === -1) {
-        // El valor de la raíz no se encuentra en la lista in-order
-        return [];
-    }
-
-    const inOrderLeft = inOrderList.slice(0, rootIndexInOrder);
-    const inOrderRight = inOrderList.slice(rootIndexInOrder + 1);
-
-    const preOrderLeft = preOrderList.slice(1, rootIndexInOrder + 1);
-    const preOrderRight = preOrderList.slice(rootIndexInOrder + 1);
-
-    const postOrderLeft = postOrderFromInPre(inOrderLeft, preOrderLeft);
-    const postOrderRight = postOrderFromInPre(inOrderRight, preOrderRight);
-
-    return postOrderLeft.concat(postOrderRight, rootValue);
-}
+  
+    const rootValue = postorder.pop();
+    const rootIndexInInorder = inorder.indexOf(rootValue);
+  
+    return [
+      rootValue,
+      ...buildPreorder(inorder.slice(0, rootIndexInInorder), postorder),
+      ...buildPreorder(inorder.slice(rootIndexInInorder + 1), postorder)
+    ];
+  }
 
 
 function recorrido(task) {
@@ -347,4 +337,3 @@ loadButton.addEventListener('change', function (event) {
     }
 });
 document.body.appendChild(loadButton);
-s
