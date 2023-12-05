@@ -168,11 +168,11 @@ class CompetGraphController extends GraphController {
     `;
 
     this.x_field.addEventListener("input", e => {
-      this.selectedNode.x = parseFloat(e.target.value);
+      this.selectedNode.posx = parseFloat(e.target.value);
     });
 
     this.y_field.addEventListener("input", e => {
-      this.selectedNode.y = parseFloat(e.target.value);
+      this.selectedNode.posy = parseFloat(e.target.value);
     });
 
     this.nodeMenu.visualElement.appendChild(this.x_field);
@@ -286,7 +286,7 @@ class CompetGraphController extends GraphController {
   getScope(){
     this.scopex = 400*(2.0*this.hslider.getValue() - 1);
     this.scopey = 400*(2.0*this.vslider.getValue() - 1);
-    this.scale = 1*(this.zslider.getValue() + 1/10);
+    this.scale = 10 *(this.zslider.getValue() + 1/100);
   }
 
   showNodeMenu(node){
@@ -295,8 +295,8 @@ class CompetGraphController extends GraphController {
     this.nodeMenu.isSourcePicker.checked = node.isSource;
     this.nodeMenu.nodeValPicker.value = node.val;
     this.nodeMenu.nodeColorPicker.value = node.fillColor;
-    this.x_data_field.value = Math.round(node.x*100)/100;
-    this.y_data_field.value = Math.round(node.y*100)/100;
+    this.x_data_field.value = Math.round(node.posx*100)/100;
+    this.y_data_field.value = Math.round(node.posy*100)/100;
 
     let x = node.x + node.R;
     let y = node.y - node.R;
@@ -335,7 +335,7 @@ class CompetGraphController extends GraphController {
     let xo = (x - 400)*(this.scale/this.ppu) + this.scopex;
     let yo = (400 - y)*(this.scale/this.ppu) + this.scopey;
     let nnode = new CompetNode(xo, yo, "", this.graph.n+1);
-    nnode.R = this.ppu/2;
+    nnode.R = this.ppu/4;
     return nnode;
   }
 
@@ -411,49 +411,47 @@ loadButton.addEventListener('click', e => {
 function compet() {
     var points=[];
     graph.nodes.forEach((node, index) => {
-      points[index]=[];
-      points[index][0]=node.posx;
-      points[index][1]=node.posy;
+      let point = []
+      point.push(node.posx);
+      point.push(node.posy)
+      points.push(point);
     });
 
+   
     
-    function mid(a, b) {
-      return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-    }
-    
-    function dist(a, b) {
-      const x = a[0] - b[0];
-      const y = a[1] - b[1];
-      return Math.sqrt(x * x + y * y);
-    }
-    
-    function adist(points) {
-      let s = 0;
-      let last = points[0];
-      for (const p of points) {
-        s += dist(last, p);
-        last = p;
+    function getMidpoint(points) {
+      // Ensure that the input array is not empty
+      if (points.length === 0) {
+        return null; // or handle this case as appropriate for your use case
       }
-      return s / points.length;
-    }
     
-    const e = 0.0001;
+      // Initialize sum variables for x and y coordinates
+      let sumX = 0;
+      let sumY = 0;
     
-    while (adist(points) >= e) {
-      const first = points[0];
-      for (let i = 1; i < points.length; i++) {
-        points[i - 1] = mid(points[i], points[i - 1]);
+      // Iterate through each point and accumulate the coordinates
+      for (let i = 0; i < points.length; i++) {
+        sumX += points[i][0];
+        sumY += points[i][1];
       }
-      points[points.length - 1] = mid(first, points[points.length - 1]);
-    }
     
-    console.log("x: ", Math.round(points[0][0]));
-    console.log("y: ", Math.round(points[0][1]));
+      // Calculate the average coordinates
+      const avgX = sumX / points.length;
+      const avgY = sumY / points.length;
+    
+      // Return the midpoint as an object with x and y properties
+      return [avgX, avgY];
+    }
+
+    let result = getMidpoint(points);
+    
+    console.log("x: ", result[0]);
+    console.log("y: ", result[1]);
 
     if(centroid != null) graph.deleteNode(centroid);
-    centroid = new CompetNode(points[0][0], Math.round(points[0][1]),"x: " + Math.round(points[0][0])+" y: " + Math.round(points[0][1]))
+    centroid = new CompetNode(result[0], result[1],"", "", "")
     centroid.label = "centroide;"
-    centroid.R = controller.ppu/2;
+    centroid.R = controller.ppu/4;
     graph.addNodeObject(centroid)
     
     
