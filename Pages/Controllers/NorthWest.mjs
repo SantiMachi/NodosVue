@@ -23,7 +23,7 @@ export function TransportSolver(costMatrix, supply, demand, minimize = true){
         if(path == null) break; // REVISAR
         for(let [index, pivot] of path.entries()){
             if(index%2 == 1){
-                if(ei == null || assigment[ei][ej] < min){
+                if(ei == null || assigment[pivot[0]][pivot[1]] < min){
                     ei = pivot[0];
                     ej = pivot[1];
                     min =  assigment[ei][ej];
