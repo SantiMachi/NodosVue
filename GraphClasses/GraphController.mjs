@@ -55,8 +55,8 @@ export class GraphController{
             const last_x = this.mouse.x;
             const last_y = this.mouse.y;
 
-            this.mouse.x = e.clientX - this.canvas.getBoundingClientRect().left - window.scrollX;
-            this.mouse.y = e.clientY - this.canvas.getBoundingClientRect().top - window.scrollY;
+            this.mouse.x = e.clientX - this.canvas.getBoundingClientRect().left;
+            this.mouse.y = e.clientY - this.canvas.getBoundingClientRect().top;
 
             this.mouse.dx = this.mouse.x - last_x;
             this.mouse.dy = this.mouse.y - last_y;
