@@ -80,9 +80,10 @@ class SlideBar{
 
 class CompetNode extends Node{
   constructor(x, y, val, id, label = ""){
-    super(null, null, "", id, label);
-    this.posx = x;
-    this.posy = y;
+    super(x, y, "", id, label);
+    
+    this.posx = null;
+    this.posy = null;
   }
 
   inertialMove(x1, y1) {
@@ -187,13 +188,8 @@ class CompetGraphController extends GraphController {
     this.scopey = 0;
     this.scale = 1;
 
-    this.lastx = null;
-    this.lasty = null;
-
     this.ppu = 20;
 
-    this.hslider = new SlideBar(this.ctx, 30, 30, 800, 20, true);
-    this.vslider = new SlideBar(this.ctx, 900, 30, 800, 20, false);
     this.zslider = new SlideBar(this.ctx, 800, 800, 100, 20, true);
 
     this.canvas.addEventListener("mousemove", e => {
@@ -204,9 +200,7 @@ class CompetGraphController extends GraphController {
     })
 
     this.canvas.addEventListener("mousedown", e => {
-      if(this.hslider.isInside(this.mouse.x, this.mouse.y))this.selectedSlider = this.hslider;
-      else if(this.vslider.isInside(this.mouse.x, this.mouse.y)) this.selectedSlider = this.vslider;
-      else if(this.zslider.isInside(this.mouse.x, this.mouse.y)) this.selectedSlider = this.zslider;
+      if(this.zslider.isInside(this.mouse.x, this.mouse.y)) this.selectedSlider = this.zslider;
       
       if(this.selectedSlider != null) e.stopPropagation();
     }, true);
@@ -277,7 +271,7 @@ class CompetGraphController extends GraphController {
               }
               else{
                 this.scopex -= this.mouse.dx/(this.ppu/this.scale) ;
-                this.scopey -= this.mouse.dy/(this.ppu/this.scale)  ;
+                this.scopey += this.mouse.dy/(this.ppu/this.scale)  ;
               }
             }
         }
@@ -341,8 +335,6 @@ class CompetGraphController extends GraphController {
                 this.pointerState = 4;
             }
             else{
-              this.lastx = this.mouse.x;
-              this.lasty = this.mouse.y;
               this.pointerState = 4;
             }
             }
@@ -485,22 +477,10 @@ class CompetGraphController extends GraphController {
     fl = Math.ceil(y);
     bl = Math.floor(y);
 
-    pos = yo + (bl-y)*(this.ppu/this.scale);
+    pos = yo - (bl-y)*(this.ppu/this.scale);
 
    //console.log(this.vslider.getValue());
 
-    while(pos > 60){
-      this.ctx.beginPath();
-      this.ctx.moveTo(30, pos);
-      this.ctx.lineTo(800, pos);
-      this.ctx.stroke();
-      this.ctx.closePath();
-
-      pos -= (this.ppu/this.scale);
-    }
-
-    pos = yo + (fl-y)*(this.ppu/this.scale);
-    
     while(pos < 800){
       this.ctx.beginPath();
       this.ctx.moveTo(30, pos);
@@ -509,6 +489,18 @@ class CompetGraphController extends GraphController {
       this.ctx.closePath();
 
       pos += (this.ppu/this.scale);
+    }
+
+    pos = yo - (fl-y)*(this.ppu/this.scale);
+    
+    while(pos > 60){
+      this.ctx.beginPath();
+      this.ctx.moveTo(30, pos);
+      this.ctx.lineTo(800, pos);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+      pos -= (this.ppu/this.scale);
     }
   }
 
@@ -532,14 +524,14 @@ class CompetGraphController extends GraphController {
     }
 
     let xr = (node.posx - this.scopex)*(this.ppu/this.scale) + 400;
-    let yr = -(-node.posy + this.scopey)*(this.ppu/this.scale) + 400;
+    let yr = -(node.posy - this.scopey)*(this.ppu/this.scale) + 400;
 
     if(xr > 60 || xr < 800 
       || yr > 60 || yr < 800){
         node.x = xr;
         node.y = yr;
 
-        this.nodeMenu.display(xr, yr);
+        this.nodeMenu.display(node.x, node.y);
       }
     
   }
@@ -551,13 +543,13 @@ class CompetGraphController extends GraphController {
   }
 
   generateEdge(n0, n1){
-    return null;
+    return new CompetEdge(n0, n1, "", this.graph.conections+1);
   }
 
   generateNode(x, y, val = 0, id = null){
-    let xo = (x - 400)*(this.scale/this.ppu) + this.scopex;
-    let yo = (y - 400)*(this.scale/this.ppu) + this.scopey;
-    let nnode = new CompetNode(xo, yo, "", this.graph.n+1);
+    let nnode = new CompetNode(x, y, "", this.graph.n+1);
+    nnode.posx = (x - 400)*(this.scale/this.ppu) + this.scopex;
+    nnode.posy = -(y - 400)*(this.scale/this.ppu) + this.scopey;
     nnode.R = this.ppu/4;
     return nnode;
   }
@@ -568,27 +560,30 @@ class CompetGraphController extends GraphController {
     
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
-
-    this.vslider.draw(this.ctx);
-    this.hslider.draw(this.ctx);
     this.zslider.draw(this.ctx);
 
     this.getZoom();
     this.drawGrid();
     for(let node of this.graph.nodes){
       let xr = (node.posx - this.scopex)*(this.ppu/this.scale) + 400;
-      let yr = -(-node.posy + this.scopey)*(this.ppu/this.scale) + 400;
+      let yr = -(node.posy - this.scopey)*(this.ppu/this.scale) + 400;
       let r = node.R/this.scale;
+      
+      node.x = xr;
+      node.y = yr;
+      node.r = r;
+      
       if(xr > 60 && xr < 800 
         && yr > 60 && yr < 800){
-          node.x = xr;
-          node.y = yr;
-          node.r = r;
-          //console.log(xr, yr);
           node.draw(this.ctx);
         }
     }
+
+    if(this.selectedEdge != null) this.selectedEdge.updatedDraw(this.ctx);
     
+    for(let edge of this.graph.edges){
+      edge.updatedDraw(this.ctx);
+    }
   }
 }
 
@@ -671,10 +666,12 @@ function compet() {
     console.log("x: ", result[0]);
     console.log("y: ", result[1]);
 
-    if(centroid != null) graph.deleteNode(centroid);
+    //if(centroid != null) graph.deleteNode(centroid);
     centroid = new CompetNode(result[0], result[1],"", "", "")
     centroid.label = "centroide;"
-    centroid.R = controller.ppu/4;
+    centroid.posx = (x - 400)*(this.scale/this.ppu) + this.scopex;
+    centroid.posy = -(y - 400)*(this.scale/this.ppu) + this.scopey;
+    centroid.R = this.ppu/4;
     graph.addNodeObject(centroid)
     
     
