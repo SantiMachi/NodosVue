@@ -187,6 +187,9 @@ class CompetGraphController extends GraphController {
     this.scopey = 0;
     this.scale = 1;
 
+    this.lastx = null;
+    this.lasty = null;
+
     this.ppu = 20;
 
     this.hslider = new SlideBar(this.ctx, 30, 30, 800, 20, true);
@@ -212,15 +215,241 @@ class CompetGraphController extends GraphController {
       this.selectedSlider = null;
     })
 
-    this.getScope();
+    this.getZoom();
+
   }
+
+  getZoom(){
+    this.scale = 10*(this.zslider.getValue() + 1/1000); 
+  }
+
+  attachListeners(){
+    window.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+    });
+
+    window.addEventListener("mousemove", (e) => {
+        const last_x = this.mouse.x;
+        const last_y = this.mouse.y;
+
+        this.mouse.x = e.clientX - this.canvas.getBoundingClientRect().left;
+        this.mouse.y = e.clientY - this.canvas.getBoundingClientRect().top;
+
+        this.mouse.dx = this.mouse.x - last_x;
+        this.mouse.dy = this.mouse.y - last_y;
+
+        if(this.mouse.x < 0 || this.mouse.x > this.viewPortWidth
+        || this.mouse.y < 0 || this.mouse.y > this.viewPortHeight || !this.graph){
+            if(this.pointerState == 2){
+                this.selectedNode = null;
+                this.selectedEdge = null;
+                this.pointerState = 0;
+            }
+            else if(this.pointerState == 4){
+                this.selectedNode = null;
+                this.selectedEdge = null;
+                this.pointerState = 0;
+            }
+            return;
+        }
+        
+        if(this.pointerState){
+            if(this.pointerState == 2){
+                this.selectedEdge.n1.dryMove(this.mouse.x, this.mouse.y);
+
+                let f = false;
+                for(var node of this.graph.nodes){
+                    if(node.isInside(this.mouse.x, this.mouse.y)){
+                        if(node == this.selectedNode){
+                            this.selectedEdge.isSelfDirected = true;
+                            this.selectedEdge.relativeX = this.mouse.x - this.selectedEdge.n0.x;
+                            this.selectedEdge.relativeY = this.mouse.y - this.selectedEdge.n0.y;
+                            f = true;
+                        }
+                    }
+                }
+
+                if(!f) this.selectedEdge.isSelfDirected = false;
+            }
+            else if(this.pointerState == 4){
+              if(this.selectedNode){
+                  this.selectedNode.dryMove(this.mouse.x, this.mouse.y);
+              }
+              else{
+                this.scopex -= this.mouse.dx/(this.ppu/this.scale) ;
+                this.scopey -= this.mouse.dy/(this.ppu/this.scale)  ;
+              }
+            }
+        }
+        
+    })
+
+    this.canvas.addEventListener("mousedown", (e) =>{
+        if(!this.graph) return;
+        
+        if(this.pointerState == 0){
+            let snode = null;
+            let sedge = null;
+            for(let i = this.graph.n-1; i >= 0; i--){
+                let node = this.graph.nodes[i];
+                if(node.isInside(this.mouse.x, this.mouse.y)){
+                    snode = node;
+                    break;
+                }
+            }
+
+            for(let i = this.graph.conections-1; i >=0 ; i--){
+                let edge = this.graph.edges[i];
+                if(edge.isInside(this.mouse.x, this.mouse.y)){
+                    sedge = edge;
+                    break;
+                }
+            }
+
+
+            if(e.button == 0){
+                if(!snode && !sedge){
+                    let nnode = this.generateNode(this.mouse.x, this.mouse.y);
+                    this.graph.addNodeObject(nnode);
+                    this.selectedNode = this.graph.nodes[this.graph.n-1];
+                    this.pointerState = 1;
+                }
+                else if(snode){
+                    this.selectedNode = snode;
+                    let dummyNode = this.generateNode(this.mouse.x, this.mouse.y);
+                    this.selectedEdge = this.generateEdge(this.selectedNode, dummyNode);
+
+                    if(this.selectedEdge != null){
+                        this.pointerState = 2;
+                    }
+                    else{
+                        this.selectedNode = null;
+                        this.selectedEdge = null;
+                        this.pointerState = 0;
+                    }
+                }
+            }
+            else if(e.button == 2){
+              if(snode){
+                this.selectedNode = snode;
+                this.selectedEdge = null;
+                this.pointerState = 4;
+            }
+            else if(sedge){
+                this.selectedEdge = sedge;
+                this.selectedNode= null;
+                this.pointerState = 4;
+            }
+            else{
+              this.lastx = this.mouse.x;
+              this.lasty = this.mouse.y;
+              this.pointerState = 4;
+            }
+            }
+            else if(this.pointerState == 3){
+                ///Completar condicion de cierre;
+                if(this.selectedNode){
+                    this.selectedNode.isSelected = false;
+                    this.closeNodeMenu();
+                    this.selectedNode = null;
+                }
+                
+                if(this.selectedEdge){
+                    this.selectedEdge.isSelected = false;
+                    this.closeEdgeMenu();
+                    this.selectedEdge = null;
+                }
+                this.pointerState = 0;
+            }
+        }
+        else if(this.pointerState == 2){
+            this.selectedNode = null;
+            this.selectedEdge = null;
+            this.pointerState = 0;
+        }
+        else if(this.pointerState == 4){
+            this.selectedNode = null;
+            this.pointerState = 0;
+        }
+    })
+
+    this.canvas.addEventListener("mouseup", (e) => {
+        if(!this.graph) return;
+        //Completar condicion de cierre;
+
+        let snode = null;
+        let sedge = null;
+        for(let i = this.graph.n-1; i >= 0; i--){
+            let node = this.graph.nodes[i];
+            if(node.isInside(this.mouse.x, this.mouse.y)){
+                snode = node;
+                break;
+            }
+        }
+
+        for(let i = this.graph.conections-1; i >=0 ; i--){
+            let edge = this.graph.edges[i];
+            if(edge.isInside(this.mouse.x, this.mouse.y)){
+                sedge = edge;
+                break;
+            }
+        }
+
+        if(this.pointerState == 1){
+            if(e.button == 0){
+                this.showNodeMenu(this.selectedNode);
+                this.pointerState = 3;
+            }
+        }
+        else if(this.pointerState == 2){
+            if(e.button == 0){
+                if(snode){
+                    this.graph.joinNodesWithEdge(this.selectedNode, snode, this.selectedEdge);
+                    if(snode == this.selectedNode){
+                        this.selectedEdge.isSelfDirected = true;   
+                    }
+                }
+                
+                this.selectedNode = null;
+                this.selectedEdge = null;
+                this.pointerState = 0;
+            }      
+        }
+        else if(this.pointerState == 3){
+            ///Completar condicion de cierre;
+            if(this.selectedNode){
+                this.selectedNode.isSelected = false;
+                this.selectedNode.impulse(
+                    (this.mouse.x - this.selectedNode.x)/50,
+                    (this.mouse.y - this.selectedNode.y)/50);
+                this.closeNodeMenu();
+                this.selectedNode = null;
+            }
+            
+            if(this.selectedEdge){
+                this.selectedEdge.isSelected = false;
+                this.closeEdgeMenu();
+                this.selectedEdge = null;
+            }
+            this.pointerState = 0;
+        }
+        else if(this.pointerState == 4){
+            if(e.button == 2){
+                this.lastx = null;
+                this.lasty = null;
+                this.pointerState = 0;
+            }
+        }
+    });
+
+}
 
   drawGrid(){
     let x = this.scopex;
     let y = this.scopey;
     
     let fl = Math.ceil(x);
-    let bl = Math.ceil(x);
+    let bl = Math.floor(x);
 
     let xo = 400;
     let yo = 400;
@@ -254,7 +483,7 @@ class CompetGraphController extends GraphController {
     }
 
     fl = Math.ceil(y);
-    bl = Math.ceil(y);
+    bl = Math.floor(y);
 
     pos = yo + (bl-y)*(this.ppu/this.scale);
 
@@ -283,12 +512,6 @@ class CompetGraphController extends GraphController {
     }
   }
 
-  getScope(){
-    this.scopex = 400*(2.0*this.hslider.getValue() - 1);
-    this.scopey = 400*(2.0*this.vslider.getValue() - 1);
-    this.scale = 10 *(this.zslider.getValue() + 1/100);
-  }
-
   showNodeMenu(node){
     if(!this.graph) return;
     this.nodeMenu.nodeNamePicker.value = node.label;
@@ -309,7 +532,7 @@ class CompetGraphController extends GraphController {
     }
 
     let xr = (node.posx - this.scopex)*(this.ppu/this.scale) + 400;
-    let yr = -(node.posy - this.scopey)*(this.ppu/this.scale) + 400;
+    let yr = -(-node.posy + this.scopey)*(this.ppu/this.scale) + 400;
 
     if(xr > 60 || xr < 800 
       || yr > 60 || yr < 800){
@@ -333,7 +556,7 @@ class CompetGraphController extends GraphController {
 
   generateNode(x, y, val = 0, id = null){
     let xo = (x - 400)*(this.scale/this.ppu) + this.scopex;
-    let yo = (400 - y)*(this.scale/this.ppu) + this.scopey;
+    let yo = (y - 400)*(this.scale/this.ppu) + this.scopey;
     let nnode = new CompetNode(xo, yo, "", this.graph.n+1);
     nnode.R = this.ppu/4;
     return nnode;
@@ -345,16 +568,16 @@ class CompetGraphController extends GraphController {
     
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
-    this.getScope();
 
     this.vslider.draw(this.ctx);
     this.hslider.draw(this.ctx);
     this.zslider.draw(this.ctx);
 
+    this.getZoom();
     this.drawGrid();
     for(let node of this.graph.nodes){
       let xr = (node.posx - this.scopex)*(this.ppu/this.scale) + 400;
-      let yr = -(node.posy - this.scopey)*(this.ppu/this.scale) + 400;
+      let yr = -(-node.posy + this.scopey)*(this.ppu/this.scale) + 400;
       let r = node.R/this.scale;
       if(xr > 60 && xr < 800 
         && yr > 60 && yr < 800){
