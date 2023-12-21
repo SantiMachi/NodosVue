@@ -6,6 +6,7 @@ export class GraphController{
         this.canvas.style.borderStyle = "solid"; 
         this.canvas.style.borderColor = "black";
         this.canvas.style.borderWidth = "3px";
+        this.resizeVisualFrame(window.innerWidth, window.innerHeight);
         this.ctx = this.canvas.getContext("2d");
         this.viewPortWidth = this.canvas.width;
         this.viewPortHeight = this.canvas.height;
@@ -49,6 +50,10 @@ export class GraphController{
     attachListeners(){
         window.addEventListener("contextmenu", (e) => {
             e.preventDefault();
+        });
+
+        window.addEventListener("resize", (e) => {
+            this.resizeVisualFrame(window.innerWidth, window.innerHeight);
         });
 
         window.addEventListener("mousemove", (e) => {
@@ -188,6 +193,7 @@ export class GraphController{
             }
             else if(this.pointerState == 4){
                 this.selectedNode = null;
+                this.selectedEdge = null;
                 this.pointerState = 0;
             }
         })

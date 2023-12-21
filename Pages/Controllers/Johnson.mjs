@@ -125,7 +125,7 @@ var graph = controller.createGraph();
 var begin = null;
 var end = null;
 var canvas = controller.getVisualFrame();
-controller.resizeVisualFrame(window.innerWidth, window.innerHeight);
+
 
 document.body.appendChild(canvas);
 matrixContainer.appendChild(controller.getVisualMatrix());
