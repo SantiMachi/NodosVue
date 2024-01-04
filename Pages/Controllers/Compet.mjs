@@ -3,7 +3,7 @@ import { convertToPixels, extractFontSize } from "../../Utilities/TextUtils.mjs"
 import {Ball, drawRoundedRect } from "../../GraphClasses/Node.mjs";
 
 const criticalPathButton = document.getElementById("criticalPath_btn");
-const competButton = document.getElementById("compet_btn");
+const competButton = document.getElementById("compet_btn")
 const adjMatrixButton = document.getElementById("adjMatrix_btn");
 const dijkstraButton = document.getElementById("dijkstra_btn");
 const assignmentButton = document.getElementById("assignment_btn");
@@ -13,10 +13,7 @@ const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
 var matrixContainer = document.getElementById("myDropdown");
 
-var ayud;
-var ayudppu;
-var ayudscx;
-var ayudscy;
+
 class Slider extends Ball{
   constructor(x, y){
     super(x, y);
@@ -187,16 +184,16 @@ class CompetGraphController extends GraphController {
 
     this.selectedSlider = null;
 
+    this.height = this.canvas.height;
+    this.width = this.canvas.width;
+
     this.scopex = 0;
     this.scopey = 0;
-    ayudscx=0;
-    ayudscy=0;
     this.scale = 1;
 
     this.ppu = 20;
-    ayudppu=20;
 
-    this.zslider = new SlideBar(this.ctx, 800, 800, 100, 20, true);
+    this.zslider = new SlideBar(this.ctx, this.width  - 150, 20, 100, 20, true);
 
     this.canvas.addEventListener("mousemove", e => {
 
@@ -221,13 +218,16 @@ class CompetGraphController extends GraphController {
 
   getZoom(){
     this.scale = 10*(this.zslider.getValue() + 1/1000); 
-    ayud=10*(this.zslider.getValue() + 1/1000);
   }
 
   attachListeners(){
     window.addEventListener("contextmenu", (e) => {
         e.preventDefault();
     });
+
+    window.addEventListener("resize", (e) => {
+      this.resizeVisualFrame(window.innerWidth, window.innerHeight);
+     });
 
     window.addEventListener("mousemove", (e) => {
         const last_x = this.mouse.x;
@@ -255,32 +255,18 @@ class CompetGraphController extends GraphController {
         }
         
         if(this.pointerState){
-            if(this.pointerState == 2){
-                this.selectedEdge.n1.dryMove(this.mouse.x, this.mouse.y);
-
-                let f = false;
-                for(var node of this.graph.nodes){
-                    if(node.isInside(this.mouse.x, this.mouse.y)){
-                        if(node == this.selectedNode){
-                            this.selectedEdge.isSelfDirected = true;
-                            this.selectedEdge.relativeX = this.mouse.x - this.selectedEdge.n0.x;
-                            this.selectedEdge.relativeY = this.mouse.y - this.selectedEdge.n0.y;
-                            f = true;
-                        }
-                    }
-                }
-
-                if(!f) this.selectedEdge.isSelfDirected = false;
-            }
-            else if(this.pointerState == 4){
+            
+            if(this.pointerState == 4){
               if(this.selectedNode){
-                  this.selectedNode.dryMove(this.mouse.x, this.mouse.y);
+                  this.selectedNode.x = this.mouse.x;
+                  this.selectedNode.y = this.mouse.y;
+
+                  this.selectedNode.posx = (this.mouse.x - this.width/2)*(this.scale/this.ppu) + this.scopex;
+                  this.selectedNode.posy = -(this.mouse.y - this.height/2)*(this.scale/this.ppu) + this.scopey;
               }
               else{
                 this.scopex -= this.mouse.dx/(this.ppu/this.scale) ;
                 this.scopey += this.mouse.dy/(this.ppu/this.scale)  ;
-                ayudscx=this.mouse.dx/(this.ppu/this.scale);
-                ayudscy=this.mouse.dy/(this.ppu/this.scale);
               }
             }
         }
@@ -379,7 +365,6 @@ class CompetGraphController extends GraphController {
         //Completar condicion de cierre;
 
         let snode = null;
-        let sedge = null;
         for(let i = this.graph.n-1; i >= 0; i--){
             let node = this.graph.nodes[i];
             if(node.isInside(this.mouse.x, this.mouse.y)){
@@ -388,13 +373,6 @@ class CompetGraphController extends GraphController {
             }
         }
 
-        for(let i = this.graph.conections-1; i >=0 ; i--){
-            let edge = this.graph.edges[i];
-            if(edge.isInside(this.mouse.x, this.mouse.y)){
-                sedge = edge;
-                break;
-            }
-        }
 
         if(this.pointerState == 1){
             if(e.button == 0){
@@ -435,11 +413,16 @@ class CompetGraphController extends GraphController {
             this.pointerState = 0;
         }
         else if(this.pointerState == 4){
-            if(e.button == 2){
-                this.lastx = null;
-                this.lasty = null;
-                this.pointerState = 0;
-            }
+          if(snode && snode==this.selectedNode){
+            this.showNodeMenu(this.selectedNode);
+            this.selectedNode.isSelected = true;
+            this.pointerState = 3;
+          }
+          else{
+              this.selectedNode = null;
+              this.selectedEdge = null;
+              this.pointerState = 0;
+          }
         }
     });
 
@@ -452,8 +435,8 @@ class CompetGraphController extends GraphController {
     let fl = Math.ceil(x);
     let bl = Math.floor(x);
 
-    let xo = 400;
-    let yo = 400;
+    let xo = this.width/2;
+    let yo = this.height/2;
 
     this.ctx.strokeStyle = "black";
     this.ctx.lineWidth = 1;
@@ -461,26 +444,29 @@ class CompetGraphController extends GraphController {
 
    // console.log((bl-x));
 
-    while(pos > 60){
+   this.ctx.setLineDash([]);
+
+    const interval = 1;
+    while(pos > 0){
       this.ctx.beginPath();
-      this.ctx.moveTo(pos, 30 );
-      this.ctx.lineTo(pos, 800);
+      this.ctx.moveTo(pos, 0);
+      this.ctx.lineTo(pos, this.height);
       this.ctx.stroke();
       this.ctx.closePath();
 
-      pos -= (this.ppu/this.scale);
+      pos -= interval*(this.ppu/this.scale);
     }
 
     pos = xo + (fl-x)*(this.ppu/this.scale);
     
-    while(pos < 800){
+    while(pos < this.width){
       this.ctx.beginPath();
-      this.ctx.moveTo(pos, 30);
-      this.ctx.lineTo(pos, 800);
+      this.ctx.moveTo(pos, 0);
+      this.ctx.lineTo(pos, this.height);
       this.ctx.stroke();
       this.ctx.closePath();
 
-      pos += (this.ppu/this.scale);
+      pos += interval*(this.ppu/this.scale);
     }
 
     fl = Math.ceil(y);
@@ -490,26 +476,26 @@ class CompetGraphController extends GraphController {
 
    //console.log(this.vslider.getValue());
 
-    while(pos < 800){
+    while(pos < this.height){
       this.ctx.beginPath();
-      this.ctx.moveTo(30, pos);
-      this.ctx.lineTo(800, pos);
+      this.ctx.moveTo(0, pos);
+      this.ctx.lineTo(this.width, pos);
       this.ctx.stroke();
       this.ctx.closePath();
 
-      pos += (this.ppu/this.scale);
+      pos += interval*(this.ppu/this.scale);
     }
 
     pos = yo - (fl-y)*(this.ppu/this.scale);
     
-    while(pos > 60){
+    while(pos > 0){
       this.ctx.beginPath();
-      this.ctx.moveTo(30, pos);
-      this.ctx.lineTo(800, pos);
+      this.ctx.moveTo(0, pos);
+      this.ctx.lineTo(this.width, pos);
       this.ctx.stroke();
       this.ctx.closePath();
 
-      pos -= (this.ppu/this.scale);
+      pos -= interval*(this.ppu/this.scale);
     }
   }
 
@@ -532,15 +518,9 @@ class CompetGraphController extends GraphController {
     y = this.canvas.height - this.nodeMenu.offsetHeight;
     }
 
-    let xr = (node.posx - this.scopex)*(this.ppu/this.scale) + 400;
-    let yr = -(node.posy - this.scopey)*(this.ppu/this.scale) + 400;
-
-    if(xr > 60 || xr < 800 
-      || yr > 60 || yr < 800){
-        node.x = xr;
-        node.y = yr;
-
-        this.nodeMenu.display(node.x, node.y);
+    if(x > 0 && x < this.width
+      && y > 0 && y < this.height){
+        this.nodeMenu.display(x, y);
       }
     
   }
@@ -557,14 +537,24 @@ class CompetGraphController extends GraphController {
 
   generateNode(x, y, val = 0, id = null){
     let nnode = new CompetNode(x, y, "", this.graph.n+1);
-    nnode.posx = (x - 400)*(this.scale/this.ppu) + this.scopex;
-    nnode.posy = -(y - 400)*(this.scale/this.ppu) + this.scopey;
+    nnode.posx = (x - this.width/2)*(this.scale/this.ppu) + this.scopex;
+    nnode.posy = -(y - this.height/2)*(this.scale/this.ppu) + this.scopey;
     nnode.R = this.ppu/4;
+
+    nnode.x = x;
+    nnode.y = y;
     return nnode;
   }
 
   draw(){
 
+    
+    this.height = this.canvas.height;
+    this.width = this.canvas.width;
+
+    const lastSlider_x = (this.width - 150) - this.zslider.x;
+    this.zslider.x = this.width - 150;
+    this.zslider.slider.x += lastSlider_x;
     requestAnimationFrame(this.draw.bind(this));
     
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -574,16 +564,16 @@ class CompetGraphController extends GraphController {
     this.getZoom();
     this.drawGrid();
     for(let node of this.graph.nodes){
-      let xr = (node.posx - this.scopex)*(this.ppu/this.scale) + 400;
-      let yr = -(node.posy - this.scopey)*(this.ppu/this.scale) + 400;
+      let xr = (node.posx - this.scopex)*(this.ppu/this.scale) + this.width/2;
+      let yr = -(node.posy - this.scopey)*(this.ppu/this.scale) + this.height/2;
       let r = node.R/this.scale;
       
       node.x = xr;
       node.y = yr;
       node.r = r;
       
-      if(xr > 60 && xr < 800 
-        && yr > 60 && yr < 800){
+      if(xr > 0 && xr < this.width 
+        && yr > 0 && yr < this.height){
           node.draw(this.ctx);
         }
     }
@@ -636,6 +626,14 @@ loadButton.addEventListener('click', e => {
 
 
 function compet() {
+
+  for(var edge of graph.edges){
+    graph.deleteEdge(edge);
+  }
+
+  console.log("cpete", centroid);
+  if(centroid != null) graph.deleteNode(centroid);
+
     var points=[];
     graph.nodes.forEach((node, index) => {
       let point = []
@@ -672,30 +670,22 @@ function compet() {
 
     let result = getMidpoint(points);
     
-    console.log("x: ", result[0]);
-    console.log("y: ", result[1]);
-    console.log(ayud);
+    //console.log("x: ", result[0]);
+    //console.log("y: ", result[1]);
 
-    //if(centroid != null) graph.deleteNode(centroid);
-    centroid = new CompetNode(result[0], result[1],"", "", "");
-    centroid.label = "centroide;";
-    var x=parseFloat(result[0]);
-    var y=parseFloat(result[1]);
-    console.log(ayud);
-    console.log(ayudppu);
-    console.log(ayudscx);
-    centroid.posx = x;
-    centroid.posy = y;
-    centroid.R = ayudppu/4;
+    const x = (result[0] - controller.scopex)*(controller.ppu/controller.scale) + controller.width/2;
+    const y = -(result[1] - controller.scopey)*(controller.ppu/controller.scale) + controller.height/2;
+
+    centroid = new CompetNode(x, y,"", "", "")
+    centroid.label = "Centroide;"
+    centroid.posx = result[0];
+    centroid.posy = result[1];
+    centroid.R = controller.ppu/4;   
+
     graph.addNodeObject(centroid);
-    console.log(centroid.posx);
-    console.log(centroid.posy);
-    
 
     for(let node of graph.nodes){
-      if(node != centroid){
-        graph.joinNodesWithEdge(node, centroid, new CompetEdge(node, centroid, 0, 0));
-      }
+      graph.joinNodesWithEdge(node, centroid, new CompetEdge(node, centroid, 0, 0));
     }
 
     
