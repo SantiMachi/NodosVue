@@ -444,9 +444,7 @@ class CompetGraphController extends GraphController {
 
    // console.log((bl-x));
 
-
-    const interval = 1;
-    while(pos > 0){
+    while(pos > 60){
       this.ctx.beginPath();
       this.ctx.moveTo(pos, 0);
       this.ctx.lineTo(pos, this.height);
@@ -625,12 +623,6 @@ loadButton.addEventListener('click', e => {
 
 
 function compet() {
-
-  for(var edge of graph.edges){
-    graph.deleteEdge(edge);
-  }
-  if(centroid != null) graph.deleteNode(centroid);
-
     var points=[];
     graph.nodes.forEach((node, index) => {
       let point = []

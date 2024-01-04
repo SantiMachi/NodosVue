@@ -297,9 +297,12 @@ function updateResultDiv(values) {
     }
 }
 
+var divb=document.getElementById('botonesxd');
+
 // Agrega el siguiente código para crear un botón de "Guardar Estado"
 var saveButton = document.createElement('button');
 saveButton.textContent = 'Guardar Estado';
+saveButton.classList= "btn btn-primary me-2";
 saveButton.addEventListener('click', function () {
     // Guarda el estado en un archivo
     const blob = new Blob([JSON.stringify(tree)], { type: 'application/json' });
@@ -315,12 +318,13 @@ saveButton.addEventListener('click', function () {
     URL.revokeObjectURL(url);
     alert('Estado del árbol guardado correctamente.');
 });
-document.body.appendChild(saveButton);
+divb.appendChild(saveButton);
 
 // Agrega el siguiente código para crear un botón de "Recuperar Estado"
 var loadButton = document.createElement('input');
 loadButton.type = 'file';
 loadButton.accept = '.json';
+loadButton.classList= "btn btn-primary me-2";
 loadButton.addEventListener('change', function (event) {
     const file = event.target.files[0];
     if (file) {
@@ -336,7 +340,7 @@ loadButton.addEventListener('change', function (event) {
         reader.readAsText(file);
     }
 });
-document.body.appendChild(loadButton);
+divb.appendChild(loadButton);
 
 
 // script.js
