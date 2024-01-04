@@ -40,7 +40,7 @@ class DijkstraNode extends Node{
 
     if(this.distance != null){
       ctx.font = this.font;
-      ctx.fillStyle = this.labelColor;
+      ctx.fillStyle = "black";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText("Distancia: " + this.distance.toFixed(1), this.x, this.y - this.r - extractFontSize(this.font));
@@ -208,7 +208,7 @@ function findLongestPath(){
     return;
   }
   const ruta = res[1];
-  //console.log();
+  console.log(ruta);
   console.log("y", ruta);
   for(let j = 0; j < ruta.length; j++){
     let i = ruta[j];
@@ -220,7 +220,7 @@ function findLongestPath(){
   }
 
   graph.nodes[target.id-1].distance = dis;
-  console.log(graph.nodes[target.id-1]);
+  //console.log(graph.nodes[target.id-1]);
 }
 
 
