@@ -281,7 +281,7 @@ class NotDijkstra{
       
     let maxPath = {
       path : [],
-      weight : 0
+      weight : -Infinity
     };
 
     let self = this;

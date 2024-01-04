@@ -143,7 +143,7 @@ export class Node extends Ball {
       ctx.fillStyle = this.valueColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(this.val.toString(), this.x, this.y + this.r + 15);
+      //ctx.fillText(this.val.toString(), this.x, this.y + this.r + 15);
       
       let text;
       if(this.label == null ||
