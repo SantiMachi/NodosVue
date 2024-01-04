@@ -3,7 +3,7 @@ import { convertToPixels, extractFontSize } from "../../Utilities/TextUtils.mjs"
 import {Ball, drawRoundedRect } from "../../GraphClasses/Node.mjs";
 
 const criticalPathButton = document.getElementById("criticalPath_btn");
-const competButton = document.getElementById("compet_btn")
+const competButton = document.getElementById("compet_btn");
 const adjMatrixButton = document.getElementById("adjMatrix_btn");
 const dijkstraButton = document.getElementById("dijkstra_btn");
 const assignmentButton = document.getElementById("assignment_btn");
@@ -13,7 +13,10 @@ const saveButton = document.getElementById("save_btn");
 const loadButton = document.getElementById("load_btn");
 var matrixContainer = document.getElementById("myDropdown");
 
-
+var ayud;
+var ayudppu;
+var ayudscx;
+var ayudscy;
 class Slider extends Ball{
   constructor(x, y){
     super(x, y);
@@ -186,9 +189,12 @@ class CompetGraphController extends GraphController {
 
     this.scopex = 0;
     this.scopey = 0;
+    ayudscx=0;
+    ayudscy=0;
     this.scale = 1;
 
     this.ppu = 20;
+    ayudppu=20;
 
     this.zslider = new SlideBar(this.ctx, 800, 800, 100, 20, true);
 
@@ -215,6 +221,7 @@ class CompetGraphController extends GraphController {
 
   getZoom(){
     this.scale = 10*(this.zslider.getValue() + 1/1000); 
+    ayud=10*(this.zslider.getValue() + 1/1000);
   }
 
   attachListeners(){
@@ -272,6 +279,8 @@ class CompetGraphController extends GraphController {
               else{
                 this.scopex -= this.mouse.dx/(this.ppu/this.scale) ;
                 this.scopey += this.mouse.dy/(this.ppu/this.scale)  ;
+                ayudscx=this.mouse.dx/(this.ppu/this.scale);
+                ayudscy=this.mouse.dy/(this.ppu/this.scale);
               }
             }
         }
@@ -665,15 +674,22 @@ function compet() {
     
     console.log("x: ", result[0]);
     console.log("y: ", result[1]);
+    console.log(ayud);
 
     //if(centroid != null) graph.deleteNode(centroid);
-    centroid = new CompetNode(result[0], result[1],"", "", "")
-    centroid.label = "centroide;"
-    centroid.posx = (x - 400)*(this.scale/this.ppu) + this.scopex;
-    centroid.posy = -(y - 400)*(this.scale/this.ppu) + this.scopey;
-    centroid.R = this.ppu/4;
-    graph.addNodeObject(centroid)
-    
+    centroid = new CompetNode(result[0], result[1],"", "", "");
+    centroid.label = "centroide;";
+    var x=parseFloat(result[0]);
+    var y=parseFloat(result[1]);
+    console.log(ayud);
+    console.log(ayudppu);
+    console.log(ayudscx);
+    centroid.posx = x;
+    centroid.posy = y;
+    centroid.R = ayudppu/4;
+    graph.addNodeObject(centroid);
+    console.log(centroid.posx);
+    console.log(centroid.posy);
     
 
     for(let node of graph.nodes){
