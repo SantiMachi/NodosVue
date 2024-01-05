@@ -135,6 +135,7 @@ class AdjacencyMatrix{
         for(var edge of agraph.edges){
           let u = agraph.nodes.indexOf(edge.n0);
           let v = agraph.nodes.indexOf(edge.n1);
+
           if(this.graph.isDirected){
             this.matrix[u][v] = edge;
           }
@@ -287,18 +288,36 @@ export class Graph {
       if(n0 == n1){
         edge.isSelfDirected = true;
       }
+
       this.updateData();
     }
 
     deleteNode(n0) {
       if (this.nodes.includes(n0)) {
+        var i;
+        var c = 0;
+        
         for (const edge of n0.edges) {
-          this.deleteEdge(edge);
+          i = this.edges.indexOf(edge);
+          this.edges.splice(i, 1);
+
+          if(n0 != edge.n0 || n1 != edge.n1){
+            if(n0 == edge.n0){
+              i = edge.n1.edges.indexOf(edge);
+              edge.n1.edges.splice(edge);
+            }
+            else{
+              i = edge.n0.edges.indexOf(edge);
+              edge.n0.edges.splice(edge);
+            }
+          }
         }
+
+        i = this.nodes.indexOf(n0);
+        this.nodes.splice(i, 1);
       }
 
-      const i = this.nodes.indexOf(n0);
-      this.nodes.splice(i, 1);
+      
 
       this.updateData();
     }

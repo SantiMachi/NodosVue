@@ -303,20 +303,7 @@ class CompetGraphController extends GraphController {
                     this.selectedNode = this.graph.nodes[this.graph.n-1];
                     this.pointerState = 1;
                 }
-                else if(snode){
-                    this.selectedNode = snode;
-                    let dummyNode = this.generateNode(this.mouse.x, this.mouse.y);
-                    this.selectedEdge = this.generateEdge(this.selectedNode, dummyNode);
 
-                    if(this.selectedEdge != null){
-                        this.pointerState = 2;
-                    }
-                    else{
-                        this.selectedNode = null;
-                        this.selectedEdge = null;
-                        this.pointerState = 0;
-                    }
-                }
             }
             else if(e.button == 2){
               if(snode){
@@ -383,7 +370,6 @@ class CompetGraphController extends GraphController {
         else if(this.pointerState == 2){
             if(e.button == 0){
                 if(snode){
-                    this.graph.joinNodesWithEdge(this.selectedNode, snode, this.selectedEdge);
                     if(snode == this.selectedNode){
                         this.selectedEdge.isSelfDirected = true;   
                     }
@@ -440,11 +426,11 @@ class CompetGraphController extends GraphController {
 
     this.ctx.strokeStyle = "black";
     this.ctx.lineWidth = 1;
+    this.ctx.setLineDash([5, 2]);
     let pos = xo + (bl-x)*(this.ppu/this.scale);
 
    // console.log((bl-x));
 
-   this.ctx.setLineDash([]);
 
     const interval = 1;
     while(pos > 0){
@@ -627,12 +613,8 @@ loadButton.addEventListener('click', e => {
 
 function compet() {
 
-  for(var edge of graph.edges){
-    graph.deleteEdge(edge);
-  }
-
   console.log("cpete", centroid);
-  if(centroid != null) graph.deleteNode(centroid);
+  graph.deleteNode(centroid);
 
     var points=[];
     graph.nodes.forEach((node, index) => {
@@ -677,18 +659,31 @@ function compet() {
     const y = -(result[1] - controller.scopey)*(controller.ppu/controller.scale) + controller.height/2;
 
     centroid = new CompetNode(x, y,"", "", "")
-    centroid.label = "Centroide;"
+    centroid.label = "Centroide";
     centroid.posx = result[0];
     centroid.posy = result[1];
     centroid.R = controller.ppu/4;   
 
     graph.addNodeObject(centroid);
 
-    for(let node of graph.nodes){
-      graph.joinNodesWithEdge(node, centroid, new CompetEdge(node, centroid, 0, 0));
-    }
+    var c = 0;
 
     
+ 
+    for(let node of graph.nodes){
+      //console.log("jodeerrrr", c++);
+      
+      if (node != centroid){
+        graph.joinNodes(node, centroid);
+        
+      }
 
-
+      /*console.log("--------------------------------------")
+      for(const node of graph.nodes){
+        console.log(node.label)
+        console.log("length", node.edges.length);
+        console.log(node.edges)
+      }
+      console.log("--------------------------s------------")*/
+    }
   }
